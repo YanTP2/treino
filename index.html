@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d0d0f">
+<title>Teste v3</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:#0d0d0f;color:#e8e8ea;font-family:-apple-system,system-ui;padding:18px 14px 40px;max-width:430px;margin:0 auto}
+  h1{font-size:22px;margin-bottom:2px}
+  .sub{color:#8a8a92;font-size:13px;margin-bottom:16px}
+  .card{background:#17171b;border:1px solid #26262c;border-radius:14px;padding:14px;margin-bottom:14px}
+  .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;color:#0d0d0f;background:#f2b84b;border-radius:6px;padding:2px 8px;margin-bottom:8px}
+  .ex{font-size:17px;font-weight:700}
+  .cue{color:#9a9aa2;font-size:13px;margin:4px 0 12px}
+  .serie{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .serie label{width:26px;color:#8a8a92;font-size:13px}
+  input[type=number]{width:82px;background:#0d0d0f;border:1px solid #33333b;border-radius:10px;color:#fff;font-size:16px;padding:10px 8px;text-align:center}
+  .un{color:#6a6a72;font-size:12px}
+  button{background:#2a2a32;color:#fff;border:0;border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600;width:100%;margin-top:6px}
+  button:active{background:#3a3a44}
+  .timer{font-size:34px;font-weight:800;text-align:center;margin:8px 0;font-variant-numeric:tabular-nums}
+  .row{display:flex;gap:8px}
+  .row button{margin-top:0}
+  .knee{display:flex;align-items:center;justify-content:space-between}
+  .knee .val{font-size:28px;font-weight:800;width:48px;text-align:center}
+  .status{color:#5fbf7a;font-size:12px;text-align:center;margin-top:10px;min-height:16px}
+  .warn{color:#e0a04a}
+</style>
+</head>
+<body>
+<h1>Teste v3 🏀</h1>
+<div class="sub">Preenche, roda o timer, troca de app e volta.</div>
+
+<div class="card">
+  <span class="tag">PORTÃO DAS 24h</span>
+  <div class="knee">
+    <div>
+      <div class="ex">Joelho de manhã</div>
+      <div class="cue">0 = zero dor · acima de 3 trava salto</div>
+    </div>
+    <div class="row" style="align-items:center">
+      <button style="width:44px" onclick="knee(-1)">−</button>
+      <div class="val" id="kneeVal">0</div>
+      <button style="width:44px" onclick="knee(1)">+</button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <span class="tag" style="background:#7ab0f5">LOWER LENTO</span>
+  <div class="ex">Búlgaro com halteres</div>
+  <div class="cue">3 × 6-8 cada perna · descida 3s cronometrada</div>
+  <div class="serie"><label>S1</label><input type="number" id="s1kg" placeholder="kg" inputmode="decimal"><span class="un">kg ×</span><input type="number" id="s1r" placeholder="reps" inputmode="numeric"><span class="un">reps</span></div>
+  <div class="serie"><label>S2</label><input type="number" id="s2kg" placeholder="kg" inputmode="decimal"><span class="un">kg ×</span><input type="number" id="s2r" placeholder="reps" inputmode="numeric"><span class="un">reps</span></div>
+  <div class="serie"><label>S3</label><input type="number" id="s3kg" placeholder="kg" inputmode="decimal"><span class="un">kg ×</span><input type="number" id="s3r" placeholder="reps" inputmode="numeric"><span class="un">reps</span></div>
+  <div class="timer" id="clock">2:00</div>
+  <div class="row">
+    <button onclick="startTimer()">▶ Descanso 2:00</button>
+    <button onclick="resetTimer()" style="width:90px">Zerar</button>
+  </div>
+</div>
+
+<button onclick="limpar()" style="background:#1d1d23;color:#c96a6a">Limpar tudo</button>
+<div class="status" id="status"></div>
+
+<script>
+var K='teste_v3', end=0, tick=null, canStore=true;
+function load(){
+  var d={};
+  try{ d=JSON.parse(localStorage.getItem(K)||'{}'); }
+  catch(e){ canStore=false; }
+  ['s1kg','s1r','s2kg','s2r','s3kg','s3r'].forEach(function(id){
+    if(d[id]!==undefined) document.getElementById(id).value=d[id];
+  });
+  document.getElementById('kneeVal').textContent = d.knee||0;
+  if(d.end && d.end>Date.now()){ end=d.end; runTick(); }
+  msg(canStore ? (d.savedAt?('recuperado · salvo às '+d.savedAt):'pronto') : 'preview do Notes: sem memória — abre no Safari', !canStore);
+}
+function save(){
+  if(!canStore){ msg('preview do Notes: sem memória — abre no Safari', true); return; }
+  var d={ knee:+document.getElementById('kneeVal').textContent, end:end,
+    savedAt:new Date().toTimeString().slice(0,5) };
+  ['s1kg','s1r','s2kg','s2r','s3kg','s3r'].forEach(function(id){
+    d[id]=document.getElementById(id).value;
+  });
+  try{ localStorage.setItem(K, JSON.stringify(d)); msg('salvo às '+d.savedAt,false); }
+  catch(e){ canStore=false; msg('sem memória neste modo — abre no Safari', true); }
+}
+function knee(v){
+  var el=document.getElementById('kneeVal');
+  var n=Math.max(0,Math.min(10,(+el.textContent)+v));
+  el.textContent=n; save();
+}
+function startTimer(){ end=Date.now()+120000; save(); runTick(); }
+function resetTimer(){ end=0; clearInterval(tick); document.getElementById('clock').textContent='2:00'; save(); }
+function runTick(){
+  clearInterval(tick);
+  tick=setInterval(function(){
+    var s=Math.max(0,Math.round((end-Date.now())/1000));
+    document.getElementById('clock').textContent=Math.floor(s/60)+':'+('0'+s%60).slice(-2);
+    if(s<=0){ clearInterval(tick); document.getElementById('clock').textContent='FIM ✔';
+      if(navigator.vibrate) navigator.vibrate(300); }
+  },250);
+}
+function limpar(){
+  try{ localStorage.removeItem(K); }catch(e){}
+  location.reload();
+}
+function msg(t,warn){ var s=document.getElementById('status'); s.textContent=t; s.className='status'+(warn?' warn':''); }
+document.addEventListener('input', save);
+window.addEventListener('pageshow', load);
+document.addEventListener('visibilitychange', function(){ if(!document.hidden) load(); });
+load();
+</script>
+</body>
+</html>
