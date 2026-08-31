@@ -908,6 +908,12 @@ var DATA = [
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
+  // watchdog: página que fica VISÍVEL cruzando a meia-noite também vira o dia
+  // (espera qualquer timer terminar pra não engolir uma contagem em andamento)
+  setInterval(function () {
+    if (state.d !== hoje() && !run) location.reload();
+  }, 30000);
+
   // volta do background: recalcula timer por timestamp + reata wake lock + vira o dia se mudou
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) return;

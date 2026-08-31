@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dia A">
+<meta name="theme-color" content="#0d1117">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Sessão Matinal — DIA A</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { background:#0d1117; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:#0d1117; color:#e6edf3; max-width:480px; margin:0 auto;
+    padding:0 14px calc(30px + env(safe-area-inset-bottom));
+    font-size:16px; line-height:1.45;
+  }
+  a { color:#58a6ff; }
+
+  .top {
+    position:sticky; top:0; z-index:10; background:rgba(13,17,23,.93);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    margin:0 -14px; padding:calc(10px + env(safe-area-inset-top)) 14px 0;
+    border-bottom:1px solid #21283367;
+  }
+  .top-row { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .top h1 { font-size:17px; font-weight:800; letter-spacing:-.2px; }
+  .prog-txt { font-size:13px; font-weight:700; color:#8b949e; font-variant-numeric:tabular-nums; }
+  .chips-nav { display:flex; gap:6px; overflow-x:auto; padding:8px 0 10px; scrollbar-width:none; }
+  .chips-nav::-webkit-scrollbar { display:none; }
+  .chip {
+    flex-shrink:0; font-size:13px; font-weight:700; padding:10px 14px; border-radius:999px;
+    background:#161b22; border:1px solid #2b3442; color:#9aa4b2; white-space:nowrap;
+    text-decoration:none;
+  }
+  .chip.on { background:var(--bc); border-color:var(--bc); color:#0d1117; }
+  .pbar { height:3px; background:#1c2330; margin:0 -14px; }
+  .pbar i { display:block; height:100%; width:0%; background:#f97316; transition:width .4s; }
+
+  .sub { font-size:12.5px; color:#8b949e; margin:12px 0 0; text-align:center; }
+
+  details.notas {
+    background:#161b22; border:1px solid #2b3442; border-radius:12px;
+    padding:0 14px; margin:12px 0 4px;
+  }
+  details.notas summary {
+    list-style:none; cursor:pointer; font-size:13.5px; font-weight:700; color:#e6edf3;
+    padding:11px 0; display:flex; align-items:center; gap:6px;
+  }
+  details.notas summary::-webkit-details-marker { display:none; }
+  details.notas summary::before { content:"▸"; color:#f97316; transition:transform .2s; }
+  details.notas[open] summary::before { transform:rotate(90deg); }
+  details.notas p { font-size:13.5px; color:#a8b3c1; line-height:1.55; padding-bottom:10px; }
+  details.notas p strong { color:#e6edf3; }
+
+  section.bloco { --acc:#f97316; scroll-margin-top:calc(100px + env(safe-area-inset-top)); }
+  .bh {
+    display:flex; align-items:center; justify-content:space-between;
+    margin:22px 0 10px; gap:10px; scroll-margin-top:calc(100px + env(safe-area-inset-top));
+  }
+  .bh h2 { font-size:15px; font-weight:800; color:var(--acc); }
+  .bh h2 small { display:block; font-size:12px; font-weight:600; color:#9aa4b2; margin-top:1px; }
+  .bh button {
+    background:none; border:none; color:#58a6ff; font-size:12.5px; font-weight:700;
+    padding:12px 0 12px 12px; cursor:pointer; flex-shrink:0;
+  }
+
+  .ex {
+    background:#161b22; border:1px solid #2b3442; border-radius:14px;
+    padding:14px 14px 12px; margin-bottom:12px; transition:opacity .3s, border-color .3s;
+    scroll-margin-top:calc(100px + env(safe-area-inset-top));
+  }
+  .ex.run { border-color:var(--acc); }
+  .ex.is-done { opacity:.5; }
+  .ex.is-skip { opacity:.45; }
+  .ex.flash { animation:fl .45s 2; }
+  @keyframes fl { 50% { border-color:#22c55e; box-shadow:0 0 0 3px #22c55e33; } }
+
+  .ex-head { display:flex; align-items:flex-start; gap:10px; }
+  .num {
+    width:28px; height:28px; border-radius:50%; background:var(--acc); color:#0d1117;
+    font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; margin-top:1px; cursor:pointer;
+  }
+  .ex-head h3 { flex:1; font-size:17px; font-weight:750; line-height:1.25; letter-spacing:-.2px; }
+  .bpill {
+    display:inline-block; border:1.5px solid; border-radius:999px; padding:1px 8px;
+    font-size:10.5px; font-weight:800; letter-spacing:.4px; margin-left:6px;
+    vertical-align:2px; white-space:nowrap;
+  }
+  .done-btn {
+    width:44px; height:44px; margin:-8px -8px 0 0; flex-shrink:0; border-radius:12px;
+    border:1.5px solid #2b3442; background:transparent;
+    color:#6b7686; font-size:18px; font-weight:800; cursor:pointer;
+  }
+  .is-done .done-btn { background:#22c55e; border-color:#22c55e; color:#0d1117; }
+
+  .media { display:flex; gap:12px; margin:10px 0 11px; align-items:flex-start; }
+  .thumb {
+    width:104px; height:78px; object-fit:cover; border-radius:10px;
+    border:1px solid #2b3442; flex-shrink:0; cursor:pointer; background:#101622;
+  }
+  .media-right { flex:1; min-width:0; }
+  .dose { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:7px; }
+  .dose span {
+    background:#0d1117; border:1px solid #2b3442; border-radius:8px;
+    padding:4px 9px; font-size:14.5px; font-weight:800; font-variant-numeric:tabular-nums;
+  }
+  .dose span.eq { font-weight:600; color:#9aa4b2; font-size:12.5px; align-self:center; border-style:dashed; }
+  .cue { font-size:13.5px; color:#a8b3c1; line-height:1.45; }
+  .cue b { color:#e6edf3; }
+
+  .go {
+    width:100%; min-height:52px; border-radius:12px; border:1.5px solid var(--acc);
+    background:transparent; color:var(--acc); font-size:16.5px; font-weight:800;
+    font-variant-numeric:tabular-nums; cursor:pointer; transition:background .2s;
+  }
+  .go.running { background:var(--acc); color:#0d1117; font-size:24px; }
+  .go.paused { background:#1c2330; border-color:#9aa4b2; color:#e6edf3; }
+  .is-done .go { border-color:#22c55e; color:#22c55e; font-size:15px; }
+  .is-skip .go { border-color:#4a5568; color:#8b949e; cursor:default; }
+
+  details.how { margin-top:10px; border-top:1px solid #21283367; padding-top:2px; }
+  details.how summary {
+    list-style:none; cursor:pointer; font-size:13px; font-weight:700; color:#58a6ff;
+    padding:11px 0; display:flex; align-items:center; gap:6px;
+  }
+  details.how summary::-webkit-details-marker { display:none; }
+  details.how summary::before { content:"▸"; transition:transform .2s; }
+  details.how[open] summary::before { transform:rotate(90deg); }
+  .how-body { padding:2px 0 6px; }
+  .how-body p { font-size:14px; color:#a8b3c1; line-height:1.55; margin-bottom:10px; }
+  .how-body p strong { color:#e6edf3; }
+  .how-body p em { color:#8b949e; }
+  .xref {
+    display:inline-block; background:#2b3442; color:#58a6ff; border-radius:8px;
+    padding:0 7px; font-size:.85em; font-weight:700; text-decoration:none;
+  }
+  .links { background:#0d1117; border:1px solid #21283367; border-radius:8px; padding:8px 12px; }
+  .links .lh { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#58a6ff; margin-bottom:3px; }
+  .links a { display:block; color:#a8b3c1; text-decoration:none; font-size:13.5px; padding:10px 0; }
+  .links a::before { content:"→ "; color:var(--acc); }
+
+  .foot { text-align:center; margin-top:26px; font-size:12.5px; color:#8b949e; line-height:1.7; }
+  .foot .reset {
+    background:#1d1d23; border:1px solid #2b3442; border-radius:10px; color:#c96a6a;
+    font-size:14px; font-weight:700; padding:11px 18px; cursor:pointer; margin-bottom:14px;
+  }
+  .savemsg { font-size:12px; color:#22c55e; min-height:16px; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-row">
+    <h1>Matinal — DIA A</h1>
+    <span class="prog-txt" id="progTxt">0/27</span>
+  </div>
+  <nav class="chips-nav" id="chipsNav"></nav>
+  <div class="pbar"><i id="pbar"></i></div>
+</div>
+
+<p class="sub">DIA A roda em: <strong>ter · qui · dom</strong> — par: DIA B (seg · qua · sex) · ~45 min</p>
+
+<details class="notas">
+  <summary>Notas &amp; regras do dia</summary>
+  <p><strong>Estrutura:</strong> 20 fixos + 7 <em>VARIA A/B</em>. Adutor sem alongamento no A de propósito: ter/qui ele já trabalha CARREGADO no Copenhagen — o cossack mora no B.</p>
+  <p><strong>Copenhagen (<a class="xref" href="#ex9">#9</a>):</strong> só TER e QUI — o app pula ele sozinho nos outros dias (27 exercícios ter/qui · 26 no dom). 3ª dose no SÁB, na sessão completa (48 h entre doses).</p>
+  <p><strong>Alongamento (<a class="xref" href="#ex22">#22</a>–<a class="xref" href="#ex25">#25</a>):</strong> 30 s por posição, cada lado. Posterior (<a class="xref" href="#ex22">#22</a>) e couch (<a class="xref" href="#ex24">#24</a>) são FIXOS DIÁRIOS — encurtamento nomeado pela fisio. NUNCA cortar os dois.</p>
+  <p><strong>Dia corrido:</strong> corta <a class="xref" href="#ex19">#19</a>–<a class="xref" href="#ex20">#20</a> + <a class="xref" href="#ex23">#23</a> e <a class="xref" href="#ex25">#25</a> (fica ~40 min). NUNCA corta PÉ, JOELHO, TRONCO, alongamentos fixos nem fechamento.</p>
+  <p><strong>vC.11:</strong> WGS saiu (deep squat + couch + open book já cobrem) · bloco próprio de ALONGAMENTO no fim — alongar QUENTE rende mais que frio · posterior e couch viraram diários · figura-4 e peitoral entram no A.</p>
+  <p><strong>Progresso:</strong> as marcações valem por hoje — amanhã o app começa zerado sozinho.</p>
+  <p><strong>Errou um toque?</strong> Toca no <strong>número</strong> do exercício pra voltar um passo; o ✓ do canto desmarca o exercício inteiro.</p>
+</details>
+
+<details class="notas">
+  <summary>Resumo do treino</summary>
+  <div id="resumoBody"></div>
+</details>
+
+<div id="app"></div>
+
+<div class="foot">
+  <button class="reset" id="resetBtn">Zerar o dia (tirar marcações)</button>
+  <div class="savemsg" id="saveMsg"></div>
+  <div>Par: DIA B (seg · qua · sex) — em breve no app · Sáb: Sessão Completa (vC.6, com step-down + Copenhagen) — <a href="../">versão no app</a></div>
+  <div>vC.11 · Fontes: Rathleff 2015 · Haroy 2019 · Lauersen 2014 · @garcia_effect_official · @newmindstart · @yourpainmechanic · @lokonga.training · Afonso 2021 · McGill (Big 3) · @squat_university</div>
+</div>
+
+<script>
+// ===================== DADOS =====================
+var BLOCOS = [
+  { id:'b1', cor:'#f97316', nav:'1 · Pé',     titulo:'PÉ / FÁSCIA',                      sub:'~8 min · descalço' },
+  { id:'b2', cor:'#ef4444', nav:'2 · Joelho', titulo:'JOELHO — força leve + isometria',  sub:'~7–9 min' },
+  { id:'b3', cor:'#a855f7', nav:'3 · Quadril',titulo:'QUADRIL / BAND',                   sub:'~5 min' },
+  { id:'b4', cor:'#06b6d4', nav:'4 · Upper',  titulo:'UPPER / PESCOÇO',                  sub:'~5 min' },
+  { id:'b5', cor:'#ff6b9d', nav:'5 · Equil',  titulo:'EQUILÍBRIO',                       sub:'~2 min' },
+  { id:'b6', cor:'#22c55e', nav:'6 · Mob',    titulo:'MOBILIDADE ATIVA',                 sub:'~6 min · em pé → chão' },
+  { id:'b7', cor:'#eab308', nav:'7 · Tronco', titulo:'TRONCO — Big 3 McGill',            sub:'~4 min · segue no chão' },
+  { id:'b8', cor:'#a855f7', nav:'8 · Along',  titulo:'ALONGAMENTO — 30 s por posição',   sub:'~4 min · deitado → ajoelhado → em pé' },
+  { id:'b9', cor:'#f97316', nav:'9 · Fecho',  titulo:'FECHAMENTO EM PÉ — tornozelo + panturrilha', sub:'~4 min' }
+];
+
+var VARIA = ['VARIA A/B', '#a855f7'];
+
+// steps: com "s" = cronometrado; sem "s" = marcar no toque
+var DATA = [
+{ n:1, b:'b1', name:'Rolar bola de tênis na fáscia', img:'img/ex01.jpg',
+  chips:['1 min','cada pé'], eq:'bola de tênis',
+  cue:'Rola <b>devagar</b> do calcanhar à base dos dedos — insiste 10 s nos pontos doloridos.',
+  steps:[{t:'Pé E',s:60},{t:'Pé D',s:60}],
+  desc:'Role do calcanhar até a base dos dedos, devagar. Insista 10 s nos pontos doloridos. De manhã a fáscia tá rígida — começa leve e aumenta a pressão.',
+  links:[{t:'Plantar Fascia Release with a Tennis Ball (3 min)', u:'https://www.youtube.com/watch?v=3gDuNVtDO_M'}]},
+
+{ n:2, b:'b1', name:'Short foot (arco ativo)', img:'img/ex02.jpg',
+  chips:['3× 10 s hold','cada pé'], eq:null,
+  cue:'Dedos <b>retos</b> — encurta o pé <b>“sugando” o chão</b>: só o arco sobe.',
+  steps:[{t:'Pé E · 1/3',s:10},{t:'Pé D · 1/3',s:10},{t:'Pé E · 2/3',s:10},{t:'Pé D · 2/3',s:10},{t:'Pé E · 3/3',s:10},{t:'Pé D · 3/3',s:10}],
+  desc:'Dedos RETOS no chão. Encurte o pé puxando a base dos dedos em direção ao calcanhar só com os músculos do arco — imagine <strong>sugar o chão</strong>. Fortalece o tibial posterior, previne over-pronation.',
+  links:[{t:'Short Foot: Activate Your Intrinsic Foot Muscles (MYo Lab)', u:'https://www.youtube.com/watch?v=L8tDWslYA8Y'}]},
+
+{ n:3, b:'b1', name:'Extensão de dedão na parede (windlass)', img:'img/ex03.jpg',
+  chips:['30 s','cada pé'], eq:'+ 5 pressões ativas no final',
+  cue:'Dedão <b>subindo na parede (~45°)</b>, avança o corpo · no fim, 5 pressões de 3–5 s.',
+  steps:[{t:'Pé E',s:30},{t:'Pé D',s:30}],
+  desc:'Dedão apoiado SUBINDO na parede (~45°), resto da planta no chão. Avança o corpo devagar até sentir alongar a sola. Nos últimos segundos, <strong>pressiona o dedão contra a parede</strong> 5× de 3–5 s. É o mecanismo de windlass: a fáscia tensiona quando o dedão estende — exatamente o que acontece em cada passada e cada salto. Fascite agradece, toe-off do sprint também.',
+  links:[{t:'Plantar Fascia Wall Stretch', u:'https://www.youtube.com/watch?v=ex82U6NvBZM'}]},
+
+{ n:4, b:'b1', name:'Tib raise sentado figura-4', img:'img/ex04.jpg', bad:[VARIA],
+  chips:['3× 20','cada pé'], eq:'band ancorada embaixo',
+  cue:'Figura-4, band no peito do pé — <b>levanta contra a band</b>, desce devagar.',
+  steps:[{t:'Pé E · 1/3'},{t:'Pé D · 1/3'},{t:'Pé E · 2/3'},{t:'Pé D · 2/3'},{t:'Pé E · 3/3'},{t:'Pé D · 3/3'}],
+  desc:'Sentado, tornozelo no joelho oposto (figura-4), band por cima do peito do pé ancorada puxando pra baixo. <strong>LEVANTA o pé contra a band</strong> (dorsiflexão isolada), desce devagar. Tibial anterior sustenta o arco.',
+  links:[{t:'How To: Seated Resistance Band Tibialis Raise', u:'https://www.youtube.com/watch?v=i0LN4UcCHUc'}]},
+
+{ n:5, b:'b1', name:'Calf raise excêntrico', img:'img/ex05.jpg',
+  chips:['2× 12','bilateral'], eq:null,
+  cue:'Sobe 1 s · <b>desce lento 3 s</b> · <b>segura embaixo 3 s</b>.',
+  steps:[{t:'Série 1 · 12 reps'},{t:'Série 2 · 12 reps'}],
+  desc:'Sobe nos 2 pés (1 s), <strong>desce LENTO (3 s), segura embaixo 3 s</strong>. O exercício com melhor evidência pra fascite (Rathleff 2015). Fecha o bloco: força com o pé já acordado.',
+  links:[{t:'Eccentric Calf Raises (Best Exercise)', u:'https://www.youtube.com/watch?v=3d67i0TjKsQ'}]},
+
+{ n:6, b:'b2', name:'Extensão de quadríceps com band', img:'img/ex06.jpg', bad:[VARIA],
+  chips:['3× 15','cada perna'], eq:'band presa atrás · 1 s no topo',
+  cue:'Chuta até esticar, <b>segura 1 s no topo</b> contraindo, volta controlado.',
+  steps:[{t:'Perna E · 1/3'},{t:'Perna D · 1/3'},{t:'Perna E · 2/3'},{t:'Perna D · 2/3'},{t:'Perna E · 3/3'},{t:'Perna D · 3/3'}],
+  desc:'Band no tornozelo, presa atrás. Chute pra frente estendendo o joelho até reto, <strong>segura 1 s contraindo o quadríceps</strong>, volta controlado. Isolamento de quadríceps sem sobrecarregar o joelho.',
+  links:[{t:'Standing Leg Extension with Resistance Bands', u:'https://www.youtube.com/watch?v=TVlDMU1e-24'}]},
+
+{ n:7, b:'b2', name:'Lunge isométrico', img:'img/ex07.jpg',
+  chips:['2× 25–30 s','cada perna'], eq:null,
+  cue:'Joelho a 90°, <b>segura</b> empurrando o chão · últimos 10 s na ponta do pé.',
+  steps:[{t:'Perna E · série 1',s:30},{t:'Perna D · série 1',s:30},{t:'Perna E · série 2',s:30},{t:'Perna D · série 2',s:30}],
+  desc:'Posição de lunge, joelho a 90°. <strong>SEGURA</strong>, empurrando o chão com o pé da frente. Progressão: nos últimos 10 s sobe na ponta do pé.',
+  links:[{t:'Isometric Lunge Hold', u:'https://www.youtube.com/watch?v=XblZ99nCrFs'}]},
+
+{ n:8, b:'b2', name:'Wall sit com bola', img:'img/ex08.jpg',
+  chips:['2× 30 s'], eq:'bola entre os joelhos',
+  cue:'Coxas paralelas, costas na parede — <b>aperta a bola</b> entre os joelhos.',
+  steps:[{t:'Série 1',s:30},{t:'Série 2',s:30}],
+  desc:'Costas na parede, coxas paralelas ao chão, bola entre os joelhos — <strong>APERTAR</strong>. Ativa VMO + adutores. Carga no tendão patelar bilateral, complementa o lunge unilateral.',
+  links:[{t:'Knee Squeeze Wall Sit (VMO strength)', u:'https://www.youtube.com/watch?v=2aCUHj-Rb9k'}]},
+
+{ n:9, b:'b2', name:'Copenhagen plank (short-lever)', img:'img/ex09.jpg', soTerQui:true,
+  bad:[['SÓ TER · QUI', '#ef4444']],
+  chips:['3× 10–15 s','cada lado'], eq:'joelho no banco',
+  cue:'Joelho de cima no banco, <b>levanta o quadril</b> e segura — corpo alinhado.',
+  steps:[{t:'Lado E · 1/3',s:15},{t:'Lado D · 1/3',s:15},{t:'Lado E · 2/3',s:15},{t:'Lado D · 2/3',s:15},{t:'Lado E · 3/3',s:15},{t:'Lado D · 3/3',s:15}],
+  desc:'Deitado de lado, <strong>JOELHO da perna de cima no banco/cadeira</strong>, levanta o quadril e segura, corpo alinhado. Força de adutor — previne lesão de virilha em corte lateral. Progressão: 3× 20 s short-lever, depois long-lever (pé no banco). Já termina no chão: emenda direto na ponte (<a class="xref" href="#ex10">#10</a>).',
+  links:[{t:'Copenhagen Planks — progressions (E3 Rehab)', u:'https://www.youtube.com/watch?v=YRRnnZsRs9U'}]},
+
+{ n:10, b:'b3', name:'Ponte de glúteos unilateral com band', img:'img/ex10.jpg',
+  chips:['2× 8','cada perna'], eq:'band acima dos joelhos',
+  cue:'Sobe o quadril com <b>uma perna</b>, aperta o glúteo no topo, sem arquear.',
+  steps:[{t:'Perna E · série 1'},{t:'Perna D · série 1'},{t:'Perna E · série 2'},{t:'Perna D · série 2'}],
+  desc:'Deitado, band acima dos joelhos, levanta o quadril com UMA perna. Aperta o glúteo no topo, sem arquear a lombar. Você já está no chão vindo do Copenhagen — sem levantar à toa.',
+  links:[{t:'Single Leg Glute Bridge — how to & common mistakes', u:'https://www.youtube.com/watch?v=b1zTCyGJXCQ'}]},
+
+{ n:11, b:'b3', name:'Monster walk', img:'img/ex11.jpg',
+  chips:['2× 8 passos','cada lado'], eq:'band nos tornozelos',
+  cue:'Mini-squat, passos laterais — joelhos <b>empurram pra fora</b> contra a band.',
+  steps:[{t:'Série 1'},{t:'Série 2'}],
+  desc:'Band nos tornozelos, mini-squat, passos laterais com tensão constante. Joelhos empurram PRA FORA contra a band. Glúteo médio — estabilizador principal de quadril e joelho.',
+  links:[{t:'Monster Walk Exercise Demonstration', u:'https://www.youtube.com/watch?v=snbNxUIUQPc'}]},
+
+{ n:12, b:'b3', name:'CAR de quadril com band', img:'img/ex12.jpg',
+  chips:['3–5 círculos','cada direção · perna'], eq:null,
+  cue:'Círculo completo e <b>lento (5 s)</b> — tronco parado, só o quadril se move.',
+  steps:[{t:'Perna E · horário'},{t:'Perna E · anti-horário'},{t:'Perna D · horário'},{t:'Perna D · anti-horário'}],
+  desc:'De pé, círculo COMPLETO com a perna: joelho sobe na frente, abre pro lado, leva pra trás, volta. <strong>LENTO (5 s por círculo)</strong>, tronco parado. Cápsula inteira do quadril em amplitude máxima.',
+  links:[{t:'Hip CAR (Controlled Articular Rotation)', u:'https://www.youtube.com/watch?v=NNMW_h-fzLg'}]},
+
+{ n:13, b:'b4', name:'Band overhead press (explosão)', img:'img/ex13.jpg',
+  chips:['2× 12','explosivo'], eq:'band pisada nos pés',
+  cue:'Empurra pra cima <b>explosivo</b>, desce controlado.',
+  steps:[{t:'Série 1 · 12 reps'},{t:'Série 2 · 12 reps'}],
+  desc:'Band pisada no chão, pontas nas mãos na altura dos ombros. <strong>Empurra pra cima com intenção EXPLOSIVA</strong>, desce controlado.',
+  links:[{t:'Resistance Band Overhead Press', u:'https://www.youtube.com/watch?v=5gyCR4N735g'}]},
+
+{ n:14, b:'b4', name:'Band pull-apart', img:'img/ex14.jpg',
+  chips:['2× 12'], eq:'band à frente do peito',
+  cue:'Braços retos, <b>abre a band até tocar o peito</b>.',
+  steps:[{t:'Série 1 · 12 reps'},{t:'Série 2 · 12 reps'}],
+  desc:'Band na frente do peito, braços retos, abre pros lados até tocar o peito. Trapézio + romboides, postura.',
+  links:[{t:'Band Pull Apart', u:'https://www.youtube.com/watch?v=_nwzN8RhIWY'}]},
+
+{ n:15, b:'b4', name:'Pescoço — circuito completo', img:'img/ex15.jpg',
+  chips:['~3 min','11 passos'], eq:null,
+  cue:'Mão puxa <b>leve</b>, ombro não sobe — o timer guia os 11 passos.',
+  steps:[
+    {t:'Flexão lateral · E',s:20},{t:'Flexão lateral · D',s:20},
+    {t:'Rotação · E',s:20},{t:'Rotação · D',s:20},
+    {t:'Flexão (queixo ao peito)',s:20},{t:'Extensão (olhar pro teto)',s:15},
+    {t:'Chin tuck · 10× 3 s',s:40},
+    {t:'Isometria · frente',s:10},{t:'Isometria · lado E',s:10},{t:'Isometria · lado D',s:10},{t:'Isometria · trás',s:10}],
+  desc:'<strong>Flexão lateral</strong> (orelha ao ombro): 20 s cada lado. <strong>Rotação</strong> (olhar pro lado): 20 s cada lado. <strong>Flexão</strong> (queixo ao peito): 20 s. <strong>Extensão</strong> (olhar pro teto): 15 s. <strong>Chin tuck</strong> (queixo duplo): 10× segurando 3 s. <strong>Isometria</strong>: mão empurra a cabeça (frente, lados, trás) sem mover, 10 s cada.',
+  links:[{t:'Isometric Neck Strengthening Exercises (Dr. Abelson)', u:'https://www.youtube.com/watch?v=0kWF968uFXY'}]},
+
+{ n:16, b:'b5', name:'Single-leg balance no foam roller', img:'img/ex16.jpg', bad:[VARIA],
+  chips:['30 s','cada pé'], eq:'foam roller',
+  cue:'Em pé no rolo, <b>leve flexão de joelho</b>, olhar fixo à frente.',
+  steps:[{t:'Pé E',s:30},{t:'Pé D',s:30}],
+  desc:'Pé em cima do foam roller, outro pé suspenso, leve flexão de joelho, olhar fixo à frente. Progressão: olhos abertos, depois fechados, depois movendo os braços.',
+  links:[{t:'Single Leg Balance on Half Foam Roller', u:'https://www.youtube.com/watch?v=TVw2XO2OlOw'}]},
+
+{ n:17, b:'b6', name:'Band dislocates (pass-through)', img:'img/ex17.jpg', bad:[VARIA],
+  chips:['1–2× 5–10','lento'], eq:'band ou bastão · pegada larga',
+  cue:'Pegada <b>bem larga</b>, passagem lenta (~5 s) — <b>sem dor nem estalo</b>.',
+  steps:[{t:'Série 1 · 5–10 reps'},{t:'Série 2 (opcional)'}],
+  desc:'Band ou bastão na frente do corpo, <strong>pegada BEM LARGA</strong>. Leva os braços esticados por cima da cabeça até atrás do quadril e volta, ~5 s cada passagem, <strong>sem dor nem estalo</strong>. Flexão + extensão global de ombro. Só estreita a pegada depois de passar limpo, ao longo de semanas — nunca de uma vez. Sem carga. Evita se o ombro for instável/frouxo.',
+  links:[{t:'How To Do Band Dislocates / Pass-Throughs', u:'https://www.youtube.com/watch?v=riVxa9By-pM'}]},
+
+{ n:18, b:'b6', name:'Deep squat hold', img:'img/ex18.jpg',
+  chips:['45 s'], eq:'band no joelho opcional',
+  cue:'Agacha fundo, <b>calcanhares no chão</b> — segura.',
+  steps:[{t:'Deep squat',s:45}],
+  desc:'Agachamento profundo sem carga, calcanhares no chão. Mobiliza tornozelo, quadril e coluna de uma vez.',
+  links:[{t:'Deep Squat for Ankle Mobility', u:'https://www.youtube.com/watch?v=DqVuqLmnUS8'}]},
+
+{ n:19, b:'b6', name:'90/90 com lift-off', img:'img/ex19.jpg', bad:[VARIA],
+  chips:['2–3× 5–8','cada lado · segura 2–5 s'], eq:null,
+  cue:'Senta <b>alto</b>, levanta o joelho de trás do chão e segura 2–5 s.',
+  steps:[{t:'Lado E · 1/3'},{t:'Lado D · 1/3'},{t:'Lado E · 2/3'},{t:'Lado D · 2/3'},{t:'Lado E · 3/3 (opcional)'},{t:'Lado D · 3/3 (opcional)'}],
+  desc:'Sentado, perna da frente a 90° (girada pra fora), a de trás a 90° (girada pra dentro). Senta <strong>alto</strong>, sem arredondar a lombar. <strong>Levanta ativamente o joelho de trás do chão</strong> e segura 2–5 s. Força no fim de curso da rotação de quadril — é o que faz a amplitude ficar. Rotação interna/externa, o gap mais comum em quem é alto.',
+  links:[{t:'90-90 Rotations', u:'https://www.youtube.com/watch?v=Idty0yMS1Dk'}]},
+
+{ n:20, b:'b6', name:'Open book (T-spine)', img:'img/ex20.jpg',
+  chips:['6–8','cada lado'], eq:null,
+  cue:'Abre o braço de cima girando <b>só o tronco</b> — quadril parado.',
+  steps:[{t:'Lado E · 6–8 reps'},{t:'Lado D · 6–8 reps'}],
+  desc:'Deitado de lado, joelhos dobrados a 90°, <strong>abre o braço de cima girando só o tronco</strong>, quadril parado. Rotação torácica — trabalha em dupla com o pescoço (<a class="xref" href="#ex15">#15</a>).',
+  links:[{t:'Thoracic Rotation Open Book', u:'https://www.youtube.com/watch?v=peeW19ofFUg'}]},
+
+{ n:21, b:'b7', name:'Tronco — Big 3 (McGill)', img:'img/ex21.jpg',
+  chips:['~4 min','Big 3'], eq:'holds curtos e repetidos — endurance, não força',
+  cue:'Curl-up · prancha lateral · bird dog — holds curtos, <b>lombar neutra</b>.',
+  steps:[
+    {t:'Curl-up · 4–5 reps de 8 s'},
+    {t:'Prancha lateral E · 1/3',s:15},{t:'Prancha lateral D · 1/3',s:15},
+    {t:'Prancha lateral E · 2/3',s:15},{t:'Prancha lateral D · 2/3',s:15},
+    {t:'Prancha lateral E · 3/3',s:15},{t:'Prancha lateral D · 3/3',s:15},
+    {t:'Bird dog · 4–5 cada lado'}],
+  desc:'<strong>Curl-up modificado</strong>: deitado, mãos SOB a lombar (preserva a curva natural), um joelho dobrado. Levanta SÓ cabeça e ombros um dedo do chão, segura 8 s respirando normal, desce. 4–5 reps. NÃO é abdominal — a lombar não flexiona em momento nenhum.<br><strong>Prancha lateral</strong>: antebraço no chão, apoio nos joelhos (progressão: pés), quadril alinhado com o corpo — 3× 10–15 s cada lado.<br><strong>Bird dog</strong>: quatro apoios, estica braço e perna OPOSTOS, lombar neutra (imagina um copo d\'água nas costas), segura 8 s — 4–5 cada lado.<br>Padrão conservador com melhor evidência pra lombar. Se algum doer: corta na hora.',
+  links:[{t:'The McGill Big 3 — 3 best exercises for lower back', u:'https://www.youtube.com/watch?v=FmZwkgg7pqU'}]},
+
+{ n:22, b:'b8', name:'Posterior unilateral com band', img:'img/ex22.jpg',
+  chips:['30 s','cada perna'], eq:'FIXO diário — encurtamento nomeado pela fisio',
+  cue:'Band no pé, <b>joelho esticado</b>, lombar trancada no chão.',
+  steps:[{t:'Perna E',s:30},{t:'Perna D',s:30}],
+  desc:'Deitado de costas, perna estendida pra cima com a band no peito do pé. Puxa em direção ao peito com o joelho esticado, <strong>lombar trancada no chão</strong>.',
+  links:[{t:'Hamstring Stretch with a Strap, Supine (Doctor Jo)', u:'https://www.youtube.com/watch?v=Il1L75v6gq0'}]},
+
+{ n:23, b:'b8', name:'Figura-4 deitado (glúteo/rotadores)', img:'img/ex23.jpg', bad:[VARIA],
+  chips:['30 s','cada lado'], eq:null,
+  cue:'Tornozelo sobre o joelho (4), <b>puxa a coxa pro peito</b> — lombar no chão.',
+  steps:[{t:'Lado E',s:30},{t:'Lado D',s:30}],
+  desc:'Deitado, tornozelo cruza SOBRE o joelho da outra perna, formando um 4. Mãos atrás da coxa de baixo e puxa ela em direção ao peito até sentir no glúteo/lateral do quadril da perna cruzada. Lombar e cabeça ficam NO CHÃO o tempo todo — é a versão do pigeon amigável pra lombar. Cotovelo pode empurrar o joelho cruzado pra fora pra aprofundar.',
+  links:[{t:'Supine Figure 4 Stretch', u:'https://www.youtube.com/watch?v=eGqbnFII3J8'}]},
+
+{ n:24, b:'b8', name:'Couch stretch ativo', img:'img/ex24.jpg',
+  chips:['30 s','cada lado'], eq:'FIXO diário',
+  cue:'<b>Roda a pelve pra trás e aperta o glúteo</b> — relaxa o hip flexor.',
+  steps:[{t:'Lado E',s:30},{t:'Lado D',s:30}],
+  desc:'Pé de trás apoiado atrás, joelho no chão (acolchoado). <strong>Roda a pelve pra trás e aperta o glúteo</strong> do lado que alonga — relaxa o hip flexor. No fim, empurra o joelho contra o chão 5 s e estende mais o quadril. Alonga hip flexor + reto femoral. Se a rótula incomodar no chão, faz em pé com a perna só estendida.',
+  links:[{t:'Couch Stretch With Glute Squeeze', u:'https://www.youtube.com/watch?v=hVux5YXW1vE'}]},
+
+{ n:25, b:'b8', name:'Peitoral na parede', img:'img/ex25.jpg', bad:[VARIA],
+  chips:['30 s','cada lado'], eq:null,
+  cue:'Antebraço na parede a 90°, passo à frente e <b>gira o peito pro lado oposto</b>.',
+  steps:[{t:'Lado E',s:30},{t:'Lado D',s:30}],
+  desc:'Antebraço na parede, cotovelo na altura do ombro (90°). Passo à frente com a perna do MESMO lado e gira o peito pro lado oposto até alongar o peitoral. 4–7 h de código encurtam essa cadeia em silêncio — este hold é o contrapeso direto. Se pinicar na frente do ombro, baixa o cotovelo uns graus.',
+  links:[{t:'Wall Pec Stretch — chest & shoulder mobility', u:'https://www.youtube.com/watch?v=7yJ1357Hj5M'}]},
+
+{ n:26, b:'b9', name:'Knee-to-wall (dorsiflexão em carga)', img:'img/ex26.jpg',
+  chips:['2× 8–10','cada pé'], eq:'anota a distância máxima',
+  cue:'Calcanhar <b>pregado no chão</b>, joelho toca a parede — anota a distância.',
+  steps:[{t:'Pé E · série 1'},{t:'Pé D · série 1'},{t:'Pé E · série 2'},{t:'Pé D · série 2'}],
+  desc:'Pé a ~10 cm da parede, <strong>calcanhar PREGADO no chão</strong>. Joelho avança até tocar a parede e volta, controlado. Tocou fácil? Afasta o pé 1–2 cm. A distância máxima com o calcanhar no chão é tua MÉTRICA de tornozelo — anota e mostra pra fisio. Dorsiflexão limitada é fator de risco direto do tendão patelar (tornozelo duro = joelho absorve mais aterrissagem). Substitui o exercício de band+bastão que saiu por falta de equipamento — esse não precisa de nada.',
+  links:[{t:'Weight Bearing Lunge Test / Wall Test (ankle)', u:'https://www.youtube.com/watch?v=U7woPNLUT3Q'}]},
+
+{ n:27, b:'b9', name:'Panturrilha na parede (reto + flexionado)', img:'img/ex27.jpg',
+  chips:['20 s','2 variações · cada pé'], eq:null,
+  cue:'Joelho <b>reto</b> = gastrocnêmio · <b>flexionado</b> = sóleo + fáscia.',
+  steps:[{t:'Joelho reto · Pé E',s:20},{t:'Joelho reto · Pé D',s:20},{t:'Flexionado · Pé E',s:20},{t:'Flexionado · Pé D',s:20}],
+  desc:'Contra a parede: joelho reto = gastrocnêmio. Joelho flexionado = <strong>sóleo + fáscia</strong>. Faz as duas variações. Agora é FIXO: panturrilha todo dia é a melhor amiga da fascite. Termina em pé — pronto pro dia.',
+  links:[{t:'Wall Calf Stretch — soleus & gastrocnemius', u:'https://www.youtube.com/watch?v=mtVqe4CR_60'}]}
+];
+
+// ===================== RENDER =====================
+(function () {
+  var KEY = 'matinal_dia_a_v1';
+  var app = document.getElementById('app');
+  var byId = {};
+  DATA.forEach(function (e) { byId['ex' + e.n] = e; });
+
+  // Copenhagen só ter/qui: fora desses dias o card fica pulado e sai do total.
+  // O dia é CONGELADO no load: wiring, progress e advance ficam sempre coerentes
+  // entre si; a virada de dia é responsabilidade exclusiva do reload (watchdog abaixo).
+  var DIA_SEMANA = new Date().getDay();
+  var DIA_CARREGADO;
+  function ativo(e) {
+    if (!e.soTerQui) return true;
+    return DIA_SEMANA === 2 || DIA_SEMANA === 4;
+  }
+
+  var nav = document.getElementById('chipsNav');
+  BLOCOS.forEach(function (b) {
+    var a = document.createElement('a');
+    a.className = 'chip'; a.id = 'chip-' + b.id; a.href = '#' + b.id;
+    a.style.setProperty('--bc', b.cor);
+    a.dataset.base = b.nav;
+    a.textContent = b.nav;
+    nav.appendChild(a);
+  });
+
+  BLOCOS.forEach(function (b) {
+    var sec = document.createElement('section');
+    sec.className = 'bloco'; sec.id = b.id;
+    sec.style.setProperty('--acc', b.cor);
+    var head = document.createElement('div');
+    head.className = 'bh';
+    head.innerHTML = '<h2>' + b.titulo + '<small>' + b.sub + '</small></h2><button type="button" data-exp="' + b.id + '">abrir tudo</button>';
+    sec.appendChild(head);
+    DATA.filter(function (e) { return e.b === b.id; }).forEach(function (e) {
+      var art = document.createElement('article');
+      art.className = 'ex'; art.id = 'ex' + e.n;
+      var badges = (e.bad || []).map(function (bd) {
+        return '<span class="bpill" style="color:' + bd[1] + ';border-color:' + bd[1] + '">' + bd[0] + '</span>';
+      }).join('');
+      var chips = e.chips.map(function (c) { return '<span>' + c + '</span>'; }).join('');
+      if (e.eq) chips += '<span class="eq">' + e.eq + '</span>';
+      var linksHtml = '';
+      if (e.links.length) {
+        linksHtml = '<div class="links"><div class="lh">Vídeos & referências</div>' +
+          e.links.map(function (l) {
+            return l.x
+              ? '<a href="' + l.u + '">' + l.t + '</a>'
+              : '<a href="' + l.u + '" target="_blank" rel="noopener">' + l.t + '</a>';
+          }).join('') + '</div>';
+      }
+      art.innerHTML =
+        '<div class="ex-head"><span class="num">' + e.n + '</span><h3>' + e.name + badges + '</h3>' +
+        '<button class="done-btn" type="button" aria-label="marcar feito" aria-pressed="false">✓</button></div>' +
+        '<div class="media"><img class="thumb" src="' + e.img + '" alt="' + e.name.replace(/"/g, '&quot;') + '" loading="lazy" width="104" height="78">' +
+        '<div class="media-right"><div class="dose">' + chips + '</div><p class="cue">' + e.cue + '</p></div></div>' +
+        '<button class="go" type="button"></button>' +
+        '<details class="how"><summary>Como fazer · vídeos</summary><div class="how-body">' +
+        '<p>' + e.desc + '</p>' + linksHtml + '</div></details>';
+      sec.appendChild(art);
+    });
+    app.appendChild(sec);
+  });
+
+  var rb = document.getElementById('resumoBody');
+  BLOCOS.forEach(function (b) {
+    var exs = DATA.filter(function (e) { return e.b === b.id; });
+    var p = document.createElement('p');
+    p.innerHTML = '<strong style="color:' + b.cor + '">' + b.titulo + ' (' + b.sub.split(' ·')[0] + ')</strong><br>' +
+      exs.map(function (e) { return '<a href="#ex' + e.n + '" style="color:#a8b3c1;text-decoration:none">' + e.name.split(' (')[0] + '</a>'; }).join(' · ');
+    rb.appendChild(p);
+  });
+
+  // ===================== ESTADO =====================
+  function hoje() {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+  DIA_CARREGADO = hoje();
+  var state = { d: hoje(), ex: {} };
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (parsed && parsed.d === hoje() && parsed.ex) state = parsed;
+    }
+  } catch (e) {}
+
+  function st(id) {
+    if (!state.ex[id]) state.ex[id] = { i: 0, done: false };
+    return state.ex[id];
+  }
+  // NÃO carimbar state.d no save: o "d" só nasce na criação do estado e no reset,
+  // senão marcações de ontem sobrevivem à virada da meia-noite.
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(state));
+      var d = new Date();
+      msg('salvo às ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2));
+    } catch (e) { msg(''); }
+  }
+  function msg(t) {
+    var el = document.getElementById('saveMsg');
+    el.textContent = t;
+    clearTimeout(msg._t);
+    if (t) msg._t = setTimeout(function () { el.textContent = ''; }, 2500);
+  }
+
+  // ===================== SOM / WAKE LOCK =====================
+  function ensureAudio() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      beep.ctx = beep.ctx || new AC();
+      if (beep.ctx.state === 'suspended') beep.ctx.resume();
+      if (!ensureAudio.unmuted) {
+        ensureAudio.unmuted = true;
+        var un = document.createElement('audio');
+        un.setAttribute('playsinline', '');
+        un.src = 'data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YZABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+        var p = un.play();
+        if (p && p.catch) p.catch(function () {});
+      }
+    } catch (e) {}
+  }
+  function beep(times, freq, gain) {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      beep.ctx = beep.ctx || new AC();
+      var t0 = beep.ctx.currentTime;
+      for (var k = 0; k < times; k++) {
+        var o = beep.ctx.createOscillator(), g = beep.ctx.createGain();
+        o.frequency.value = freq || 880; o.connect(g); g.connect(beep.ctx.destination);
+        g.gain.setValueAtTime(gain || 0.15, t0 + k * 0.25);
+        g.gain.exponentialRampToValueAtTime(0.001, t0 + k * 0.25 + 0.18);
+        o.start(t0 + k * 0.25); o.stop(t0 + k * 0.25 + 0.2);
+      }
+    } catch (e) {}
+    if (navigator.vibrate) { try { navigator.vibrate(times === 1 ? 150 : [150, 100, 150]); } catch (e) {} }
+  }
+  function tick() { beep(1, 660, 0.07); }
+
+  var wl = null, wlWanted = false, wlPending = false;
+  function wakeOn() {
+    if (!('wakeLock' in navigator)) return;
+    wlWanted = true;
+    if (wl || wlPending) return;
+    wlPending = true;
+    navigator.wakeLock.request('screen').then(function (l) {
+      wlPending = false;
+      if (!wlWanted) { try { l.release(); } catch (e) {} return; }
+      wl = l;
+    }).catch(function () { wlPending = false; });
+  }
+  function wakeOff() {
+    wlWanted = false;
+    if (wl) { try { wl.release(); } catch (e) {} wl = null; }
+  }
+
+  // ===================== MOTOR =====================
+  var run = null;
+  function fmt(s) { return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+  function card(id) { return document.getElementById(id); }
+  function goBtn(id) { return card(id).querySelector('.go'); }
+  function ex(id) { return byId[id]; }
+
+  function stopRun() {
+    if (run) {
+      var old = run.id;
+      clearInterval(run.tick);
+      card(old).classList.remove('run');
+      run = null;
+      wakeOff();
+      renderGo(old);
+    }
+  }
+
+  function renderGo(id) {
+    var e = ex(id), s = st(id), b = goBtn(id);
+    b.classList.remove('running', 'paused');
+    if (!ativo(e)) { b.textContent = '— hoje não · só ter e qui'; return; }
+    if (s.done) { b.textContent = '✓ feito hoje — refazer'; return; }
+    var step = e.steps[Math.min(s.i, e.steps.length - 1)];
+    if (run && run.id === id) {
+      var rem = run.remaining != null ? run.remaining : Math.max(0, Math.ceil((run.end - Date.now()) / 1000));
+      b.textContent = (run.remaining != null ? '▶ retomar · ' : '⏸ ') + fmt(rem) + ' · ' + step.t;
+      b.classList.toggle('running', run.remaining == null);
+      b.classList.toggle('paused', run.remaining != null);
+      return;
+    }
+    if (step.s) {
+      b.textContent = '▶ ' + step.t + ' — ' + fmt(step.s);
+    } else {
+      b.textContent = '✓ marcar · ' + step.t;
+    }
+  }
+
+  function progress() {
+    var ativos = DATA.filter(ativo);
+    var d = 0;
+    var blocoDone = {};
+    BLOCOS.forEach(function (b) { blocoDone[b.id] = { done: 0, total: 0 }; });
+    ativos.forEach(function (e) {
+      blocoDone[e.b].total++;
+      if (st('ex' + e.n).done) { d++; blocoDone[e.b].done++; }
+    });
+    document.getElementById('progTxt').textContent = d + '/' + ativos.length;
+    document.getElementById('pbar').style.width = (d / ativos.length * 100) + '%';
+    BLOCOS.forEach(function (b) {
+      var chip = document.getElementById('chip-' + b.id);
+      var base = chip.dataset.base;
+      var bd = blocoDone[b.id];
+      chip.textContent = bd.done >= bd.total ? base + ' ✓' : (bd.done > 0 ? base + ' ' + bd.done + '/' + bd.total : base);
+    });
+  }
+
+  function setDone(id, done) {
+    var s = st(id);
+    s.done = done;
+    if (!done) s.i = 0;
+    card(id).classList.toggle('is-done', done);
+    var db = card(id).querySelector('.done-btn');
+    db.setAttribute('aria-pressed', done ? 'true' : 'false');
+    db.setAttribute('aria-label', done ? 'feito hoje — desmarcar' : 'marcar feito');
+    renderGo(id);
+    progress();
+    save();
+  }
+
+  // próximo não-feito a partir do card atual (com volta ao início); pula os inativos do dia
+  function advance(fromId) {
+    var start = 0;
+    if (fromId) {
+      for (var j = 0; j < DATA.length; j++) {
+        if ('ex' + DATA[j].n === fromId) { start = j + 1; break; }
+      }
+    }
+    var next = null;
+    for (var k = 0; k < DATA.length; k++) {
+      var e = DATA[(start + k) % DATA.length];
+      var id = 'ex' + e.n;
+      if (ativo(e) && !st(id).done) { next = id; break; }
+    }
+    if (next) setTimeout(function () {
+      card(next).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 700);
+  }
+
+  function completeStep(id, isTimer) {
+    var e = ex(id), s = st(id);
+    s.i++;
+    var last = s.i >= e.steps.length;
+    if (isTimer) beep(last ? 2 : 1); else tick();
+    var el = card(id);
+    el.classList.add('flash');
+    setTimeout(function () { el.classList.remove('flash'); }, 1000);
+    if (last) { setDone(id, true); advance(id); }
+    else { renderGo(id); save(); }
+  }
+
+  function startTimer(id, secs) {
+    stopRun();
+    run = { id: id, end: Date.now() + secs * 1000, remaining: null };
+    card(id).classList.add('run');
+    wakeOn();
+    run.tick = setInterval(function () {
+      if (!run || run.remaining != null) return;
+      if (Date.now() >= run.end) { stopRun(); completeStep(id, true); return; }
+      renderGo(id);
+    }, 250);
+    renderGo(id);
+  }
+
+  function onGo(id) {
+    ensureAudio();
+    var e = ex(id), s = st(id);
+    if (!ativo(e)) return;
+    if (s.done) { setDone(id, false); return; }
+    if (run && run.id === id) {
+      if (run.remaining == null) {
+        run.remaining = Math.max(1, Math.ceil((run.end - Date.now()) / 1000));
+        wakeOff();
+      } else {
+        run.end = Date.now() + run.remaining * 1000;
+        run.remaining = null;
+        wakeOn();
+      }
+      renderGo(id);
+      return;
+    }
+    var step = e.steps[Math.min(s.i, e.steps.length - 1)];
+    if (step.s) startTimer(id, step.s);
+    else completeStep(id, false);
+  }
+
+  // ===================== LIGAR TUDO =====================
+  DATA.forEach(function (e) {
+    var id = 'ex' + e.n;
+    if (!ativo(e)) {
+      card(id).classList.add('is-skip');
+      card(id).querySelector('.done-btn').disabled = true;
+      goBtn(id).disabled = true;
+    }
+    goBtn(id).addEventListener('click', function () { onGo(id); });
+    card(id).querySelector('.done-btn').addEventListener('click', function () {
+      if (!ativo(e)) return;
+      ensureAudio();
+      if (run && run.id === id) stopRun();
+      setDone(id, !st(id).done);
+    });
+    var thumb = card(id).querySelector('.thumb');
+    var det = card(id).querySelector('details.how');
+    thumb.addEventListener('click', function () { det.open = !det.open; });
+    det.querySelectorAll('.how-body a').forEach(function (a) {
+      a.addEventListener('click', function () {
+        setTimeout(function () { det.open = false; }, 250);
+      });
+    });
+    card(id).querySelector('.num').addEventListener('click', function () {
+      var s = st(id);
+      if (!ativo(e) || s.done || s.i <= 0) return;
+      if (run && run.id === id) stopRun();
+      s.i--;
+      tick();
+      renderGo(id);
+      save();
+    });
+    card(id).classList.toggle('is-done', st(id).done);
+    renderGo(id);
+  });
+  progress();
+
+  document.querySelectorAll('[data-exp]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var sec = document.getElementById(btn.dataset.exp);
+      var dets = sec.querySelectorAll('details.how');
+      var open = btn.textContent === 'abrir tudo';
+      dets.forEach(function (d) { d.open = open; });
+      btn.textContent = open ? 'fechar tudo' : 'abrir tudo';
+    });
+  });
+
+  var started = DATA.some(function (e) { var s = st('ex' + e.n); return s.done || s.i > 0; });
+  var allDone = DATA.filter(ativo).every(function (e) { return st('ex' + e.n).done; });
+  if (started && !allDone) advance();
+
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    if (!confirm('Zerar as marcações de hoje?')) return;
+    // se o calendário virou desde o load, o wiring (dia congelado) está velho: recarrega
+    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
+    stopRun();
+    state = { d: hoje(), ex: {} };
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+    DATA.forEach(function (e) {
+      var id = 'ex' + e.n;
+      card(id).classList.remove('is-done');
+      renderGo(id);
+    });
+    progress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) return;
+    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
+    if (run && run.remaining == null) {
+      if (Date.now() >= run.end) { var rid = run.id; stopRun(); completeStep(rid, true); }
+      else { renderGo(run.id); wakeOn(); }
+    }
+  });
+
+  // watchdog: página que fica VISÍVEL cruzando a meia-noite também recarrega
+  // (espera qualquer timer terminar pra não engolir uma contagem em andamento)
+  setInterval(function () {
+    if (hoje() !== DIA_CARREGADO && !run) location.reload();
+  }, 30000);
+
+  var secs = BLOCOS.map(function (b) { return document.getElementById(b.id); });
+  var topEl = document.querySelector('.top');
+  function spy() {
+    var lim = topEl.offsetHeight + 24;
+    var cur = null;
+    for (var i = 0; i < secs.length; i++) {
+      if (secs[i].getBoundingClientRect().top <= lim) cur = BLOCOS[i].id;
+    }
+    BLOCOS.forEach(function (b) {
+      var chip = document.getElementById('chip-' + b.id);
+      var on = b.id === cur;
+      chip.classList.toggle('on', on);
+      if (on) {
+        var L = chip.offsetLeft - 10, R = chip.offsetLeft + chip.offsetWidth + 10;
+        if (L < nav.scrollLeft) nav.scrollLeft = L;
+        else if (R > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = R - nav.clientWidth;
+      }
+    });
+  }
+  var spyT = null;
+  window.addEventListener('scroll', function () {
+    if (spyT) return;
+    spyT = setTimeout(function () { spyT = null; spy(); }, 120);
+  }, { passive: true });
+  spy();
+})();
+</script>
+</body>
+</html>
