@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180">
+  <rect width="240" height="180" fill="#101622"/>
+  <!-- cabeça de perfil -->
+  <circle cx="120" cy="82" r="34" fill="#26303f"/>
+  <path d="M120 116 q-4 14 -14 20 h44 q-14 -6 -18 -20 z" fill="#26303f"/>
+  <!-- ombros -->
+  <path d="M52 168 q28 -34 68 -34 q40 0 68 34 z" fill="#1c2330"/>
+  <!-- seta flexão lateral (arco por cima) -->
+  <path d="M74 58 a52 52 0 0 1 62 -24" fill="none" stroke="#06b6d4" stroke-width="6" stroke-linecap="round"/>
+  <path d="M136 22 l14 8 -16 10 z" fill="#06b6d4"/>
+  <!-- seta rotação (arco lateral direito) -->
+  <path d="M170 96 a56 56 0 0 0 -6 -44" fill="none" stroke="#06b6d4" stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+  <path d="M160 44 l3 16 12 -10 z" fill="#06b6d4" opacity="0.55"/>
+  <!-- seta flexão (baixo, esquerda) -->
+  <path d="M70 96 a56 56 0 0 1 6 -44" fill="none" stroke="#06b6d4" stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+  <path d="M80 44 l-3 16 -12 -10 z" fill="#06b6d4" opacity="0.55"/>
+  <!-- mão da isometria (barra na testa) -->
+  <rect x="98" y="70" width="44" height="7" rx="3.5" fill="#f97316" opacity="0.9" transform="rotate(-8 120 74)"/>
+</svg>
