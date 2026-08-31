@@ -743,7 +743,7 @@ var DATA = [
     if (step.s) {
       b.textContent = '▶ ' + step.t + ' — ' + fmt(step.s);
     } else {
-      b.textContent = '☐ ' + step.t;
+      b.textContent = '✓ marcar · ' + step.t;
     }
   }
 
@@ -779,10 +779,18 @@ var DATA = [
     save();
   }
 
-  function advance() {
+  // procura o próximo não-feito a partir do card atual (com volta ao início),
+  // pra não puxar o scroll de volta a um exercício pulado de propósito
+  function advance(fromId) {
+    var start = 0;
+    if (fromId) {
+      for (var j = 0; j < DATA.length; j++) {
+        if ('ex' + DATA[j].n === fromId) { start = j + 1; break; }
+      }
+    }
     var next = null;
     for (var k = 0; k < DATA.length; k++) {
-      var id = 'ex' + DATA[k].n;
+      var id = 'ex' + DATA[(start + k) % DATA.length].n;
       if (!st(id).done) { next = id; break; }
     }
     if (next) setTimeout(function () {
@@ -798,7 +806,7 @@ var DATA = [
     var el = card(id);
     el.classList.add('flash');
     setTimeout(function () { el.classList.remove('flash'); }, 1000);
-    if (last) { setDone(id, true); advance(); }
+    if (last) { setDone(id, true); advance(id); }
     else { renderGo(id); save(); }
   }
 
@@ -848,6 +856,12 @@ var DATA = [
     var thumb = card(id).querySelector('.thumb');
     var det = card(id).querySelector('details.how');
     thumb.addEventListener('click', function () { det.open = !det.open; });
+    // tocar num vídeo/link dentro do "Como fazer" recolhe o accordion sozinho
+    det.querySelectorAll('.how-body a').forEach(function (a) {
+      a.addEventListener('click', function () {
+        setTimeout(function () { det.open = false; }, 250);
+      });
+    });
     // toque no número = volta um passo (desfazer toque acidental num passo de check)
     card(id).querySelector('.num').addEventListener('click', function () {
       var s = st(id);
