@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Quarta">
+<meta name="theme-color" content="#0f110f">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Quarta — Plio &amp; Atlético</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { background:#0f110f; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:#0f110f; color:#e9ece7; max-width:480px; margin:0 auto;
+    padding:0 14px calc(96px + env(safe-area-inset-bottom));
+    font-size:16px; line-height:1.45;
+  }
+  a { color:#bef264; }
+
+  .top {
+    position:sticky; top:0; z-index:10; background:rgba(15,17,15,.93);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    margin:0 -14px; padding:calc(10px + env(safe-area-inset-top)) 14px 0;
+    border-bottom:1px solid #242a24;
+  }
+  .top-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .top h1 { font-size:17px; font-weight:800; letter-spacing:-.2px; color:#a3e635; flex:1; }
+  .prog-txt { font-size:13px; font-weight:700; color:#8f978c; font-variant-numeric:tabular-nums; }
+  .swap-rota {
+    background:#191d19; border:1px solid #2f362f; border-radius:8px; color:#8f978c;
+    font-size:12px; font-weight:700; padding:8px 10px; cursor:pointer;
+  }
+  .chips-nav { display:flex; gap:6px; overflow-x:auto; padding:8px 0 10px; scrollbar-width:none; }
+  .chips-nav::-webkit-scrollbar { display:none; }
+  .chip {
+    flex-shrink:0; font-size:13px; font-weight:700; padding:10px 13px; border-radius:8px;
+    background:#191d19; border:1px solid #2f362f; color:#9aa295; white-space:nowrap;
+    text-decoration:none;
+  }
+  .chip.on { background:var(--bc); border-color:var(--bc); color:#0f110f; }
+  .pbar { height:3px; background:#1c211c; margin:0 -14px; }
+  .pbar i { display:block; height:100%; width:0%; background:#a3e635; transition:width .4s; }
+
+  .sub { font-size:12.5px; color:#8f978c; margin:12px 0 0; text-align:center; }
+
+  /* ---------- seletor de rota ---------- */
+  .chooser {
+    position:fixed; inset:0; z-index:40; background:#0f110f; display:none;
+    flex-direction:column; justify-content:center; padding:24px 20px calc(24px + env(safe-area-inset-bottom));
+    max-width:480px; margin:0 auto;
+  }
+  .chooser.show { display:flex; }
+  .chooser h2 { font-size:24px; font-weight:800; color:#a3e635; text-align:center; margin-bottom:6px; }
+  .chooser .csub { font-size:13.5px; color:#8f978c; text-align:center; margin-bottom:20px; }
+  .chooser .regra {
+    background:#191d19; border:1px solid #2f362f; border-left:3px solid #ef4444; border-radius:0 10px 10px 0;
+    padding:12px 14px; font-size:13.5px; color:#b9c0b4; line-height:1.55; margin-bottom:20px;
+  }
+  .chooser .regra strong { color:#e9ece7; }
+  .rota-btn {
+    display:block; width:100%; text-align:left; background:#191d19; border:1.5px solid #2f362f;
+    border-radius:14px; padding:18px 16px; margin-bottom:12px; cursor:pointer; color:#e9ece7;
+  }
+  .rota-btn .rt1 { font-size:18px; font-weight:800; }
+  .rota-btn .rt2 { font-size:13px; color:#8f978c; margin-top:3px; line-height:1.4; }
+  .rota-btn.casa { border-color:#a3e635; } .rota-btn.casa .rt1 { color:#a3e635; }
+  .rota-btn.gym { border-color:#22d3ee; } .rota-btn.gym .rt1 { color:#22d3ee; }
+
+  details.notas {
+    background:#191d19; border:1px solid #2f362f; border-radius:10px;
+    padding:0 14px; margin:12px 0 4px;
+  }
+  details.notas summary {
+    list-style:none; cursor:pointer; font-size:13.5px; font-weight:700; color:#e9ece7;
+    padding:11px 0; display:flex; align-items:center; gap:6px;
+  }
+  details.notas summary::-webkit-details-marker { display:none; }
+  details.notas summary::before { content:"▸"; color:#a3e635; transition:transform .2s; }
+  details.notas[open] summary::before { transform:rotate(90deg); }
+  details.notas p { font-size:13.5px; color:#b9c0b4; line-height:1.55; padding-bottom:10px; }
+  details.notas p strong { color:#e9ece7; }
+
+  section.bloco { --acc:#a3e635; scroll-margin-top:calc(100px + env(safe-area-inset-top)); }
+  body[data-rota="casa"] .rota-gym { display:none; }
+  body[data-rota="gym"] .rota-casa { display:none; }
+  .bh {
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin:22px 0 10px; padding:10px 14px; border-radius:8px;
+    background:color-mix(in srgb, var(--acc) 10%, transparent);
+    border-left:3px solid var(--acc);
+    scroll-margin-top:calc(100px + env(safe-area-inset-top));
+  }
+  @supports not (background: color-mix(in srgb, red 10%, transparent)) {
+    .bh { background:#191d19; }
+  }
+  .bh h2 { font-size:14.5px; font-weight:800; color:var(--acc); }
+  .bh h2 small { display:block; font-size:12px; font-weight:600; color:#9aa295; margin-top:1px; }
+
+  .ex {
+    background:#191d19; border:1px solid #2f362f; border-radius:12px;
+    padding:14px 14px 12px; margin-bottom:12px; transition:opacity .3s, border-color .3s;
+    scroll-margin-top:calc(100px + env(safe-area-inset-top));
+  }
+  .ex.run { border-color:var(--acc); }
+  .ex.is-done { opacity:.5; }
+  .ex.flash { animation:fl .45s 2; }
+  @keyframes fl { 50% { border-color:#4ade80; box-shadow:0 0 0 3px #4ade8033; } }
+
+  .ex-head { display:flex; align-items:flex-start; gap:10px; }
+  .num {
+    min-width:30px; height:28px; padding:0 6px; border-radius:8px; background:var(--acc); color:#0f110f;
+    font-weight:800; font-size:12.5px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; margin-top:1px; cursor:pointer;
+  }
+  .ex-head h3 { flex:1; font-size:17px; font-weight:750; line-height:1.25; letter-spacing:-.2px; }
+  .bpill {
+    display:inline-block; border:1.5px solid; border-radius:6px; padding:1px 7px;
+    font-size:10.5px; font-weight:800; letter-spacing:.4px; margin-left:6px;
+    vertical-align:2px; white-space:nowrap;
+  }
+  .done-btn {
+    width:44px; height:44px; margin:-8px -8px 0 0; flex-shrink:0; border-radius:10px;
+    border:1.5px solid #2f362f; background:transparent;
+    color:#707868; font-size:18px; font-weight:800; cursor:pointer;
+  }
+  .is-done .done-btn { background:#4ade80; border-color:#4ade80; color:#0f110f; }
+
+  .media { display:flex; gap:12px; margin:10px 0 11px; align-items:flex-start; }
+  .thumb {
+    width:104px; height:78px; object-fit:cover; border-radius:8px;
+    border:1px solid #2f362f; flex-shrink:0; cursor:pointer; background:#141814;
+  }
+  .media-right { flex:1; min-width:0; }
+  .dose { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:7px; }
+  .dose span {
+    background:#0f110f; border:1px solid #2f362f; border-radius:6px;
+    padding:4px 9px; font-size:14.5px; font-weight:800; font-variant-numeric:tabular-nums;
+  }
+  .dose span.eq { font-weight:600; color:#9aa295; font-size:12.5px; align-self:center; border-style:dashed; }
+  .cue { font-size:13.5px; color:#b9c0b4; line-height:1.45; }
+  .cue b { color:#e9ece7; }
+
+  .srows { margin:4px 0 2px; }
+  .srow { display:flex; align-items:center; gap:7px; padding:5px 0; }
+  .slab { width:26px; font-size:13px; font-weight:800; color:#9aa295; flex-shrink:0; }
+  .srow input, .nota-row input {
+    background:#0f110f; border:1px solid #2f362f; border-radius:8px; color:#e9ece7;
+    font-size:16px; font-weight:700; padding:10px 4px; text-align:center; min-width:0;
+    font-variant-numeric:tabular-nums;
+  }
+  .srow input::placeholder, .nota-row input::placeholder { color:#5a6156; font-weight:600; }
+  .srow input.kg { width:74px; }
+  .srow input.rp { flex:1; max-width:64px; }
+  .srow input.tx { flex:1.4; text-align:left; font-weight:600; padding:10px 8px; }
+  .srow .x { color:#707868; font-size:13px; flex-shrink:0; }
+  .sdone {
+    width:44px; height:44px; margin-left:auto; flex-shrink:0; border-radius:10px;
+    border:1.5px solid #2f362f; background:transparent; color:#707868;
+    font-size:16px; font-weight:800; cursor:pointer;
+  }
+  .srow.ok .sdone { background:var(--acc); border-color:var(--acc); color:#0f110f; }
+  .srow.ok .slab { color:var(--acc); }
+  .nota-row { display:flex; align-items:center; gap:8px; padding:4px 0 2px; }
+  .nota-row label { font-size:13px; color:#9aa295; font-weight:700; flex-shrink:0; }
+  .nota-row input { flex:1; text-align:left; font-weight:600; padding:10px 8px; }
+
+  .go {
+    width:100%; min-height:52px; border-radius:10px; border:1.5px solid var(--acc);
+    background:transparent; color:var(--acc); font-size:16.5px; font-weight:800;
+    font-variant-numeric:tabular-nums; cursor:pointer; transition:background .2s; margin-top:6px;
+  }
+  .go.running { background:var(--acc); color:#0f110f; font-size:24px; }
+  .go.paused { background:#1c211c; border-color:#9aa295; color:#e9ece7; }
+  .is-done .go { border-color:#4ade80; color:#4ade80; font-size:15px; }
+
+  details.how { margin-top:10px; border-top:1px solid #242a24; padding-top:2px; }
+  details.how summary {
+    list-style:none; cursor:pointer; font-size:13px; font-weight:700; color:#bef264;
+    padding:11px 0; display:flex; align-items:center; gap:6px;
+  }
+  details.how summary::-webkit-details-marker { display:none; }
+  details.how summary::before { content:"▸"; transition:transform .2s; }
+  details.how[open] summary::before { transform:rotate(90deg); }
+  .how-body { padding:2px 0 6px; }
+  .how-body p { font-size:14px; color:#b9c0b4; line-height:1.55; margin-bottom:10px; }
+  .how-body p strong { color:#e9ece7; }
+  .how-body p em { color:#8f978c; }
+  .links { background:#0f110f; border:1px solid #242a24; border-radius:8px; padding:8px 12px; }
+  .links .lh { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#bef264; margin-bottom:3px; }
+  .links a { display:block; color:#b9c0b4; text-decoration:none; font-size:13.5px; padding:10px 0; }
+  .links a::before { content:"→ "; color:var(--acc); }
+
+  .tip {
+    background:#191d19; border-left:3px solid var(--acc); border-radius:0 10px 10px 0;
+    padding:10px 14px; margin:4px 0 14px; font-size:13.5px; color:#b9c0b4; line-height:1.55;
+  }
+  .tip strong { color:var(--acc); }
+
+  .frm { display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+  .frow { display:flex; align-items:center; gap:8px; }
+  .frow label { flex:1; font-size:13.5px; color:#b9c0b4; }
+  .frow input[type=number], .frow input[type=text] {
+    background:#0f110f; border:1px solid #2f362f; border-radius:8px; color:#e9ece7;
+    font-size:16px; font-weight:700; padding:10px 8px; text-align:center;
+  }
+  .frow input[type=number] { width:74px; }
+  .frow input[type=text] { flex:1.2; text-align:left; font-weight:600; }
+  .frm textarea {
+    background:#0f110f; border:1px solid #2f362f; border-radius:8px; color:#e9ece7;
+    font-size:16px; padding:10px; min-height:74px; width:100%; font-family:inherit;
+  }
+  .seg { display:flex; gap:6px; }
+  .seg button {
+    border:1.5px solid #2f362f; background:transparent; color:#9aa295; border-radius:8px;
+    font-size:14px; font-weight:700; padding:10px 16px; cursor:pointer;
+  }
+  .seg button.on { background:#a3e635; border-color:#a3e635; color:#0f110f; }
+
+  .restbar {
+    position:fixed; left:0; right:0; bottom:0; z-index:20;
+    max-width:480px; margin:0 auto; padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+    background:#a3e635; color:#0f110f; display:none; align-items:center; gap:12px;
+    cursor:pointer;
+  }
+  .restbar.show { display:flex; }
+  .restbar .rt { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .restbar .rl { flex:1; font-size:13.5px; font-weight:700; line-height:1.3; }
+  .restbar .rx { font-size:12px; font-weight:800; opacity:.75; }
+
+  .foot { text-align:center; margin-top:26px; font-size:12.5px; color:#8f978c; line-height:1.7; }
+  .foot .reset {
+    background:#1c211c; border:1px solid #2f362f; border-radius:10px; color:#c96a6a;
+    font-size:14px; font-weight:700; padding:11px 18px; cursor:pointer; margin-bottom:14px;
+  }
+  .savemsg { font-size:12px; color:#4ade80; min-height:16px; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-row">
+    <h1 id="h1t">Quarta</h1>
+    <span class="prog-txt" id="progTxt">0/0</span>
+    <button class="swap-rota" id="swapBtn" type="button">trocar</button>
+  </div>
+  <nav class="chips-nav" id="chipsNav"></nav>
+  <div class="pbar"><i id="pbar"></i></div>
+</div>
+
+<p class="sub" id="subT">Explosão de perna mora aqui · qualidade &gt; quantidade</p>
+
+<div id="app"></div>
+
+<div class="foot">
+  <button class="reset" id="resetBtn">Zerar sessão de hoje</button>
+  <div class="savemsg" id="saveMsg"></div>
+  <div>QUA · Plio Casa v3 / Atlético Academia v3 — se técnica cair, PARA</div>
+  <div>Matinal: <a href="../dia-b/">Dia B</a> · GYM: <a href="../gym-fb1/">FB1</a> · <a href="../">Completa</a></div>
+</div>
+
+<div class="restbar" id="restbar">
+  <span class="rt" id="restT">1:30</span>
+  <span class="rl" id="restL">DESCANSO</span>
+  <span class="rx">tocar pula</span>
+</div>
+
+<div class="chooser" id="chooser">
+  <h2>Que quarta é hoje?</h2>
+  <div class="csub">uma missão, duas rotas — escolhe pela manhã</div>
+  <div class="regra"><strong>Portão das 24h (de manhã):</strong> passou → qualquer rota completa. Não passou → no Atlético: box jump fica, trap bar jump e Bloco B saem, o tempo vai pro Bloco D (+1 série em cada). Joelho reclamando ou semana pesada de quadra → o padrão é o Atlético.</div>
+  <button class="rota-btn casa" type="button" data-rota="casa">
+    <div class="rt1">PLIO CASA</div>
+    <div class="rt2">~65–70 min · bola, miniband, degrau · ~100 contatos · single-leg primeiro</div>
+  </button>
+  <button class="rota-btn gym" type="button" data-rota="gym">
+    <div class="rt1">ATLÉTICO — Academia</div>
+    <div class="rt2">~65 min · rack, caixa, KB, med ball · ~40 contatos · potência com carga + absorção</div>
+  </button>
+</div>
+
+<script>
+// ===================== DADOS =====================
+var IMG = function (id) { return 'img/v_' + id + '.jpg'; };
+var YT = function (id) { return 'https://www.youtube.com/watch?v=' + id; };
+var FAST = function (n) { return ['FAST SSC · ' + n + ' cont', '#a3e635']; };
+var SLOW = function (n) { return ['SLOW SSC · ' + n + ' cont', '#22d3ee']; };
+
+var BLOCOS_CASA = [
+  { id:'caq', cor:'#94a3b8', nav:'Aquec',       titulo:'AQUECIMENTO + ATIVAÇÃO',                     sub:'~10 min' },
+  { id:'cA',  cor:'#a3e635', nav:'A · Single',  titulo:'BLOCO A — SINGLE LEG / UNILATERAL',          sub:'4 exercícios · ~18 min · faz FRESCO, concentração máxima' },
+  { id:'cB',  cor:'#22d3ee', nav:'B · Bilateral',titulo:'BLOCO B — BILATERAL + REATIVIDADE',         sub:'4 exercícios · ~12 min' },
+  { id:'cC',  cor:'#ef4444', nav:'C · Iso',     titulo:'BLOCO C — ISOMETRIA + EQUILÍBRIO · INTOCÁVEL', sub:'4 exercícios · ~8 min · DEPOIS do explosivo' },
+  { id:'cS',  cor:'#fb923c', nav:'Superior',    titulo:'SUPERIOR — EXPLOSÃO',                        sub:'4 exercícios · ~12 min' },
+  { id:'cR',  cor:'#eab308', nav:'Core',        titulo:'CORE REATIVO',                               sub:'3 exercícios' },
+  { id:'chj', cor:'#94a3b8', nav:'Hoje',        titulo:'COMO FOI HOJE',                              sub:'preenche no fim' }
+];
+
+var BLOCOS_GYM = [
+  { id:'gaq', cor:'#94a3b8', nav:'Aquec',       titulo:'AQUECIMENTO',                                sub:'~8 min' },
+  { id:'gA',  cor:'#a3e635', nav:'A · Potência',titulo:'BLOCO A — POTÊNCIA (fresco)',                sub:'4 exercícios' },
+  { id:'gB',  cor:'#22d3ee', nav:'B · Absorção',titulo:'BLOCO B — ABSORÇÃO',                         sub:'2 exercícios' },
+  { id:'gC',  cor:'#ef4444', nav:'C · Iso',     titulo:'BLOCO C — ISOMETRIA + EQUILÍBRIO · INTOCÁVEL', sub:'4 exercícios · descanso 0:45' },
+  { id:'gD',  cor:'#c084fc', nav:'D · Intrínseco', titulo:'BLOCO D — INTRÍNSECO COM CARGA',          sub:'3 exercícios' },
+  { id:'gE',  cor:'#fb923c', nav:'E · Upper',   titulo:'BLOCO E — POTÊNCIA UPPER',                   sub:'5 exercícios' },
+  { id:'ghj', cor:'#94a3b8', nav:'Hoje',        titulo:'COMO FOI HOJE',                              sub:'preenche no fim' }
+];
+
+// sets: cada linha tem tipo — ed (E/D), r (reps), kg_r, kg_ed, alt (cm), alt_n (cm+nota), kg_tx, sec_ed (segundos E/D)
+// fid: chave compartilhada entre rotas (Bloco C é o mesmo exercício nas duas)
+var DATA_CASA = [
+{ id:'caqx', b:'caq', num:'AQ', name:'Aquecimento + ativação', img:null,
+  chips:['~10 min','8 itens'], eq:null,
+  cue:'Skipping, carioca, mobilidade, glute bridge iso, pogos leves e saltos submáximos.',
+  steps:[{t:'Skipping progressivo · 2× 20 m'},{t:'Carioca · 2× 20 m'},{t:'Leg swings · 10 cada'},{t:'Mob. dinâmica quadril · 2× 8'},{t:'Glute bridge iso · S1',s:20},{t:'Glute bridge iso · S2',s:20},{t:'SL pogos leves · 2× 6 cada'},{t:'3–5 saltos submáximos'}],
+  desc:'Skipping progressivo 2× 20 m · Carioca 2× 20 m · Leg swings (frente/lado) 10 cada · Mobilidade dinâmica quadril 2× 8.<br><strong>Miniband glute bridge isométrico 2× 20 s:</strong> band acima dos joelhos, quadril alto, empurra os joelhos pra fora contra a band. Aperta o glúteo no topo e segura. Ativa o glúteo médio antes dos saltos.<br><strong>Single leg pogos LEVES 2× 6 cada:</strong> joelho quase travado, só o tornozelo trabalha. Contato rápido e leve com o chão.<br>3–5 saltos submáximos (2 pernas + 1 perna alternando).',
+  links:[] },
+
+{ id:'c1', b:'cA', num:'1', name:'Single leg bounds', img:IMG('eqURGPnn1ps'), bad:[FAST(18)],
+  chips:['3× 3','cada perna'], eq:'descanso 2:00', rest:120, nota:true,
+  cue:'3–4 passos de corrida, salta de 1 perna, busca <b>ALTURA</b> — braço oposto sobe junto.',
+  sets:[{t:'S1',k:'ed'},{t:'S2',k:'ed'},{t:'S3',k:'ed'}],
+  desc:'Pega 3–4 passos de corrida, salta de 1 perna só, busca ALTURA. Simula exatamente o takeoff de bandeja/enterrada. Braço oposto sobe junto, igual corrida. Aterrissa com controle.<br><em>Equilíbrio ativo entre séries: single leg balance olhos fechados 15–20 s cada perna.</em>',
+  links:[{t:'How to Jump Higher Off One Leg (tutorial de mecânica)', u:YT('eqURGPnn1ps')}] },
+
+{ id:'c2', b:'cA', num:'2', name:'Single leg drop landing + salto', img:IMG('-yslv_8TrP4'), bad:[FAST(12)],
+  chips:['2× 3','cada perna'], eq:'do degrau · descanso 1:30', rest:90, nota:true,
+  cue:'Cai do degrau em 1 pé, <b>absorve</b> flexionando joelho e quadril, depois <b>EXPLODE</b> pra cima.',
+  sets:[{t:'S1',k:'ed'},{t:'S2',k:'ed'}],
+  desc:'Cai do degrau em 1 pé, absorve o impacto flexionando joelho e quadril, depois EXPLODE pra cima. O joelho não pode colapsar pra dentro. Começa com degrau BAIXO, só sobe quando dominar.',
+  links:[{t:'How to Do a Single-Leg Depth Jump', u:YT('-yslv_8TrP4')}] },
+
+{ id:'c3', b:'cA', num:'3', name:'Single leg hurdle hops', img:IMG('TxtjHt8AZA0'), bad:[FAST(12)],
+  chips:['2× 3','cada perna'], eq:'obstáculos 15–25 cm · descanso 1:30', rest:90,
+  cue:'Salta em 1 perna sobre cada obstáculo — <b>contato mínimo</b>, voo maior que contato.',
+  sets:[{t:'S1',k:'ed'},{t:'S2',k:'ed'}],
+  desc:'Improvisar hurdles: pilhas de livros (15–25 cm), caixas de sapato, cones. Salta em 1 perna sobre cada obstáculo, contato MÍNIMO com o chão. Objetivo: tempo de contato &lt;250 ms, tempo de voo maior que o contato.',
+  links:[{t:'Single Leg Mini-Hurdle Hop', u:YT('TxtjHt8AZA0')}] },
+
+{ id:'c4', b:'cA', num:'4', name:'Lateral bounds (ida e volta)', img:IMG('Hc9_FQgIeeg'), bad:[FAST(24)],
+  chips:['3× 4','cada lado'], eq:'descanso 1:00', rest:60,
+  cue:'Empurra lateral com força, aterrissa <b>estável</b> — tronco em cima do pé de apoio.',
+  sets:[{t:'S1',k:'ed'},{t:'S2',k:'ed'},{t:'S3',k:'ed'}],
+  desc:'Empurra lateral com força, aterrissa estável na outra perna. Mantém o tronco por cima do pé de apoio, não deixa o corpo cair pro lado. Trabalha plano frontal + estabilidade de tornozelo/quadril.',
+  links:[{t:'Lateral Bound (Heiden)', u:YT('Hc9_FQgIeeg')}] },
+
+{ id:'c5', b:'cB', num:'5', name:'Depth jump bilateral', img:IMG('fL66hVKR89Q'), bad:[FAST(12)],
+  chips:['3× 4'], eq:'do degrau/banco · descanso 1:30', rest:90, nota:true,
+  cue:'Tocou o chão, <b>EXPLODE pra cima</b> — contato o menor possível, não afundar.',
+  sets:[{t:'S1',k:'r'},{t:'S2',k:'r'},{t:'S3',k:'r'}],
+  desc:'Cai do degrau com as 2 pernas, assim que tocar o chão EXPLODE pra cima. Tempo de contato com o chão o MENOR possível. Não afundar. Braços ajudam: balança pra trás na queda, joga pra cima no salto.',
+  links:[{t:'How To: Depth Jump', u:YT('fL66hVKR89Q')}] },
+
+{ id:'c6', b:'cB', num:'6', name:'Broad jump com stick landing', img:IMG('7uGC-5QJEXg'), bad:[SLOW(6)],
+  chips:['2× 3'], eq:'descanso 1:30', rest:90, nota:true,
+  cue:'Salto máximo pra frente, <b>PARA completamente</b> no landing e segura 2 s.',
+  sets:[{t:'S1',k:'r'},{t:'S2',k:'r'}],
+  desc:'Salto máximo pra frente com 2 pernas. Parar COMPLETAMENTE no landing. Segurar a posição 2 segundos: joelhos flexionados, tronco estável, sem dar passinho. Treina absorção de força (fundamental pra cortar em quadra sem machucar).',
+  links:[{t:'Broad Jump stick landing', u:YT('7uGC-5QJEXg')}] },
+
+{ id:'c7', b:'cB', num:'7', name:'Split squat jumps', img:IMG('yncmjpwl_9g'), bad:[SLOW(16)],
+  chips:['2× 4','cada lado'], eq:'descanso 1:30', rest:90,
+  cue:'Explode do lunge, <b>troca as pernas no ar</b>, aterrissa suave na posição oposta.',
+  sets:[{t:'S1',k:'ed'},{t:'S2',k:'ed'}],
+  desc:'Começa em posição de lunge, explode pra cima, troca as pernas no ar, aterrissa na posição oposta. Busca altura máxima, aterrissa suave. Transfere pra primeiro passo explosivo e bandeja.',
+  links:[{t:'Split Squat Jump', u:YT('yncmjpwl_9g')}] },
+
+{ id:'c8', b:'cB', num:'8', name:'Pogo hops com bola', img:IMG('j0nl5dWuqN4'), bad:[['FAST · 20 cont (baixa int.)','#94a3b8']],
+  chips:['2× 10'], eq:'bola no peito · descanso 1:00', rest:60,
+  cue:'Joelho quase travado, só tornozelo — contato &lt;200 ms, <b>o chão é quente</b>.',
+  sets:[{t:'S1',k:'r'},{t:'S2',k:'r'}],
+  desc:'Joelho quase travado, só o tornozelo trabalha. Segura a bola de basquete no peito. Objetivo: tempo de contato &lt;200 ms. Imagina que o chão é quente. Intensidade BAIXA — não conta no total de alta intensidade.',
+  links:[{t:'Pogo Jumps Tutorial', u:YT('j0nl5dWuqN4')}],
+  tip:'<strong>Contatos totais inferior:</strong> ~100 de alta/média intensidade (18+12+12+24+12+6+16) + 20 baixa (pogos) · single leg 66 de 100 = 66% (prioridade certa) · Fast SSC 78 | Slow SSC 22 → proporção 78/22.' },
+
+{ id:'c9', b:'cC', num:'9', name:'Isometric lunge hold', img:IMG('XblZ99nCrFs'), fid:'bcq_lunge',
+  chips:['2× 25–30 s','cada perna'], eq:'descanso 0:45',
+  cue:'Lunge profundo, tronco reto — <b>EMPURRA o chão</b> com o pé da frente o tempo todo.',
+  sets:[{t:'S1',k:'sec_ed'},{t:'S2',k:'sec_ed'}],
+  steps:[{t:'S1 · Perna E',s:30},{t:'S1 · Perna D',s:30},{t:'Descanso',s:45},{t:'S2 · Perna E',s:30},{t:'S2 · Perna D',s:30}],
+  desc:'Posição de lunge profunda (~90° no joelho da frente, joelho de trás quase no chão). Tronco reto, core apertado. Não é só segurar: EMPURRA o chão com o pé da frente o tempo todo. Trabalha exatamente a posição de desaceleração e mudança de direção. <em>Fonte: Joel Smith (Just Fly Sports), ATG/Ben Patrick.</em>',
+  links:[{t:'Isometric Lunge Hold', u:YT('XblZ99nCrFs')}] },
+
+{ id:'c10', b:'cC', num:'10', name:'Single leg wall sit', img:IMG('lpTsOjxkFOc'), fid:'bcq_wallsit',
+  chips:['2× 20–30 s','cada perna'], eq:'descanso 0:45',
+  cue:'Costas na parede, desce até ~90° <b>numa perna só</b> — a outra levantada a 90°.',
+  sets:[{t:'S1',k:'sec_ed'},{t:'S2',k:'sec_ed'}],
+  steps:[{t:'S1 · Perna E',s:30},{t:'S1 · Perna D',s:30},{t:'Descanso',s:45},{t:'S2 · Perna E',s:30},{t:'S2 · Perna D',s:30}],
+  desc:'Costas na parede, desce até ~90° em 1 perna só. A outra perna fica levantada (joelho a 90°). Se muito difícil: começa com ângulo mais alto (45–60°). Fortalece quadríceps e tendão patelar de forma isométrica (pouco estresse articular). <em>Fonte: Phoenix Suns S&amp;C program, NBSCA.</em>',
+  links:[{t:'Single Leg Wall Sit', u:YT('lpTsOjxkFOc')}] },
+
+{ id:'c11', b:'cC', num:'11', name:'Single leg RDL com band', img:IMG('Zfr6wizR8rs'), fid:'bcq_slrdl',
+  chips:['2× 8','cada perna'], eq:'descanso 0:45', rest:45,
+  cue:'Dobra no <b>quadril</b> (não na lombar), perna de trás como contrapeso, sobe apertando o glúteo.',
+  sets:[{t:'S1',k:'ed'},{t:'S2',k:'ed'}],
+  desc:'Pisa na band com 1 pé, segura a outra ponta. Inclina o tronco pra frente dobrando no quadril (não na lombar), a perna de trás sobe reta como contrapeso. Desce controlado, sobe apertando o glúteo. Trabalha equilíbrio + posterior (glúteo/isquiotibiais) em single leg.',
+  links:[{t:'Single-Leg RDL (Squat University)', u:YT('Zfr6wizR8rs')}] },
+
+{ id:'c12', b:'cC', num:'12', name:'Single leg balance — olhos fechados', img:IMG('4HtOeds_vyw'), fid:'bcq_bal',
+  chips:['2× 20–30 s','cada perna'], eq:null,
+  cue:'Uma perna, <b>fecha os olhos</b>, tenta não mexer — desafia muito a propriocepção.',
+  sets:[{t:'S1',k:'sec_ed'},{t:'S2',k:'sec_ed'}],
+  steps:[{t:'S1 · Perna E',s:30},{t:'S1 · Perna D',s:30},{t:'S2 · Perna E',s:30},{t:'S2 · Perna D',s:30}],
+  desc:'Fica em 1 perna, fecha os olhos, tenta não mexer. Parece fácil mas desafia MUITO a propriocepção. Progressão: semana 1–2 olhos abertos → semana 3+ olhos fechados. <em>Fonte: estudo PMC 2013 — 12 semanas de balance training = +8–13% salto vertical.</em>',
+  links:[{t:'Single Leg Balance with Eyes Closed', u:YT('4HtOeds_vyw')}] },
+
+{ id:'c13', b:'cS', num:'13', name:'Flexões explosivas', img:IMG('GR0ZL7f7u18'),
+  chips:['4× 5'], eq:'mãos saem do chão · descanso 1:30', rest:90,
+  cue:'Desce controlado, <b>EXPLODE</b> até as mãos saírem do chão.',
+  sets:[{t:'S1',k:'r'},{t:'S2',k:'r'},{t:'S3',k:'r'},{t:'S4',k:'r'}],
+  desc:'Desce controlado, EXPLODE pra cima até as mãos saírem do chão. Se fácil: clap push-ups (bate palma no ar). Se difícil: faz de joelhos explosivas ou inclinadas no banco.',
+  links:[{t:'Plyometric Push Up Tutorial', u:YT('GR0ZL7f7u18')}] },
+
+{ id:'c14', b:'cS', num:'14', name:'Chest pass explosivo na parede', img:IMG('upEOUUXso2Q'),
+  chips:['3× 8'], eq:'descanso 1:00', rest:60,
+  cue:'Lança na parede <b>com tudo</b>, pega de volta e repete SEM PAUSA.',
+  sets:[{t:'S1',k:'r'},{t:'S2',k:'r'},{t:'S3',k:'r'}],
+  desc:'Segura a bola no peito, lança na parede com tudo. Pega de volta e lança de novo SEM PAUSA. Ritmo rápido. Simula o passe de peito forte no basquete.',
+  links:[{t:'Medicine Ball Chest Pass', u:YT('upEOUUXso2Q')},{t:'Guia med ball (BarBend)', u:'https://barbend.com/medicine-ball-exercises/'}] },
+
+{ id:'c15', b:'cS', num:'15', name:'Overhead slam com bola', img:IMG('uuIJroNfvdQ'),
+  chips:['3× 8'], eq:'descanso 1:00', rest:60,
+  cue:'Bola acima da cabeça, joga no chão com tudo — <b>corpo inteiro</b>, não só braço.',
+  sets:[{t:'S1',k:'r'},{t:'S2',k:'r'},{t:'S3',k:'r'}],
+  desc:'Bola acima da cabeça, joga no chão com tudo usando core + ombros + quadril. Flexiona o tronco junto com os braços (não é só braço, é corpo inteiro). Pega no quique e repete.',
+  links:[{t:'Medicine Ball Overhead Slam Tutorial', u:YT('uuIJroNfvdQ')}] },
+
+{ id:'c16', b:'cS', num:'16', name:'Rotational throw na parede', img:IMG('o9BC7lgN1bo'),
+  chips:['3× 6','cada lado'], eq:'descanso 1:00', rest:60,
+  cue:'Rotaciona o tronco e lança — a força vem do <b>quadril e core</b>, não dos braços.',
+  sets:[{t:'S1',k:'ed'},{t:'S2',k:'ed'},{t:'S3',k:'ed'}],
+  desc:'De lado pra parede, rotaciona o tronco e lança a bola. A força vem do quadril e core, NÃO só dos braços. Igual passe de basquete com rotação.',
+  links:[{t:'Standing Med Ball Rotational Throw', u:YT('o9BC7lgN1bo')}] },
+
+{ id:'cc1', b:'cR', num:'C1', name:'Russian twists com carga', img:IMG('mCViD-Ui-4o'),
+  chips:['3× 12–15','alternando'], eq:'descanso 0:45', rest:45,
+  cue:'Tronco a ~45°, pés fora do chão — <b>GUIA a rotação</b>, não joga o peso.',
+  sets:[{t:'S1',k:'r'},{t:'S2',k:'r'},{t:'S3',k:'r'}],
+  desc:'Sentado, tronco inclinado ~45°, pés fora do chão. Segura bola de basquete ou peso, rotaciona lado a lado COM CONTROLE. A força vem do oblíquo, não do braço. Não joga o peso, GUIA a rotação. Transferência: potência rotacional pra passe e drive com contato.',
+  links:[{t:'Seated Med Ball Russian Twist', u:YT('mCViD-Ui-4o')}] },
+
+{ id:'cc2', b:'cR', num:'C2', name:'Leg raises deitado', img:IMG('zJukDl0Lv4U'),
+  chips:['3× 10–12'], eq:'descanso 0:45', rest:45,
+  cue:'Pernas retas até ~90°, desce controlado — <b>lombar colada no chão</b> o tempo todo.',
+  sets:[{t:'S1',k:'r'},{t:'S2',k:'r'},{t:'S3',k:'r'}],
+  desc:'Deitado de barriga pra cima, mãos embaixo do quadril ou ao lado. Sobe as duas pernas retas até ~90°, desce CONTROLADO sem encostar no chão. Lombar COLADA no chão o tempo todo — se desgrudar, diminui a amplitude. Progressão: quando ficar fácil, desce mais devagar (3–4 s na descida).',
+  links:[{t:'Leg Raises — Proper Form', u:YT('zJukDl0Lv4U')}] },
+
+{ id:'cc3', b:'cR', num:'C3', name:'Mountain climber com rotação (cross-body)', img:IMG('1cwZ8VZvRjc'),
+  chips:['3× 10','cada lado'], eq:'descanso 0:45', rest:45,
+  cue:'Joelho no <b>ombro oposto</b>, lento e controlado — segura 1–2 s cruzado.',
+  sets:[{t:'S1',k:'ed'},{t:'S2',k:'ed'},{t:'S3',k:'ed'}],
+  desc:'Posição de prancha alta. Traz o joelho na direção do OMBRO OPOSTO. Movimento LENTO e controlado, não é cardio. Segura 1–2 s com o joelho cruzado. Trabalha oblíquos + hip flexors + anti-rotação ao mesmo tempo. O quadril não pode subir nem girar.',
+  links:[{t:'Cross-Body Mountain Climber', u:YT('1cwZ8VZvRjc')}] }
+];
+
+var DATA_GYM = [
+{ id:'gaqx', b:'gaq', num:'AQ', name:'Aquecimento', img:null,
+  chips:['~8 min','5 itens'], eq:null,
+  cue:'Bike, skipping + carioca, mobilidade dinâmica, pogos leves e saltos submáximos.',
+  steps:[{t:'Bike leve · 3 min',s:180},{t:'Skipping + carioca · 2× 15 m'},{t:'Mob. dinâmica quadril/tornozelo/torácica'},{t:'SL pogos leves · 2× 6 cada'},{t:'3 saltos submáximos'}],
+  desc:'Bike leve 3 min · Skipping + carioca 2× 15 m num corredor · Mobilidade dinâmica quadril / tornozelo / torácica · Single leg pogos LEVES 2× 6 cada · 3 saltos submáximos.',
+  links:[] },
+
+{ id:'g1', b:'gA', num:'1', name:'Box jump com descida pelo degrau', img:IMG('W5QzqIbEWvk'),
+  chips:['4× 3'], eq:'descanso 1:30', rest:90,
+  cue:'Caixa na altura em que tu aterrissa em <b>1/4 de agacho</b> · aterrissa em silêncio, desce pelo degrau.',
+  sets:[{t:'S1',k:'alt'},{t:'S2',k:'alt'},{t:'S3',k:'alt'},{t:'S4',k:'alt'}],
+  desc:'Caixa na altura em que tu aterrissa em 1/4 de agacho. Aterrissa em silêncio, desce pelo degrau. Princípio da sessão: DECOLAGEM SIM, ATERRISSAGEM DURA NÃO — o box jump aterrissa na caixa.',
+  links:[{t:'Box Jump Step Down (OPEX)', u:YT('W5QzqIbEWvk')}] },
+
+{ id:'g2', b:'gA', num:'2', name:'Trap bar jump', img:IMG('I-Zm8g6kXIM'), bad:[['SÓ COM JOELHO LIMPO','#ef4444']],
+  chips:['3× 3'], eq:'descanso 2:00', rest:120,
+  cue:'Barra vazia pra começar · teto 10–20% do 1RM de agacho · <b>salto encolheu = carga demais</b>.',
+  sets:[{t:'S1',k:'kg_tx'},{t:'S2',k:'kg_tx'},{t:'S3',k:'kg_tx'}],
+  desc:'Barra vazia pra começar · teto: 10–20% do 1RM de agacho. Aterrissa suave, a barra acompanha. Salto encolheu = carga demais. SÓ COM JOELHO LIMPO — se o portão da manhã não passou, esse sai.',
+  links:[{t:'How To Do A Trap Bar Jump', u:YT('I-Zm8g6kXIM')}] },
+
+{ id:'g3', b:'gA', num:'3', name:'KB swing pesado', img:IMG('1mi0ChIHQPw'),
+  chips:['4× 8'], eq:'24–32 kg · descanso 1:00', rest:60,
+  cue:'<b>Dobradiça de quadril</b>, não agacho · zero voo.',
+  sets:[{t:'S1',k:'kg_r'},{t:'S2',k:'kg_r'},{t:'S3',k:'kg_r'},{t:'S4',k:'kg_r'}],
+  desc:'Dobradiça de quadril, não agacho · 24–32 kg · zero voo.',
+  links:[{t:'Kettlebell Swing Technique — Hip Hinge Power', u:YT('1mi0ChIHQPw')}] },
+
+{ id:'g4', b:'gA', num:'4', name:'Trap bar high pull', img:IMG('6UsMx5BoSK0'),
+  chips:['3× 4'], eq:'~40–50% do terra · descanso 1:30', rest:90,
+  cue:'<b>Extensão tripla explosiva</b>, cotovelos altos.',
+  sets:[{t:'S1',k:'kg_r'},{t:'S2',k:'kg_r'},{t:'S3',k:'kg_r'}],
+  desc:'~40–50% do teu terra · extensão tripla explosiva, cotovelos altos.',
+  links:[{t:'Trap Bar High Pull (IYCA)', u:YT('6UsMx5BoSK0')}] },
+
+{ id:'g5', b:'gB', num:'5', name:'Depth drop com stick (duas pernas)', img:IMG('vZgJaa0izPU'),
+  chips:['3× 3'], eq:'caixa 30–40 cm · descanso 1:00', rest:60,
+  cue:'Ponta do pé → calcanhar, absorve, <b>segura 2 s, silêncio</b>.',
+  sets:[{t:'S1',k:'alt_n'},{t:'S2',k:'alt_n'},{t:'S3',k:'alt_n'}],
+  desc:'Caixa 30–40 cm · ponta do pé → calcanhar, absorve, segura 2 s, silêncio. 3 semanas limpas → uma perna, caixa 20 cm. Depth DROP: cai e segura, não salta de novo.',
+  links:[{t:'Depth Drops — Tutorial', u:YT('vZgJaa0izPU')},{t:'Mecânica de aterrissagem (Prehab Guys)', u:YT('RThUCYRDyZw')}] },
+
+{ id:'g6', b:'gB', num:'6', name:'Aterrissagem lateral de uma perna', img:IMG('fTkHTA_cQ9U'),
+  chips:['2× 3','cada lado'], eq:'descendo da caixa · descanso 1:00', rest:60,
+  cue:'Desce de lado aterrissando na perna de fora, <b>segura 2 s</b> — joelho alinhado com o pé.',
+  sets:[{t:'S1',k:'ed'},{t:'S2',k:'ed'}],
+  desc:'De lado pra caixa, desce aterrissando na perna de fora, segura 2 s. Joelho alinhado com o pé, tronco sem cair pro lado.',
+  links:[{t:'Box Single-Leg Lateral Drop Land', u:YT('fTkHTA_cQ9U')}] },
+
+{ id:'g7', b:'gC', num:'7', name:'Lunge isométrico', img:IMG('XblZ99nCrFs'), fid:'bcq_lunge',
+  chips:['2× 25–30 s','cada perna'], eq:'descanso 0:45',
+  cue:'<b>Empurra o chão</b> com o pé da frente o tempo todo.',
+  sets:[{t:'S1',k:'sec_ed'},{t:'S2',k:'sec_ed'}],
+  steps:[{t:'S1 · Perna E',s:30},{t:'S1 · Perna D',s:30},{t:'Descanso',s:45},{t:'S2 · Perna E',s:30},{t:'S2 · Perna D',s:30}],
+  desc:'2× 25–30 s cada perna. Empurra o chão com o pé da frente o tempo todo — mesma execução da versão casa.',
+  links:[{t:'Isometric Lunge Hold', u:YT('XblZ99nCrFs')}] },
+
+{ id:'g8', b:'gC', num:'8', name:'Single leg wall sit', img:IMG('lpTsOjxkFOc'), fid:'bcq_wallsit',
+  chips:['2× 20–30 s','cada perna'], eq:'descanso 0:45',
+  cue:'Costas na parede, ~90° <b>numa perna só</b>.',
+  sets:[{t:'S1',k:'sec_ed'},{t:'S2',k:'sec_ed'}],
+  steps:[{t:'S1 · Perna E',s:30},{t:'S1 · Perna D',s:30},{t:'Descanso',s:45},{t:'S2 · Perna E',s:30},{t:'S2 · Perna D',s:30}],
+  desc:'2× 20–30 s cada perna, costas na parede, outra perna levantada a 90°.',
+  links:[{t:'Single Leg Wall Sit', u:YT('lpTsOjxkFOc')}] },
+
+{ id:'g9', b:'gC', num:'9', name:'Single leg RDL com halter leve', img:IMG('Zfr6wizR8rs'), fid:'bcq_slrdl', kgProprio:true,
+  chips:['2× 8','cada perna'], eq:'descanso 0:45', rest:45,
+  cue:'Halter na mão oposta ao pé de apoio — dobra no <b>quadril</b>, sobe apertando o glúteo.',
+  sets:[{t:'S1',k:'kg_ed'},{t:'S2',k:'kg_ed'}],
+  desc:'Halter na mão oposta ao pé de apoio. Dobra no quadril (não na lombar), perna de trás como contrapeso. Desce controlado, sobe apertando o glúteo. Equilíbrio + posterior em single leg.',
+  links:[{t:'Single-Leg RDL (Squat University)', u:YT('Zfr6wizR8rs')}] },
+
+{ id:'g10', b:'gC', num:'10', name:'Equilíbrio de olhos fechados', img:IMG('4HtOeds_vyw'), fid:'bcq_bal',
+  chips:['2× 20–30 s','cada perna'], eq:null,
+  cue:'Uma perna, <b>olhos fechados</b>, tenta não mexer.',
+  sets:[{t:'S1',k:'sec_ed'},{t:'S2',k:'sec_ed'}],
+  steps:[{t:'S1 · Perna E',s:30},{t:'S1 · Perna D',s:30},{t:'S2 · Perna E',s:30},{t:'S2 · Perna D',s:30}],
+  desc:'2× 20–30 s cada perna, olhos fechados.',
+  links:[{t:'Single Leg Balance with Eyes Closed', u:YT('4HtOeds_vyw')}] },
+
+{ id:'g11', b:'gD', num:'11', name:'Hip thrust unilateral', img:IMG('L4nTaesNm0E'),
+  chips:['3× 8–10','cada perna'], eq:'ombros no banco · halter na virilha · descanso 1:00', rest:60,
+  cue:'Sobe o quadril com <b>uma perna</b>, halter na virilha.',
+  sets:[{t:'S1',k:'kg_ed'},{t:'S2',k:'kg_ed'},{t:'S3',k:'kg_ed'}],
+  desc:'Ombros no banco, halter na virilha, sobe o quadril com uma perna.',
+  links:[{t:'Single Leg Dumbbell Hip Thrust', u:YT('L4nTaesNm0E')}] },
+
+{ id:'g12', b:'gD', num:'12', name:'Lateral lunge goblet com KB', img:IMG('hD8yDBkMvrY'),
+  chips:['3× 6–8','cada lado'], eq:'descanso 1:30', rest:90,
+  cue:'<b>Quadril pra trás</b>, joelho alinhado com o pé, a outra perna reta.',
+  sets:[{t:'S1',k:'kg_ed'},{t:'S2',k:'kg_ed'},{t:'S3',k:'kg_ed'}],
+  desc:'Quadril pra trás, joelho alinhado com o pé, a outra perna reta.',
+  links:[{t:'KB Goblet Lateral Lunge', u:YT('hD8yDBkMvrY')}] },
+
+{ id:'g13', b:'gD', num:'13', name:'Ab wheel rollout', img:IMG('j6lR4u193gE'),
+  chips:['3× 8–10'], eq:'descanso 1:00', rest:60,
+  cue:'<b>Lombar não afunda</b>, glúteo apertado — vai até onde segura a linha reta.',
+  sets:[{t:'S1',k:'r'},{t:'S2',k:'r'},{t:'S3',k:'r'}],
+  desc:'Lombar não afunda, glúteo apertado, vai até onde segura a linha reta. Alternativa: elevação de pernas na barra 3× 10–12.',
+  links:[{t:'Ab Wheel Rollout Guide', u:YT('j6lR4u193gE')}] },
+
+{ id:'g14', b:'gE', num:'14', name:'Med ball chest pass na parede', img:IMG('upEOUUXso2Q'),
+  chips:['3× 6'], eq:'3–5 kg · descanso 1:00', rest:60,
+  cue:'Lança com tudo, pega e repete.',
+  sets:[{t:'S1',k:'r'},{t:'S2',k:'r'},{t:'S3',k:'r'}],
+  desc:'Med ball 3–5 kg, lança na parede com força máxima.',
+  links:[{t:'Medicine Ball Chest Pass', u:YT('upEOUUXso2Q')},{t:'Guia med ball (BarBend)', u:'https://barbend.com/medicine-ball-exercises/'}] },
+
+{ id:'g15', b:'gE', num:'15', name:'Med ball rotational throw', img:IMG('o9BC7lgN1bo'),
+  chips:['3× 6','cada lado'], eq:'descanso 1:00', rest:60,
+  cue:'A força vem do <b>quadril</b>.',
+  sets:[{t:'S1',k:'ed'},{t:'S2',k:'ed'},{t:'S3',k:'ed'}],
+  desc:'De lado pra parede, rotação explosiva — a força vem do quadril.',
+  links:[{t:'Standing Med Ball Rotational Throw', u:YT('o9BC7lgN1bo')}] },
+
+{ id:'g16', b:'gE', num:'16', name:'Med ball overhead slam', img:IMG('uuIJroNfvdQ'),
+  chips:['3× 8'], eq:'descanso 1:00', rest:60,
+  cue:'Corpo inteiro no slam, pega no quique e repete.',
+  sets:[{t:'S1',k:'r'},{t:'S2',k:'r'},{t:'S3',k:'r'}],
+  desc:'Bola acima da cabeça, joga no chão com tudo — core + ombros + quadril.',
+  links:[{t:'Medicine Ball Overhead Slam Tutorial', u:YT('uuIJroNfvdQ')}] },
+
+{ id:'g17', b:'gE', num:'17', name:'Landmine press meio-ajoelhado explosivo', img:IMG('hhWFiVUdFQQ'),
+  chips:['3× 5','cada lado'], eq:'descanso 1:00', rest:60,
+  cue:'Joelho no chão do <b>mesmo lado</b> do braço que empurra · desce controlado, empurra na <b>velocidade máxima</b>.',
+  sets:[{t:'S1',k:'kg_ed'},{t:'S2',k:'kg_ed'},{t:'S3',k:'kg_ed'}],
+  desc:'Joelho no chão do mesmo lado do braço que empurra. Desce controlado, empurra na velocidade máxima.',
+  links:[{t:'Landmine Half Kneeling Press', u:YT('hhWFiVUdFQQ')}] },
+
+{ id:'g18', b:'gE', num:'18', name:'Flexão explosiva', img:IMG('GR0ZL7f7u18'),
+  chips:['3× 5'], eq:'mãos saem do chão · descanso 1:30', rest:90,
+  cue:'Desce controlado, <b>explode</b> até as mãos saírem do chão.',
+  sets:[{t:'S1',k:'r'},{t:'S2',k:'r'},{t:'S3',k:'r'}],
+  desc:'Mãos saem do chão. Fecha a sessão: ~40 contatos de média/alta intensidade + pogos leves no dia.',
+  links:[{t:'Plyometric Push Up Tutorial', u:YT('GR0ZL7f7u18')}] }
+];
+
+var FORM_CASA = [
+  { id:'energia', t:'Energia (1–10)', k:'num' },
+  { id:'joelhos', t:'Joelhos (1–10)', k:'num' },
+  { id:'fascia',  t:'Fáscia plantar (1–10)', k:'num' },
+  { id:'tecnica', t:'Técnica dos saltos (1–10)', k:'num' },
+  { id:'difed',   t:'Single leg — diferença E/D? (qual lado pior)', k:'txt' },
+  { id:'isofraco',t:'Isometrias — qual lado mais fraco?', k:'txt' },
+  { id:'obs',     t:'Observações', k:'area' }
+];
+var FORM_GYM = [
+  { id:'energia', t:'Energia (1–10)', k:'num' },
+  { id:'joelhos', t:'Joelhos (1–10)', k:'num' },
+  { id:'fascia',  t:'Fáscia plantar (1–10)', k:'num' },
+  { id:'portao',  t:'Portão de manhã (0–10)', k:'num' },
+  { id:'saltos',  t:'Saltos entraram?', k:'simnao' },
+  { id:'silencio',t:'Depth drop — aterrissagem silenciosa?', k:'simnao' },
+  { id:'difed',   t:'Diferença E/D (aterr. lateral / hip thrust / lunge)', k:'txt' },
+  { id:'obs',     t:'Observações', k:'area' }
+];
+
+var NOTAS_CASA = '<p><strong>Regra de ouro:</strong> se a técnica cair, PARA. Qualidade &gt; quantidade, sempre.</p>' +
+'<p><strong>Lógica:</strong> single-leg primeiro (neural fresco) · ativação isométrica → unilateral explosivo → bilateral explosivo → reatividade rápida → estabilidade/isometria · mix fast SSC (&lt;250 ms) + slow SSC · isometria curta antes de plio = PAP · equilíbrio entre séries = recuperação ativa que melhora propriocepção. <em>Baseado em: Verkhoshansky, Chu, Grover (Jump Attack), Joel Smith, meta-análises 2020–2026.</em></p>' +
+'<p><strong>Curto de tempo (corta nesta ordem):</strong> 1) lateral bounds pra 2× 4 (~2 min) · 2) core reativo (~6 min) · 3) metade do superior explosão (~6 min). <strong>BLOCO C NUNCA SAI</strong> — é remédio do tendão, não acessório. Cortar remédio não é poupar, é parar o tratamento.</p>' +
+'<p><strong>Volume:</strong> férias ~100 contatos alta/média ok. In-season: alvo 70–80 — cortar SL hurdle hops (<a class="xref" href="#c3" style="color:#bef264">#3</a>) ou reduzir depth jump pra 2× 4 traz pra ~80. Semana pesada de basquete ou fadiga: mesma redução vale nas férias.</p>' +
+'<p><strong>Registro:</strong> anota as reps E/D de cada série e toca no ✓ — o descanso conta na barra verde. Números da semana passada aparecem em cinza.</p>';
+
+var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho reclama ou a semana de quadra é pesada (jogo, atlética).</p>' +
+'<p><strong>Princípio:</strong> DECOLAGEM SIM, ATERRISSAGEM DURA NÃO. Box jump aterrissa na caixa. Depth DROP cai e segura (não salta de novo). Trap bar jump leve e só com joelho limpo.</p>' +
+'<p><strong>Portão das 24h (de manhã):</strong> passou → sessão completa. Não passou → box jump fica, trap bar jump e Bloco B saem, o tempo vai pro Bloco D (+1 série em cada).</p>' +
+'<p><strong>Versão curta (dia apertado) — corta nesta ordem:</strong> slam → high pull → flexão explosiva → aterrissagem lateral. <strong>BLOCO C NUNCA SAI.</strong></p>' +
+'<p><strong>Por que essa ordem:</strong> potência primeiro (neural fresco) · absorção depois (corpo aquecido, antes da fadiga) · Bloco C depois do explosivo (não compete com o estímulo neural e alivia o tendão) · intrínseco no fim do inferior (estabilizador cansado = 4º quarto) · upper explosivo por último.</p>' +
+'<p><strong>Contatos:</strong> ~40 de média/alta intensidade + pogos leves.</p>';
+
+// ===================== APP =====================
+(function () {
+  var KEY = 'quarta_v1';
+  var DATA = DATA_CASA.concat(DATA_GYM);
+  var byId = {};
+  DATA.forEach(function (e) { byId[e.id] = e; });
+
+  function hoje() {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+  var DIA_CARREGADO = hoje();
+  var state = { d: hoje(), rota: null, vals: {}, sets: {}, steps: {} };
+  var ant = { d: null, vals: {} };
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && p.d === hoje()) {
+        state = { d: p.d, rota: p.rota || null, vals: p.vals || {}, sets: p.sets || {}, steps: p.steps || {} };
+        ant = p.ant || ant;
+      } else if (p) {
+        var tinha = p.vals && Object.keys(p.vals).length > 0;
+        if (tinha) ant = { d: p.d, vals: Object.assign({}, (p.ant && p.ant.vals) || {}, p.vals) };
+        else ant = p.ant || ant;
+      }
+    }
+  } catch (e) {}
+
+  function stSteps(id) { if (!state.steps[id]) state.steps[id] = { i: 0, done: false }; return state.steps[id]; }
+  function stSets(id) { if (!state.sets[id]) state.sets[id] = byId[id].sets.map(function () { return false; }); return state.sets[id]; }
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ d: state.d, rota: state.rota, vals: state.vals, sets: state.sets, steps: state.steps, ant: ant }));
+      var d = new Date();
+      msg('salvo às ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2));
+    } catch (e) { msg(''); }
+  }
+  function msg(t) {
+    var el = document.getElementById('saveMsg');
+    el.textContent = t;
+    clearTimeout(msg._t);
+    if (t) msg._t = setTimeout(function () { el.textContent = ''; }, 2500);
+  }
+  function esc(v) {
+    return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function antVal(k, fb) {
+    return (ant.vals && ant.vals[k] != null && ant.vals[k] !== '') ? String(ant.vals[k]) : fb;
+  }
+
+  // ---------- som / wake lock ----------
+  function ensureAudio() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      beep.ctx = beep.ctx || new AC();
+      if (beep.ctx.state === 'suspended') beep.ctx.resume();
+      if (!ensureAudio.unmuted) {
+        ensureAudio.unmuted = true;
+        var un = document.createElement('audio');
+        un.setAttribute('playsinline', '');
+        un.src = 'data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YZABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+        var pr = un.play();
+        if (pr && pr.catch) pr.catch(function () {});
+      }
+    } catch (e) {}
+  }
+  function beep(times, freq, gain) {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      beep.ctx = beep.ctx || new AC();
+      var t0 = beep.ctx.currentTime;
+      for (var k = 0; k < times; k++) {
+        var o = beep.ctx.createOscillator(), g = beep.ctx.createGain();
+        o.frequency.value = freq || 880; o.connect(g); g.connect(beep.ctx.destination);
+        g.gain.setValueAtTime(gain || 0.15, t0 + k * 0.25);
+        g.gain.exponentialRampToValueAtTime(0.001, t0 + k * 0.25 + 0.18);
+        o.start(t0 + k * 0.25); o.stop(t0 + k * 0.25 + 0.2);
+      }
+    } catch (e) {}
+    if (navigator.vibrate) { try { navigator.vibrate(times === 1 ? 150 : [150, 100, 150]); } catch (e) {} }
+  }
+  function tick() { beep(1, 660, 0.07); }
+
+  var wl = null, wlWanted = false, wlPending = false;
+  function wakeOn() {
+    if (!('wakeLock' in navigator)) return;
+    wlWanted = true;
+    if (wl || wlPending) return;
+    wlPending = true;
+    navigator.wakeLock.request('screen').then(function (l) {
+      wlPending = false;
+      if (!wlWanted) { try { l.release(); } catch (e) {} return; }
+      l.addEventListener('release', function () { if (wl === l) wl = null; });
+      wl = l;
+    }).catch(function () { wlPending = false; });
+  }
+  function wakeOff() {
+    wlWanted = false;
+    if (wl) { try { wl.release(); } catch (e) {} wl = null; }
+  }
+
+  // ---------- render ----------
+  var app = document.getElementById('app');
+  var nav = document.getElementById('chipsNav');
+
+  function inp(cls, key, ph, mode) {
+    return '<input class="' + cls + '" data-k="' + key + '" type="' + (cls === 'tx' ? 'text' : 'number') + '"' +
+      (cls === 'tx' ? '' : ' inputmode="' + (mode || 'numeric') + '"') +
+      ' placeholder="' + esc(antVal(key, ph)) + '" value="' + (state.vals[key] != null ? esc(state.vals[key]) : '') + '">';
+  }
+  function rowHtml(e, s, i) {
+    var base = (e.fid || e.id) + '_' + i;
+    var inner = '';
+    if (s.k === 'ed')      inner = inp('rp', base + '_e', 'E') + '<span class="x">/</span>' + inp('rp', base + '_d', 'D');
+    else if (s.k === 'sec_ed') inner = inp('rp', base + '_e', 's E') + '<span class="x">/</span>' + inp('rp', base + '_d', 's D');
+    else if (s.k === 'r')  inner = inp('rp', base + '_r', 'reps');
+    else if (s.k === 'kg_r') inner = inp('kg', (e.id) + '_' + i + '_kg', 'kg', 'decimal') + '<span class="x">×</span>' + inp('rp', base + '_r', 'reps');
+    else if (s.k === 'kg_ed') inner = inp('kg', (e.id) + '_' + i + '_kg', 'kg', 'decimal') + '<span class="x">×</span>' + inp('rp', base + '_e', 'E') + '<span class="x">/</span>' + inp('rp', base + '_d', 'D');
+    else if (s.k === 'alt') inner = inp('rp', base + '_alt', 'cm');
+    else if (s.k === 'alt_n') inner = inp('rp', base + '_alt', 'cm') + '<span class="x">nota</span>' + inp('rp', base + '_n', '1-10');
+    else if (s.k === 'kg_tx') inner = inp('kg', base + '_kg', 'kg', 'decimal') + inp('tx', base + '_ok', 'salto ok?');
+    return '<div class="srow" data-ex="' + e.id + '" data-i="' + i + '"><span class="slab">' + s.t + '</span>' + inner +
+           '<button class="sdone" type="button" aria-label="série feita">✓</button></div>';
+  }
+
+  function buildRota(blocos, dados, form, notasHtml, rotaCls, formId) {
+    var wrap = document.createElement('div');
+    wrap.className = rotaCls;
+    var det = document.createElement('details');
+    det.className = 'notas';
+    det.innerHTML = '<summary>Notas &amp; regras</summary>' + notasHtml +
+      '<p><strong>Errou um toque?</strong> ✓ da série desmarca; o número do card volta um passo das sequências.</p>';
+    wrap.appendChild(det);
+    blocos.forEach(function (b) {
+      if (b.id === 'chj' || b.id === 'ghj') return;
+      var sec = document.createElement('section');
+      sec.className = 'bloco'; sec.id = b.id;
+      sec.style.setProperty('--acc', b.cor);
+      var head = document.createElement('div');
+      head.className = 'bh';
+      head.innerHTML = '<h2>' + b.titulo + '<small>' + b.sub + '</small></h2>';
+      sec.appendChild(head);
+      dados.filter(function (e) { return e.b === b.id; }).forEach(function (e) {
+        var art = document.createElement('article');
+        art.className = 'ex'; art.id = e.id;
+        var badges = (e.bad || []).map(function (bd) {
+          return '<span class="bpill" style="color:' + bd[1] + ';border-color:' + bd[1] + '">' + bd[0] + '</span>';
+        }).join('');
+        var chips = e.chips.map(function (c) { return '<span>' + c + '</span>'; }).join('');
+        if (e.eq) chips += '<span class="eq">' + e.eq + '</span>';
+        var media = e.img
+          ? '<div class="media"><img class="thumb" src="' + e.img + '" alt="' + e.name.replace(/"/g, '&quot;') + '" loading="lazy" width="104" height="78">' +
+            '<div class="media-right"><div class="dose">' + chips + '</div><p class="cue">' + e.cue + '</p></div></div>'
+          : '<div class="media"><div class="media-right"><div class="dose">' + chips + '</div><p class="cue">' + e.cue + '</p></div></div>';
+        var rows = '';
+        if (e.sets) {
+          rows = '<div class="srows">' + e.sets.map(function (s, i) { return rowHtml(e, s, i); }).join('') + '</div>';
+          if (e.nota) {
+            var nk = e.id + '_nota';
+            rows += '<div class="nota-row"><label>nota</label><input type="text" data-k="' + nk + '" placeholder="' + esc(antVal(nk, '')) + '" value="' + (state.vals[nk] != null ? esc(state.vals[nk]) : '') + '"></div>';
+          }
+        }
+        var go = e.steps ? '<button class="go" type="button"></button>' : '';
+        var linksHtml = '';
+        if (e.links.length) {
+          linksHtml = '<div class="links"><div class="lh">Vídeos</div>' +
+            e.links.map(function (l) { return '<a href="' + l.u + '" target="_blank" rel="noopener">' + l.t + '</a>'; }).join('') + '</div>';
+        }
+        art.innerHTML =
+          '<div class="ex-head"><span class="num">' + e.num + '</span><h3>' + e.name + badges + '</h3>' +
+          '<button class="done-btn" type="button" aria-label="marcar exercício feito" aria-pressed="false">✓</button></div>' +
+          media + rows + go +
+          '<details class="how"><summary>Como fazer · vídeo</summary><div class="how-body">' +
+          '<p>' + e.desc + '</p>' + linksHtml + '</div></details>';
+        sec.appendChild(art);
+        if (e.tip) {
+          var tip = document.createElement('div');
+          tip.className = 'tip'; tip.innerHTML = e.tip;
+          tip.style.setProperty('--acc', b.cor);
+          sec.appendChild(tip);
+        }
+      });
+      wrap.appendChild(sec);
+    });
+    // formulário
+    var fb = blocos[blocos.length - 1];
+    var sec2 = document.createElement('section');
+    sec2.className = 'bloco'; sec2.id = fb.id;
+    sec2.style.setProperty('--acc', fb.cor);
+    var inner = form.map(function (f) {
+      var fid = formId + '_' + f.id;
+      var v = state.vals[fid] != null ? esc(state.vals[fid]) : '';
+      if (f.k === 'num') return '<div class="frow"><label>' + f.t + '</label><input type="number" inputmode="numeric" data-k="' + fid + '" placeholder="' + esc(antVal(fid, '–')) + '" value="' + v + '"></div>';
+      if (f.k === 'txt') return '<div class="frow"><label>' + f.t + '</label><input type="text" data-k="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '" value="' + v + '"></div>';
+      if (f.k === 'area') return '<div><label style="font-size:13.5px;color:#b9c0b4">' + f.t + '</label><textarea data-k="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '">' + v + '</textarea></div>';
+      return '<div class="frow"><label>' + f.t + '</label><span class="seg" data-seg="' + fid + '">' +
+        '<button type="button" data-v="sim"' + (state.vals[fid] === 'sim' ? ' class="on"' : '') + '>sim</button>' +
+        '<button type="button" data-v="não"' + (state.vals[fid] === 'não' ? ' class="on"' : '') + '>não</button></span></div>';
+    }).join('');
+    sec2.innerHTML = '<div class="bh"><h2>' + fb.titulo + '<small>' + fb.sub + '</small></h2></div>' +
+      '<article class="ex"><div class="frm">' + inner + '</div></article>';
+    wrap.appendChild(sec2);
+    app.appendChild(wrap);
+  }
+
+  buildRota(BLOCOS_CASA, DATA_CASA, FORM_CASA, NOTAS_CASA, 'rota-casa', 'fc');
+  buildRota(BLOCOS_GYM, DATA_GYM, FORM_GYM, NOTAS_GYM, 'rota-gym', 'fg');
+
+  // ---------- rota ----------
+  function blocosAtivos() { return state.rota === 'gym' ? BLOCOS_GYM : BLOCOS_CASA; }
+  function dadosAtivos() { return state.rota === 'gym' ? DATA_GYM : DATA_CASA; }
+
+  function setRota(r, salvar) {
+    state.rota = r;
+    document.body.dataset.rota = r;
+    document.getElementById('chooser').classList.remove('show');
+    document.getElementById('h1t').textContent = r === 'gym' ? 'QUA · Atlético' : 'QUA · Plio Casa';
+    document.getElementById('subT').textContent = r === 'gym'
+      ? 'Potência com carga + absorção + remédio · ~65 min · decolagem sim, aterrissagem dura não'
+      : 'Plio completa · ~65–70 min · se técnica cair, PARA · qualidade > quantidade';
+    nav.innerHTML = '';
+    blocosAtivos().forEach(function (b) {
+      var a = document.createElement('a');
+      a.className = 'chip'; a.id = 'chip-' + b.id; a.href = '#' + b.id;
+      a.style.setProperty('--bc', b.cor);
+      a.dataset.base = b.nav;
+      a.textContent = b.nav;
+      nav.appendChild(a);
+    });
+    progress();
+    spy();
+    if (salvar) save();
+  }
+
+  document.querySelectorAll('.rota-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      ensureAudio();
+      setRota(btn.dataset.rota, true);
+      window.scrollTo({ top: 0 });
+    });
+  });
+  document.getElementById('swapBtn').addEventListener('click', function () {
+    document.getElementById('chooser').classList.add('show');
+  });
+
+  // ---------- motores ----------
+  var run = null, rest = null;
+  function fmt(s) { return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+  function card(id) { return document.getElementById(id); }
+  function goBtn(id) { return card(id).querySelector('.go'); }
+
+  var restbar = document.getElementById('restbar');
+  function stopRest() {
+    if (rest) { clearInterval(rest.tick); rest = null; }
+    restbar.classList.remove('show');
+    if (!run) wakeOff();
+  }
+  function startRest(secs, label) {
+    if (rest) { clearInterval(rest.tick); rest = null; }
+    rest = { end: Date.now() + secs * 1000 };
+    document.getElementById('restL').textContent = label;
+    document.getElementById('restT').textContent = fmt(secs);
+    restbar.classList.add('show');
+    wakeOn();
+    rest.tick = setInterval(function () {
+      if (!rest) return;
+      var remMs = rest.end - Date.now();
+      if (remMs <= 0) { beep(2); stopRest(); return; }
+      document.getElementById('restT').textContent = fmt(Math.ceil(remMs / 1000));
+    }, 250);
+  }
+  restbar.addEventListener('click', function () { stopRest(); });
+
+  function stopRun() {
+    if (run) {
+      var old = run.id;
+      clearInterval(run.tick);
+      card(old).classList.remove('run');
+      run = null;
+      if (!rest) wakeOff();
+      renderGo(old);
+    }
+  }
+
+  function exDone(id) {
+    var e = byId[id];
+    if (e.sets) return stSets(id).every(function (v) { return v; });
+    return stSteps(id).done;
+  }
+
+  function renderGo(id) {
+    var e = byId[id];
+    if (!e.steps) return;
+    var s = stSteps(id), b = goBtn(id);
+    b.classList.remove('running', 'paused');
+    if (s.done || (e.sets && exDone(id))) { b.textContent = '✓ feito — refazer sequência'; return; }
+    var step = e.steps[Math.min(s.i, e.steps.length - 1)];
+    if (run && run.id === id) {
+      var rem = run.remaining != null ? run.remaining : Math.max(0, Math.ceil((run.end - Date.now()) / 1000));
+      b.textContent = (run.remaining != null ? '▶ retomar · ' : '⏸ ') + fmt(rem) + ' · ' + step.t;
+      b.classList.toggle('running', run.remaining == null);
+      b.classList.toggle('paused', run.remaining != null);
+      return;
+    }
+    if (step.s) b.textContent = '▶ ' + step.t + ' — ' + fmt(step.s);
+    else b.textContent = '✓ marcar · ' + step.t;
+  }
+
+  function renderCard(id) {
+    var done = exDone(id);
+    card(id).classList.toggle('is-done', done);
+    var db = card(id).querySelector('.done-btn');
+    if (db) db.setAttribute('aria-pressed', done ? 'true' : 'false');
+  }
+
+  function progress() {
+    var dados = dadosAtivos();
+    var d = 0, total = 0;
+    var bd = {};
+    blocosAtivos().forEach(function (b) { bd[b.id] = { done: 0, total: 0 }; });
+    dados.forEach(function (e) {
+      if (e.sets) {
+        var rows = stSets(e.id);
+        total += rows.length;
+        bd[e.b].total += rows.length;
+        rows.forEach(function (v) { if (v) { d++; bd[e.b].done++; } });
+      } else {
+        bd[e.b].total += 1;
+        if (stSteps(e.id).done) bd[e.b].done++;
+      }
+    });
+    document.getElementById('progTxt').textContent = d + '/' + total + ' séries';
+    document.getElementById('pbar').style.width = (total ? d / total * 100 : 0) + '%';
+    blocosAtivos().forEach(function (b) {
+      var chip = document.getElementById('chip-' + b.id);
+      if (!chip) return;
+      var base = chip.dataset.base, x = bd[b.id];
+      if (!x.total) { chip.textContent = base; return; }
+      chip.textContent = x.done >= x.total ? base + ' ✓' : (x.done > 0 ? base + ' ' + x.done + '/' + x.total : base);
+    });
+  }
+
+  function advance(fromId) {
+    var dados = dadosAtivos();
+    var start = 0;
+    if (fromId) {
+      for (var j = 0; j < dados.length; j++) if (dados[j].id === fromId) { start = j + 1; break; }
+    }
+    var next = null;
+    for (var k = 0; k < dados.length; k++) {
+      var e = dados[(start + k) % dados.length];
+      if (!exDone(e.id)) { next = e.id; break; }
+    }
+    if (next) setTimeout(function () {
+      card(next).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 700);
+  }
+
+  function flash(id) {
+    var el = card(id);
+    el.classList.add('flash');
+    setTimeout(function () { el.classList.remove('flash'); }, 1000);
+  }
+
+  function setRow(exId, i, val, comDescanso) {
+    var e = byId[exId], rows = stSets(exId);
+    rows[i] = val;
+    var el = card(exId).querySelector('.srow[data-i="' + i + '"]');
+    el.classList.toggle('ok', val);
+    // desmarcar linha de card com sequência: volta a sequência pro início daquela série
+    if (!val && e.steps) {
+      var ss = stSteps(exId);
+      var alvoStep = 0;
+      for (var st2 = 0; st2 < e.steps.length; st2++) {
+        if (e.steps[st2].t.indexOf(e.sets[i].t) === 0) { alvoStep = st2; break; }
+      }
+      if (ss.done || ss.i > alvoStep) { ss.done = false; ss.i = Math.min(ss.i, alvoStep); renderGo(exId); }
+    }
+    var completo = exDone(exId);
+    renderCard(exId);
+    progress();
+    save();
+    if (val && comDescanso) {
+      tick();
+      if (completo) {
+        flash(exId);
+        stopRest();
+        advance(exId);
+      } else if (e.rest) {
+        var nx = null;
+        for (var k = i + 1; k < rows.length; k++) if (!rows[k]) { nx = e.sets[k].t; break; }
+        startRest(e.rest, 'DESCANSO · ' + e.name.split(' (')[0] + (nx ? ' → ' + nx : ''));
+      }
+    }
+  }
+
+  // sequências (aquecimento / Bloco C): fim da perna D de uma série marca a linha
+  function mapStepParaRow(e, idx) {
+    if (!e.sets || !e.steps) return null;
+    // passos de série: pares E/D — a linha fecha no passo da perna D
+    var rowsFechamEm = {};
+    var rowIdx = 0;
+    for (var s = 0; s < e.steps.length; s++) {
+      var t = e.steps[s].t;
+      if (t.indexOf('Perna D') > -1) { rowsFechamEm[s] = rowIdx; rowIdx++; }
+    }
+    return rowsFechamEm[idx] != null ? rowsFechamEm[idx] : null;
+  }
+
+  function completeStep(id, isTimer) {
+    var e = byId[id], s = stSteps(id);
+    var idx = s.i;
+    s.i++;
+    var last = s.i >= e.steps.length;
+    if (isTimer) beep(last ? 2 : 1); else tick();
+    flash(id);
+    var row = mapStepParaRow(e, idx);
+    if (row != null) setRow(id, row, true, false);
+    if (last) {
+      s.done = true;
+      renderCard(id);
+      progress();
+      save();
+      renderGo(id);
+      advance(id);
+    } else { renderGo(id); save(); }
+  }
+  function startTimer(id, secs) {
+    stopRun();
+    run = { id: id, end: Date.now() + secs * 1000, remaining: null };
+    card(id).classList.add('run');
+    wakeOn();
+    run.tick = setInterval(function () {
+      if (!run || run.remaining != null) return;
+      if (Date.now() >= run.end) { stopRun(); completeStep(id, true); return; }
+      renderGo(id);
+    }, 250);
+    renderGo(id);
+  }
+  function onGo(id) {
+    ensureAudio();
+    var e = byId[id], s = stSteps(id);
+    if (s.done || (e.sets && exDone(id))) {
+      s.done = false; s.i = 0;
+      if (e.sets) stSets(id).forEach(function (_, i) { setRow(id, i, false, false); });
+      renderCard(id); renderGo(id); progress(); save();
+      return;
+    }
+    if (run && run.id === id) {
+      if (run.remaining == null) {
+        run.remaining = Math.max(1, Math.ceil((run.end - Date.now()) / 1000));
+        if (!rest) wakeOff();
+      } else { run.end = Date.now() + run.remaining * 1000; run.remaining = null; wakeOn(); }
+      renderGo(id);
+      return;
+    }
+    var step = e.steps[Math.min(s.i, e.steps.length - 1)];
+    if (step.s) startTimer(id, step.s);
+    else completeStep(id, false);
+  }
+
+  // ---------- ligar tudo ----------
+  DATA.forEach(function (e) {
+    var id = e.id;
+    if (e.steps) {
+      goBtn(id).addEventListener('click', function () { onGo(id); });
+      renderGo(id);
+      card(id).querySelector('.num').addEventListener('click', function () {
+        var s = stSteps(id);
+        if (s.done || s.i <= 0) return;
+        if (run && run.id === id) stopRun();
+        s.i--;
+        tick();
+        renderGo(id);
+        save();
+      });
+    }
+    if (e.sets) {
+      card(id).querySelectorAll('.srow').forEach(function (row) {
+        var i = +row.dataset.i;
+        row.querySelector('.sdone').addEventListener('click', function () {
+          ensureAudio();
+          setRow(id, i, !stSets(id)[i], true);
+        });
+        if (stSets(id)[i]) row.classList.add('ok');
+      });
+    }
+    card(id).querySelector('.done-btn').addEventListener('click', function () {
+      ensureAudio();
+      var done = exDone(id);
+      if (run && run.id === id) stopRun();
+      if (e.sets) {
+        stSets(id).forEach(function (_, i) { setRow(id, i, !done, false); });
+        if (e.steps) { var s = stSteps(id); s.done = !done; s.i = done ? 0 : e.steps.length; renderGo(id); }
+        if (!done) stopRest();
+      } else {
+        var s2 = stSteps(id);
+        s2.done = !done; if (done) s2.i = 0;
+        renderGo(id);
+      }
+      renderCard(id);
+      progress();
+      save();
+    });
+    var thumb = card(id).querySelector('.thumb');
+    var det = card(id).querySelector('details.how');
+    if (thumb) thumb.addEventListener('click', function () { det.open = !det.open; });
+    det.querySelectorAll('.how-body a').forEach(function (a) {
+      a.addEventListener('click', function () { setTimeout(function () { det.open = false; }, 250); });
+    });
+    renderCard(id);
+  });
+
+  document.querySelectorAll('input[data-k], textarea[data-k]').forEach(function (el) {
+    el.addEventListener('input', function () {
+      state.vals[el.dataset.k] = el.value;
+      // Bloco C existe nas duas rotas com a mesma chave: espelha o campo gêmeo
+      document.querySelectorAll('[data-k="' + el.dataset.k + '"]').forEach(function (tw) {
+        if (tw !== el) tw.value = el.value;
+      });
+      save();
+    });
+  });
+  document.querySelectorAll('[data-seg]').forEach(function (seg) {
+    seg.querySelectorAll('button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        state.vals[seg.dataset.seg] = btn.dataset.v;
+        seg.querySelectorAll('button').forEach(function (b2) { b2.classList.toggle('on', b2 === btn); });
+        save();
+      });
+    });
+  });
+
+  // ---------- rota inicial ----------
+  if (state.rota) setRota(state.rota, false);
+  else {
+    setRota('casa', false);
+    state.rota = null; // ainda não escolhida
+    document.getElementById('chooser').classList.add('show');
+    document.getElementById('h1t').textContent = 'Quarta';
+  }
+
+  // retomar onde parou
+  if (state.rota) {
+    var dados = dadosAtivos();
+    var started = dados.some(function (e) {
+      return exDone(e.id) || (e.sets && stSets(e.id).some(function (v) { return v; })) || (e.steps && stSteps(e.id).i > 0);
+    });
+    var allDone = dados.every(function (e) { return exDone(e.id); });
+    if (started && !allDone) advance();
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    if (!confirm('Zerar a sessão de hoje (marcações, campos e rota)?')) return;
+    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
+    stopRun(); stopRest();
+    try { localStorage.setItem(KEY, JSON.stringify({ d: hoje(), rota: null, vals: {}, sets: {}, steps: {}, ant: ant })); } catch (e) {}
+    location.reload();
+  });
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) return;
+    if (hoje() !== DIA_CARREGADO) {
+      if (!run && !rest) location.reload();
+      return;
+    }
+    if (run && run.remaining == null) {
+      if (Date.now() >= run.end) { var rid = run.id; stopRun(); completeStep(rid, true); }
+      else { renderGo(run.id); wakeOn(); }
+    }
+    if (rest) {
+      if (Date.now() >= rest.end) { beep(2); stopRest(); }
+      else wakeOn();
+    }
+  });
+  setInterval(function () {
+    var runAtivo = run && run.remaining == null;
+    if (hoje() !== DIA_CARREGADO && !runAtivo && !rest) location.reload();
+  }, 30000);
+
+  // scroll-spy (rota ativa)
+  function spy() {
+    var lim = document.querySelector('.top').offsetHeight + 24;
+    var cur = null;
+    var bs = blocosAtivos();
+    for (var i = 0; i < bs.length; i++) {
+      var el = document.getElementById(bs[i].id);
+      if (el && el.getBoundingClientRect().top <= lim) cur = bs[i].id;
+    }
+    bs.forEach(function (b) {
+      var chip = document.getElementById('chip-' + b.id);
+      if (!chip) return;
+      var on = b.id === cur;
+      chip.classList.toggle('on', on);
+      if (on) {
+        var L = chip.offsetLeft - 10, R = chip.offsetLeft + chip.offsetWidth + 10;
+        if (L < nav.scrollLeft) nav.scrollLeft = L;
+        else if (R > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = R - nav.clientWidth;
+      }
+    });
+  }
+  var spyT = null;
+  window.addEventListener('scroll', function () {
+    if (spyT) return;
+    spyT = setTimeout(function () { spyT = null; spy(); }, 120);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
