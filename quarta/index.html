@@ -279,7 +279,7 @@
   </button>
   <button class="rota-btn gym" type="button" data-rota="gym">
     <div class="rt1">ATLÉTICO — Academia</div>
-    <div class="rt2">~65 min · rack, caixa, KB, med ball · ~40 contatos · potência com carga + absorção</div>
+    <div class="rt2">~65 min · rack, caixa, KB, med ball · ~40 contatos · potência + absorção + remédio + intrínseco</div>
   </button>
 </div>
 
@@ -292,9 +292,9 @@ var SLOW = function (n) { return ['SLOW SSC · ' + n + ' cont', '#22d3ee']; };
 
 var BLOCOS_CASA = [
   { id:'caq', cor:'#94a3b8', nav:'Aquec',       titulo:'AQUECIMENTO + ATIVAÇÃO',                     sub:'~10 min' },
-  { id:'cA',  cor:'#a3e635', nav:'A · Single',  titulo:'BLOCO A — SINGLE LEG / UNILATERAL',          sub:'4 exercícios · ~18 min · faz FRESCO, concentração máxima' },
-  { id:'cB',  cor:'#22d3ee', nav:'B · Bilateral',titulo:'BLOCO B — BILATERAL + REATIVIDADE',         sub:'4 exercícios · ~12 min' },
-  { id:'cC',  cor:'#ef4444', nav:'C · Iso',     titulo:'BLOCO C — ISOMETRIA + EQUILÍBRIO · INTOCÁVEL', sub:'4 exercícios · ~8 min · DEPOIS do explosivo' },
+  { id:'cA',  cor:'#a3e635', nav:'A · Single',  titulo:'BLOCO A — SINGLE LEG / UNILATERAL',          sub:'4 exercícios · ~18 min · objetivo: takeoff de 1 perna (ponto fraco) · faz FRESCO, concentração máxima' },
+  { id:'cB',  cor:'#22d3ee', nav:'B · Bilateral',titulo:'BLOCO B — BILATERAL + REATIVIDADE',         sub:'4 exercícios · ~12 min · objetivo: potência máxima de 2 pernas + velocidade de contato' },
+  { id:'cC',  cor:'#ef4444', nav:'C · Iso',     titulo:'BLOCO C — ISOMETRIA + EQUILÍBRIO INFERIOR · INTOCÁVEL', sub:'4 exercícios · ~8 min · objetivo: estabilidade single-leg + rigidez tendínea · DEPOIS do explosivo (não compete com o estímulo neural)' },
   { id:'cS',  cor:'#fb923c', nav:'Superior',    titulo:'SUPERIOR — EXPLOSÃO',                        sub:'4 exercícios · ~12 min' },
   { id:'cR',  cor:'#eab308', nav:'Core',        titulo:'CORE REATIVO',                               sub:'3 exercícios' },
   { id:'chj', cor:'#94a3b8', nav:'Hoje',        titulo:'COMO FOI HOJE',                              sub:'preenche no fim' }
@@ -341,7 +341,7 @@ var DATA_CASA = [
   desc:'Improvisar hurdles: pilhas de livros (15–25 cm), caixas de sapato, cones. Salta em 1 perna sobre cada obstáculo, contato MÍNIMO com o chão. Objetivo: tempo de contato &lt;250 ms, tempo de voo maior que o contato.',
   links:[{t:'Single Leg Mini-Hurdle Hop', u:YT('TxtjHt8AZA0')}] },
 
-{ id:'c4', b:'cA', num:'4', name:'Lateral bounds (ida e volta)', img:IMG('Hc9_FQgIeeg'), bad:[FAST(24)],
+{ id:'c4', b:'cA', num:'4', name:'Lateral bounds single leg (ida e volta)', img:IMG('Hc9_FQgIeeg'), bad:[FAST(24)],
   chips:['3× 4','cada lado'], eq:'descanso 1:00', rest:60,
   cue:'Empurra lateral com força, aterrissa <b>estável</b> — tronco em cima do pé de apoio.',
   sets:[{t:'S1',k:'ed'},{t:'S2',k:'ed'},{t:'S3',k:'ed'}],
@@ -378,7 +378,7 @@ var DATA_CASA = [
   tip:'<strong>Contatos totais inferior:</strong> ~100 de alta/média intensidade (18+12+12+24+12+6+16) + 20 baixa (pogos) · single leg 66 de 100 = 66% (prioridade certa) · Fast SSC 78 | Slow SSC 22 → proporção 78/22.' },
 
 { id:'c9', b:'cC', num:'9', name:'Isometric lunge hold', img:IMG('XblZ99nCrFs'), fid:'bcq_lunge',
-  chips:['2× 25–30 s','cada perna'], eq:'descanso 0:45',
+  chips:['2× 25–30 s','cada perna'], eq:'descanso 0:45', rest:45,
   cue:'Lunge profundo, tronco reto — <b>EMPURRA o chão</b> com o pé da frente o tempo todo.',
   sets:[{t:'S1',k:'sec_ed'},{t:'S2',k:'sec_ed'}],
   steps:[{t:'S1 · Perna E',s:30},{t:'S1 · Perna D',s:30},{t:'Descanso',s:45},{t:'S2 · Perna E',s:30},{t:'S2 · Perna D',s:30}],
@@ -386,7 +386,7 @@ var DATA_CASA = [
   links:[{t:'Isometric Lunge Hold', u:YT('XblZ99nCrFs')}] },
 
 { id:'c10', b:'cC', num:'10', name:'Single leg wall sit', img:IMG('lpTsOjxkFOc'), fid:'bcq_wallsit',
-  chips:['2× 20–30 s','cada perna'], eq:'descanso 0:45',
+  chips:['2× 20–30 s','cada perna'], eq:'descanso 0:45', rest:45,
   cue:'Costas na parede, desce até ~90° <b>numa perna só</b> — a outra levantada a 90°.',
   sets:[{t:'S1',k:'sec_ed'},{t:'S2',k:'sec_ed'}],
   steps:[{t:'S1 · Perna E',s:30},{t:'S1 · Perna D',s:30},{t:'Descanso',s:45},{t:'S2 · Perna E',s:30},{t:'S2 · Perna D',s:30}],
@@ -437,7 +437,7 @@ var DATA_CASA = [
   links:[{t:'Standing Med Ball Rotational Throw', u:YT('o9BC7lgN1bo')}] },
 
 { id:'cc1', b:'cR', num:'C1', name:'Russian twists com carga', img:IMG('mCViD-Ui-4o'),
-  chips:['3× 12–15','alternando'], eq:'descanso 0:45', rest:45,
+  chips:['3× 12–15 total','alternando lados'], eq:'descanso 0:45', rest:45,
   cue:'Tronco a ~45°, pés fora do chão — <b>GUIA a rotação</b>, não joga o peso.',
   sets:[{t:'S1',k:'r'},{t:'S2',k:'r'},{t:'S3',k:'r'}],
   desc:'Sentado, tronco inclinado ~45°, pés fora do chão. Segura bola de basquete ou peso, rotaciona lado a lado COM CONTROLE. A força vem do oblíquo, não do braço. Não joga o peso, GUIA a rotação. Transferência: potência rotacional pra passe e drive com contato.',
@@ -497,7 +497,7 @@ var DATA_GYM = [
 { id:'g5', b:'gB', num:'5', name:'Depth drop com stick (duas pernas)', img:IMG('vZgJaa0izPU'),
   chips:['3× 3'], eq:'caixa 30–40 cm · descanso 1:00', rest:60,
   cue:'Ponta do pé → calcanhar, absorve, <b>segura 2 s, silêncio</b>.',
-  sets:[{t:'S1',k:'alt_n'},{t:'S2',k:'alt_n'},{t:'S3',k:'alt_n'}],
+  sets:[{t:'S1',k:'alt_n'},{t:'S2',k:'alt'},{t:'S3',k:'alt'}],
   desc:'Caixa 30–40 cm · ponta do pé → calcanhar, absorve, segura 2 s, silêncio. 3 semanas limpas → uma perna, caixa 20 cm. Depth DROP: cai e segura, não salta de novo.',
   links:[{t:'Depth Drops — Tutorial', u:YT('vZgJaa0izPU')},{t:'Mecânica de aterrissagem (Prehab Guys)', u:YT('RThUCYRDyZw')}] },
 
@@ -509,7 +509,7 @@ var DATA_GYM = [
   links:[{t:'Box Single-Leg Lateral Drop Land', u:YT('fTkHTA_cQ9U')}] },
 
 { id:'g7', b:'gC', num:'7', name:'Lunge isométrico', img:IMG('XblZ99nCrFs'), fid:'bcq_lunge',
-  chips:['2× 25–30 s','cada perna'], eq:'descanso 0:45',
+  chips:['2× 25–30 s','cada perna'], eq:'descanso 0:45', rest:45,
   cue:'<b>Empurra o chão</b> com o pé da frente o tempo todo.',
   sets:[{t:'S1',k:'sec_ed'},{t:'S2',k:'sec_ed'}],
   steps:[{t:'S1 · Perna E',s:30},{t:'S1 · Perna D',s:30},{t:'Descanso',s:45},{t:'S2 · Perna E',s:30},{t:'S2 · Perna D',s:30}],
@@ -517,17 +517,17 @@ var DATA_GYM = [
   links:[{t:'Isometric Lunge Hold', u:YT('XblZ99nCrFs')}] },
 
 { id:'g8', b:'gC', num:'8', name:'Single leg wall sit', img:IMG('lpTsOjxkFOc'), fid:'bcq_wallsit',
-  chips:['2× 20–30 s','cada perna'], eq:'descanso 0:45',
+  chips:['2× 20–30 s','cada perna'], eq:'descanso 0:45', rest:45,
   cue:'Costas na parede, ~90° <b>numa perna só</b>.',
   sets:[{t:'S1',k:'sec_ed'},{t:'S2',k:'sec_ed'}],
   steps:[{t:'S1 · Perna E',s:30},{t:'S1 · Perna D',s:30},{t:'Descanso',s:45},{t:'S2 · Perna E',s:30},{t:'S2 · Perna D',s:30}],
   desc:'2× 20–30 s cada perna, costas na parede, outra perna levantada a 90°.',
   links:[{t:'Single Leg Wall Sit', u:YT('lpTsOjxkFOc')}] },
 
-{ id:'g9', b:'gC', num:'9', name:'Single leg RDL com halter leve', img:IMG('Zfr6wizR8rs'), fid:'bcq_slrdl', kgProprio:true,
+{ id:'g9', b:'gC', num:'9', name:'Single leg RDL com halter leve', img:IMG('Zfr6wizR8rs'), fid:'bcq_slrdl',
   chips:['2× 8','cada perna'], eq:'descanso 0:45', rest:45,
   cue:'Halter na mão oposta ao pé de apoio — dobra no <b>quadril</b>, sobe apertando o glúteo.',
-  sets:[{t:'S1',k:'kg_ed'},{t:'S2',k:'kg_ed'}],
+  sets:[{t:'S1',k:'kg_ed'},{t:'S2',k:'ed'}],
   desc:'Halter na mão oposta ao pé de apoio. Dobra no quadril (não na lombar), perna de trás como contrapeso. Desce controlado, sobe apertando o glúteo. Equilíbrio + posterior em single leg.',
   links:[{t:'Single-Leg RDL (Squat University)', u:YT('Zfr6wizR8rs')}] },
 
@@ -579,7 +579,7 @@ var DATA_GYM = [
   cue:'Corpo inteiro no slam, pega no quique e repete.',
   sets:[{t:'S1',k:'r'},{t:'S2',k:'r'},{t:'S3',k:'r'}],
   desc:'Bola acima da cabeça, joga no chão com tudo — core + ombros + quadril.',
-  links:[{t:'Medicine Ball Overhead Slam Tutorial', u:YT('uuIJroNfvdQ')}] },
+  links:[{t:'Medicine Ball Overhead Slam Tutorial', u:YT('uuIJroNfvdQ')},{t:'Guia med ball (BarBend)', u:'https://barbend.com/medicine-ball-exercises/'}] },
 
 { id:'g17', b:'gE', num:'17', name:'Landmine press meio-ajoelhado explosivo', img:IMG('hhWFiVUdFQQ'),
   chips:['3× 5','cada lado'], eq:'descanso 1:00', rest:60,
@@ -600,8 +600,8 @@ var FORM_CASA = [
   { id:'energia', t:'Energia (1–10)', k:'num' },
   { id:'joelhos', t:'Joelhos (1–10)', k:'num' },
   { id:'fascia',  t:'Fáscia plantar (1–10)', k:'num' },
+  { id:'difed',   t:'Single leg — sentiu diferença E/D? (sim/não, qual lado pior)', k:'txt' },
   { id:'tecnica', t:'Técnica dos saltos (1–10)', k:'num' },
-  { id:'difed',   t:'Single leg — diferença E/D? (qual lado pior)', k:'txt' },
   { id:'isofraco',t:'Isometrias — qual lado mais fraco?', k:'txt' },
   { id:'obs',     t:'Observações', k:'area' }
 ];
@@ -618,15 +618,15 @@ var FORM_GYM = [
 
 var NOTAS_CASA = '<p><strong>Regra de ouro:</strong> se a técnica cair, PARA. Qualidade &gt; quantidade, sempre.</p>' +
 '<p><strong>Lógica:</strong> single-leg primeiro (neural fresco) · ativação isométrica → unilateral explosivo → bilateral explosivo → reatividade rápida → estabilidade/isometria · mix fast SSC (&lt;250 ms) + slow SSC · isometria curta antes de plio = PAP · equilíbrio entre séries = recuperação ativa que melhora propriocepção. <em>Baseado em: Verkhoshansky, Chu, Grover (Jump Attack), Joel Smith, meta-análises 2020–2026.</em></p>' +
-'<p><strong>Curto de tempo (corta nesta ordem):</strong> 1) lateral bounds pra 2× 4 (~2 min) · 2) core reativo (~6 min) · 3) metade do superior explosão (~6 min). <strong>BLOCO C NUNCA SAI</strong> — é remédio do tendão, não acessório. Cortar remédio não é poupar, é parar o tratamento.</p>' +
-'<p><strong>Volume:</strong> férias ~100 contatos alta/média ok. In-season: alvo 70–80 — cortar SL hurdle hops (<a class="xref" href="#c3" style="color:#bef264">#3</a>) ou reduzir depth jump pra 2× 4 traz pra ~80. Semana pesada de basquete ou fadiga: mesma redução vale nas férias.</p>' +
+'<p><strong>Curto de tempo (corta nesta ordem):</strong> 1) lateral bounds pra 2× 4 (~2 min) · 2) core reativo (~6 min) · 3) metade do superior explosão — 2 séries de cada (~6 min). <strong>BLOCO C NUNCA SAI</strong> — é remédio do tendão, não acessório. Cortar remédio não é poupar, é parar o tratamento.</p>' +
+'<p><strong>Volume:</strong> férias ~100 contatos alta/média ok (menos jogo na semana). In-season: alvo 70–80 — cortar SL hurdle hops (<a class="xref" href="#c3" style="color:#bef264">#3</a>) ou reduzir depth jump pra 2× 4 traz pra ~80. Semana pesada de basquete ou fadiga: mesma redução vale nas férias.</p>' +
 '<p><strong>Registro:</strong> anota as reps E/D de cada série e toca no ✓ — o descanso conta na barra verde. Números da semana passada aparecem em cinza.</p>';
 
 var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho reclama ou a semana de quadra é pesada (jogo, atlética).</p>' +
 '<p><strong>Princípio:</strong> DECOLAGEM SIM, ATERRISSAGEM DURA NÃO. Box jump aterrissa na caixa. Depth DROP cai e segura (não salta de novo). Trap bar jump leve e só com joelho limpo.</p>' +
 '<p><strong>Portão das 24h (de manhã):</strong> passou → sessão completa. Não passou → box jump fica, trap bar jump e Bloco B saem, o tempo vai pro Bloco D (+1 série em cada).</p>' +
-'<p><strong>Versão curta (dia apertado) — corta nesta ordem:</strong> slam → high pull → flexão explosiva → aterrissagem lateral. <strong>BLOCO C NUNCA SAI.</strong></p>' +
-'<p><strong>Por que essa ordem:</strong> potência primeiro (neural fresco) · absorção depois (corpo aquecido, antes da fadiga) · Bloco C depois do explosivo (não compete com o estímulo neural e alivia o tendão) · intrínseco no fim do inferior (estabilizador cansado = 4º quarto) · upper explosivo por último.</p>' +
+'<p><strong>Versão curta (~50 min, dia apertado) — corta nesta ordem:</strong> slam → high pull → flexão explosiva → aterrissagem lateral. <strong>BLOCO C NUNCA SAI.</strong></p>' +
+'<p><strong>Por que essa ordem:</strong> potência primeiro (neural fresco) · absorção depois (corpo aquecido, antes da fadiga) · Bloco C depois do explosivo (não compete com o estímulo neural e alivia o tendão) · intrínseco no fim do inferior (estabilizador cansado = 4º quarto) · upper explosivo por último (não rouba nada do inferior).</p>' +
 '<p><strong>Contatos:</strong> ~40 de média/alta intensidade + pogos leves.</p>';
 
 // ===================== APP =====================
@@ -843,12 +843,14 @@ var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho r
   function dadosAtivos() { return state.rota === 'gym' ? DATA_GYM : DATA_CASA; }
 
   function setRota(r, salvar) {
+    // trocar de rota de verdade mata timer e descanso da rota abandonada
+    if (state.rota && state.rota !== r) { stopRun(); stopRest(); }
     state.rota = r;
     document.body.dataset.rota = r;
     document.getElementById('chooser').classList.remove('show');
     document.getElementById('h1t').textContent = r === 'gym' ? 'QUA · Atlético' : 'QUA · Plio Casa';
     document.getElementById('subT').textContent = r === 'gym'
-      ? 'Potência com carga + absorção + remédio · ~65 min · decolagem sim, aterrissagem dura não'
+      ? 'Potência com carga + absorção + remédio + intrínseco · ~65 min · decolagem sim, aterrissagem dura não'
       : 'Plio completa · ~65–70 min · se técnica cair, PARA · qualidade > quantidade';
     nav.innerHTML = '';
     blocosAtivos().forEach(function (b) {
@@ -1001,12 +1003,31 @@ var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho r
     el.classList.toggle('ok', val);
     // desmarcar linha de card com sequência: volta a sequência pro início daquela série
     if (!val && e.steps) {
+      if (run && run.id === exId) stopRun();
       var ss = stSteps(exId);
       var alvoStep = 0;
       for (var st2 = 0; st2 < e.steps.length; st2++) {
         if (e.steps[st2].t.indexOf(e.sets[i].t) === 0) { alvoStep = st2; break; }
       }
       if (ss.done || ss.i > alvoStep) { ss.done = false; ss.i = Math.min(ss.i, alvoStep); renderGo(exId); }
+    }
+    // marcar linha na mão avança a sequência além daquela série (simetria do desfazer)
+    if (val && e.steps) {
+      var ss3 = stSteps(exId), cnt = -1;
+      for (var sp = 0; sp < e.steps.length; sp++) {
+        if (e.steps[sp].t.indexOf('Perna D') > -1) {
+          cnt++;
+          if (cnt === i) {
+            if (ss3.i <= sp) {
+              if (run && run.id === exId) stopRun();
+              ss3.i = sp + 1;
+              if (ss3.i >= e.steps.length) ss3.done = true;
+              renderGo(exId);
+            }
+            break;
+          }
+        }
+      }
     }
     var completo = exDone(exId);
     renderCard(exId);
@@ -1073,6 +1094,7 @@ var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho r
     ensureAudio();
     var e = byId[id], s = stSteps(id);
     if (s.done || (e.sets && exDone(id))) {
+      if (run && run.id === id) stopRun();
       s.done = false; s.i = 0;
       if (e.sets) stSets(id).forEach(function (_, i) { setRow(id, i, false, false); });
       renderCard(id); renderGo(id); progress(); save();
