@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FB2">
+<meta name="theme-color" content="#101014">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>GYM FB2 — Sexta</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { background:#101014; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:#101014; color:#e8e8ec; max-width:480px; margin:0 auto;
+    padding:0 14px calc(96px + env(safe-area-inset-bottom));
+    font-size:16px; line-height:1.45;
+  }
+  a { color:#fbbf24; }
+
+  .top {
+    position:sticky; top:0; z-index:10; background:rgba(16,16,20,.93);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    margin:0 -14px; padding:calc(10px + env(safe-area-inset-top)) 14px 0;
+    border-bottom:1px solid #26262c;
+  }
+  .top-row { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .top h1 { font-size:17px; font-weight:800; letter-spacing:-.2px; color:#f59e0b; }
+  .prog-txt { font-size:13px; font-weight:700; color:#8e8e96; font-variant-numeric:tabular-nums; }
+  .chips-nav { display:flex; gap:6px; overflow-x:auto; padding:8px 0 10px; scrollbar-width:none; }
+  .chips-nav::-webkit-scrollbar { display:none; }
+  .chip {
+    flex-shrink:0; font-size:13px; font-weight:700; padding:10px 13px; border-radius:8px;
+    background:#1b1b21; border:1px solid #35353d; color:#9d9da6; white-space:nowrap;
+    text-decoration:none;
+  }
+  .chip.on { background:var(--bc); border-color:var(--bc); color:#101014; }
+  .pbar { height:3px; background:#1e1e24; margin:0 -14px; }
+  .pbar i { display:block; height:100%; width:0%; background:#f59e0b; transition:width .4s; }
+
+  .sub { font-size:12.5px; color:#8e8e96; margin:12px 0 0; text-align:center; }
+
+  details.notas {
+    background:#1b1b21; border:1px solid #35353d; border-radius:10px;
+    padding:0 14px; margin:12px 0 4px;
+  }
+  details.notas summary {
+    list-style:none; cursor:pointer; font-size:13.5px; font-weight:700; color:#e8e8ec;
+    padding:11px 0; display:flex; align-items:center; gap:6px;
+  }
+  details.notas summary::-webkit-details-marker { display:none; }
+  details.notas summary::before { content:"▸"; color:#f59e0b; transition:transform .2s; }
+  details.notas[open] summary::before { transform:rotate(90deg); }
+  details.notas p { font-size:13.5px; color:#aeaeb8; line-height:1.55; padding-bottom:10px; }
+  details.notas p strong { color:#e8e8ec; }
+
+  section.bloco { --acc:#f59e0b; scroll-margin-top:calc(100px + env(safe-area-inset-top)); }
+  .bh {
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin:22px 0 10px; padding:10px 14px; border-radius:8px;
+    background:color-mix(in srgb, var(--acc) 10%, transparent);
+    border-left:3px solid var(--acc);
+    scroll-margin-top:calc(100px + env(safe-area-inset-top));
+  }
+  @supports not (background: color-mix(in srgb, red 10%, transparent)) {
+    .bh { background:#1b1b21; }
+  }
+  .bh h2 { font-size:14.5px; font-weight:800; color:var(--acc); }
+  .bh h2 small { display:block; font-size:12px; font-weight:600; color:#9d9da6; margin-top:1px; }
+
+  .ex {
+    background:#1b1b21; border:1px solid #35353d; border-radius:12px;
+    padding:14px 14px 12px; margin-bottom:12px; transition:opacity .3s, border-color .3s;
+    scroll-margin-top:calc(100px + env(safe-area-inset-top));
+  }
+  .ex.run { border-color:var(--acc); }
+  .ex.is-done { opacity:.5; }
+  .ex.flash { animation:fl .45s 2; }
+  @keyframes fl { 50% { border-color:#4ade80; box-shadow:0 0 0 3px #4ade8033; } }
+
+  .ex-head { display:flex; align-items:flex-start; gap:10px; }
+  .num {
+    min-width:30px; height:28px; padding:0 6px; border-radius:8px; background:var(--acc); color:#101014;
+    font-weight:800; font-size:12.5px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; margin-top:1px; cursor:pointer;
+  }
+  .ex-head h3 { flex:1; font-size:17px; font-weight:750; line-height:1.25; letter-spacing:-.2px; }
+  .bpill {
+    display:inline-block; border:1.5px solid; border-radius:6px; padding:1px 7px;
+    font-size:10.5px; font-weight:800; letter-spacing:.4px; margin-left:6px;
+    vertical-align:2px; white-space:nowrap;
+  }
+  .done-btn {
+    width:44px; height:44px; margin:-8px -8px 0 0; flex-shrink:0; border-radius:10px;
+    border:1.5px solid #35353d; background:transparent;
+    color:#6f6f78; font-size:18px; font-weight:800; cursor:pointer;
+  }
+  .is-done .done-btn { background:#4ade80; border-color:#4ade80; color:#101014; }
+
+  .media { display:flex; gap:12px; margin:10px 0 11px; align-items:flex-start; }
+  .thumb {
+    width:104px; height:78px; object-fit:cover; border-radius:8px;
+    border:1px solid #35353d; flex-shrink:0; cursor:pointer; background:#141419;
+  }
+  .media-right { flex:1; min-width:0; }
+  .dose { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:7px; }
+  .dose span {
+    background:#101014; border:1px solid #35353d; border-radius:6px;
+    padding:4px 9px; font-size:14.5px; font-weight:800; font-variant-numeric:tabular-nums;
+  }
+  .dose span.eq { font-weight:600; color:#9d9da6; font-size:12.5px; align-self:center; border-style:dashed; }
+  .cue { font-size:13.5px; color:#aeaeb8; line-height:1.45; }
+  .cue b { color:#e8e8ec; }
+
+  /* -------- linhas de série (registro kg × reps) -------- */
+  .srows { margin:4px 0 2px; }
+  .srow { display:flex; align-items:center; gap:7px; padding:5px 0; }
+  .slab { min-width:26px; width:auto; white-space:nowrap; font-size:13px; font-weight:800; color:#9d9da6; flex-shrink:0; }
+  .srow input {
+    background:#101014; border:1px solid #35353d; border-radius:8px; color:#e8e8ec;
+    font-size:16px; font-weight:700; padding:10px 4px; text-align:center; min-width:0;
+    font-variant-numeric:tabular-nums;
+  }
+  .srow input::placeholder { color:#5c5c66; font-weight:600; }
+  .srow input.kg { width:74px; }
+  .srow input.rp { flex:1; max-width:64px; }
+  .srow .x { color:#6f6f78; font-size:13px; flex-shrink:0; }
+  .srow input.tx { flex:1.4; text-align:left; font-weight:600; padding:10px 8px; }
+  .nota-row { display:flex; align-items:center; gap:8px; padding:4px 0 2px; }
+  .nota-row label { font-size:13px; color:#9d9da6; font-weight:700; flex-shrink:0; }
+  .nota-row input {
+    background:#101014; border:1px solid #35353d; border-radius:8px; color:#e8e8ec;
+    font-size:16px; font-weight:600; padding:10px 8px; text-align:left; flex:1; min-width:0;
+  }
+  .nota-row input::placeholder { color:#5c5c66; }
+  .sdone {
+    width:44px; height:44px; margin-left:auto; flex-shrink:0; border-radius:10px;
+    border:1.5px solid #35353d; background:transparent; color:#6f6f78;
+    font-size:16px; font-weight:800; cursor:pointer;
+  }
+  .srow.ok .sdone { background:var(--acc); border-color:var(--acc); color:#101014; }
+  .srow.ok .slab { color:var(--acc); }
+
+  .go {
+    width:100%; min-height:52px; border-radius:10px; border:1.5px solid var(--acc);
+    background:transparent; color:var(--acc); font-size:16.5px; font-weight:800;
+    font-variant-numeric:tabular-nums; cursor:pointer; transition:background .2s; margin-top:6px;
+  }
+  .go.running { background:var(--acc); color:#101014; font-size:24px; }
+  .go.paused { background:#1e1e24; border-color:#9d9da6; color:#e8e8ec; }
+  .is-done .go { border-color:#4ade80; color:#4ade80; font-size:15px; }
+
+  details.how { margin-top:10px; border-top:1px solid #26262c; padding-top:2px; }
+  details.how summary {
+    list-style:none; cursor:pointer; font-size:13px; font-weight:700; color:#fbbf24;
+    padding:11px 0; display:flex; align-items:center; gap:6px;
+  }
+  details.how summary::-webkit-details-marker { display:none; }
+  details.how summary::before { content:"▸"; transition:transform .2s; }
+  details.how[open] summary::before { transform:rotate(90deg); }
+  .how-body { padding:2px 0 6px; }
+  .how-body p { font-size:14px; color:#aeaeb8; line-height:1.55; margin-bottom:10px; }
+  .how-body p strong { color:#e8e8ec; }
+  .links { background:#101014; border:1px solid #26262c; border-radius:8px; padding:8px 12px; }
+  .links .lh { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#fbbf24; margin-bottom:3px; }
+  .links a { display:block; color:#aeaeb8; text-decoration:none; font-size:13.5px; padding:10px 0; }
+  .links a::before { content:"→ "; color:var(--acc); }
+
+  /* -------- formulário "como foi hoje" -------- */
+  .frm { display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+  .frow { display:flex; align-items:center; gap:8px; }
+  .frow label { flex:1; font-size:13.5px; color:#aeaeb8; }
+  .frow input[type=number], .frow input[type=text] {
+    background:#101014; border:1px solid #35353d; border-radius:8px; color:#e8e8ec;
+    font-size:16px; font-weight:700; padding:10px 8px; text-align:center;
+  }
+  .frow input[type=number] { width:74px; }
+  .frow input[type=text] { flex:1.2; text-align:left; font-weight:600; }
+  .frm textarea {
+    background:#101014; border:1px solid #35353d; border-radius:8px; color:#e8e8ec;
+    font-size:16px; padding:10px; min-height:74px; width:100%; font-family:inherit;
+  }
+  .seg { display:flex; gap:6px; }
+  .seg button {
+    border:1.5px solid #35353d; background:transparent; color:#9d9da6; border-radius:8px;
+    font-size:14px; font-weight:700; padding:10px 16px; cursor:pointer;
+  }
+  .seg button.on { background:#f59e0b; border-color:#f59e0b; color:#101014; }
+
+  /* -------- barra de descanso fixa -------- */
+  .restbar {
+    position:fixed; left:0; right:0; bottom:0; z-index:20;
+    max-width:480px; margin:0 auto; padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+    background:#f59e0b; color:#101014; display:none; align-items:center; gap:12px;
+    cursor:pointer;
+  }
+  .restbar.show { display:flex; }
+  .restbar .rt { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .restbar .rl { flex:1; font-size:13.5px; font-weight:700; line-height:1.3; }
+  .restbar .rx { font-size:12px; font-weight:800; opacity:.75; }
+
+  .foot { text-align:center; margin-top:26px; font-size:12.5px; color:#8e8e96; line-height:1.7; }
+  .foot .reset {
+    background:#1e1e24; border:1px solid #35353d; border-radius:10px; color:#c96a6a;
+    font-size:14px; font-weight:700; padding:11px 18px; cursor:pointer; margin-bottom:14px;
+  }
+  .savemsg { font-size:12px; color:#4ade80; min-height:16px; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-row">
+    <h1>GYM FB2 — Sexta</h1>
+    <span class="prog-txt" id="progTxt">0/33 séries</span>
+  </div>
+  <nav class="chips-nav" id="chipsNav"></nav>
+  <div class="pbar"><i id="pbar"></i></div>
+</div>
+
+<p class="sub"><strong>Lower pesado LENTO + upper moderado</strong> · ~80 min · pós-praça (~11h45)</p>
+
+<details class="notas">
+  <summary>Notas &amp; regras do treino</summary>
+  <p><strong>Objetivo:</strong> lower pesado LENTO (dose HSR principal da semana) + upper moderado + panturrilha no início + 1 core.</p>
+  <p><strong>Duração alvo:</strong> ~80 min · 33 séries.</p>
+  <p><strong>Logística:</strong> emenda na praça (~11h45), carb-up 15 min antes (nota 07). Sem cardio aqui: o sprint da praça já foi o estímulo. SEM esteira na sexta (domingo tem jogo). Sábado é descanso completo — lower pesado aqui porque amanhã é OFF.</p>
+  <p><strong>CADÊNCIA:</strong> descida 3 s cronometrada no agacho e no step-up. RDL e hip thrust: pesado-rápido (dobradiça de quadril). <strong>Quebrou a cadência pra subir carga = não subiu.</strong></p>
+  <p><strong>Por que essa ordem:</strong> panturrilha primeiro (ponto fraco fresco, mesmo esquema de segunda) · woodchop antes do lower (core ativado = melhor bracing no agacho) · agacho lento → RDL rápido → step-up misto → hip thrust (o tendão recebe a dose lenta fresco, o quadril recebe velocidade depois) · Nordic fecha o inferior (excêntrico pesado com o posterior já aquecido pelo RDL, sem nada depois competindo) · upper moderado no fim (frequência de manutenção, não precisa de frescor).</p>
+  <p><strong>Cortados no v3 (não voltar por conta):</strong> single leg shoulder press (equilíbrio disfarçado de press — o landmine na quarta faz o trabalho de verdade) · bíceps martelo (rosca inclinada + African curl cobrem o braço) · flexora máquina (Nordic no lugar) · extensão lombar (RDL e hip thrust já cobrem) · abdominal máquina (um core por FB) · cardio 15 min (sprint da praça já foi o estímulo).</p>
+  <p><strong>Registro:</strong> preenche kg × reps e toca no ✓ da série — o descanso conta sozinho na barra laranja. Os números de hoje ficam salvos; na próxima sessão eles aparecem em cinza dentro dos campos como referência a bater.</p>
+  <p><strong>Errou um toque?</strong> Toca no ✓ da série pra desmarcar; nos cards de sequência (aquecimento), o número do card volta um passo.</p>
+</details>
+
+<details class="notas">
+  <summary>Resumo do treino</summary>
+  <div id="resumoBody"></div>
+</details>
+
+<div id="app"></div>
+
+<div class="foot">
+  <button class="reset" id="resetBtn">Zerar sessão de hoje</button>
+  <div class="savemsg" id="saveMsg"></div>
+  <div>SEX · GYM FB2 v3 — dupla: SEG FB1 · sábado é descanso completo</div>
+  <div>GYM: <a href="../gym-fb1/">FB1 seg</a> · <a href="../quarta/">Quarta</a> · Matinal: <a href="../dia-b/">Dia B</a> · <a href="../">Completa</a></div>
+</div>
+
+<div class="restbar" id="restbar">
+  <span class="rt" id="restT">1:30</span>
+  <span class="rl" id="restL">DESCANSO</span>
+  <span class="rx">tocar pula</span>
+</div>
+
+<script>
+// ===================== DADOS =====================
+var BLOCOS = [
+  { id:'aq', cor:'#94a3b8', nav:'Aquec',      titulo:'AQUECIMENTO',                          sub:'~10 min · vindo da praça: pula a bike, mantém o resto' },
+  { id:'b1', cor:'#f59e0b', nav:'1 · Pant',   titulo:'BLOCO 1 — PANTURRILHA',                sub:'superset alternado: sentada → em pé → sentada → em pé · descanso 1:00' },
+  { id:'b2', cor:'#22d3ee', nav:'2 · Core',   titulo:'BLOCO 2 — CORE',                       sub:'descanso 1:30' },
+  { id:'b3', cor:'#ef4444', nav:'3 · Lower',  titulo:'BLOCO 3 — LOWER PESADO LENTO',         sub:'5 exercícios · dose HSR principal da semana' },
+  { id:'b4', cor:'#fb7185', nav:'4 · Upper',  titulo:'BLOCO 4 — UPPER MODERADO',             sub:'3 exercícios · descanso 1:30' },
+  { id:'hj', cor:'#94a3b8', nav:'Hoje',       titulo:'COMO FOI HOJE',                        sub:'preenche no fim — vira tua referência da semana' }
+];
+
+// sets: 'br' = kg × reps · 'ud' = kg × reps E/D · 'r' = reps · 'r_tx' = reps + texto
+var DATA = [
+{ id:'aq', b:'aq', num:'AQ', name:'Aquecimento', img:null,
+  chips:['~10 min','5 itens'], eq:'vindo da praça: pula a bike',
+  cue:'Tornozelo e quadril acordados, glúteo ativado, lunge isométrico pré-agacho.',
+  steps:[{t:'Bike leve · 5 min',s:300},{t:'Mobilidade tornozelo · 2× 8 cada lado'},{t:'Mob. dinâmica quadril · 2× 8'},{t:'Glute bridge · 2× 10'},{t:'Lunge isométrico · Perna E',s:60},{t:'Lunge isométrico · Perna D',s:60}],
+  desc:'Bike leve — 5 min (pula se já chegou aquecido da praça) · Mobilidade tornozelo — 2× 8 cada lado · Mobilidade dinâmica quadril — 2× 8 · Glute bridge — 2× 10 · Lunge isométrico — 1 min cada perna.',
+  links:[] },
+
+{ id:'ex1a', b:'b1', num:'1a', name:'Panturrilha sentada unilateral (máquina)', img:'img/v_xz7sqxaJ-Ck.jpg',
+  chips:['2× 12–15','cada perna'], eq:'pausa 2 s no topo · descida controlada', rest:60,
+  pair:'ex1b', pairLead:true,
+  badge:['SUPERSET c/ 1b','#f59e0b'],
+  cue:'<b>Pausa 2 s no topo</b>, descida controlada — alterna com a em pé.',
+  sets:[{t:'S1',k:'ud'},{t:'S2',k:'ud'}],
+  desc:'2 séries × 12–15 cada perna. Pausa 2 s no topo, descida controlada. Superset alternado com a panturrilha em pé: sentada → em pé → sentada → em pé, descanso 1:00. Panturrilha primeiro: ponto fraco treinado fresco, mesmo esquema de segunda.',
+  links:[{t:'Seated Calf Raises — How To (KAGED)', u:'https://www.youtube.com/watch?v=xz7sqxaJ-Ck'}] },
+
+{ id:'ex1b', b:'b1', num:'1b', name:'Panturrilha em pé', img:'img/v_hh5516HCu4k.jpg',
+  chips:['2× 8–10'], eq:null, rest:60,
+  pair:'ex1a',
+  badge:['SUPERSET c/ 1a','#f59e0b'],
+  cue:'<b>Subida explosiva, descida 3–4 s</b>.',
+  sets:[{t:'S1',k:'br'},{t:'S2',k:'br'}],
+  desc:'2 séries × 8–10. Subida explosiva, descida 3–4 s.',
+  links:[{t:'Standing / Smith Machine Calves (Renaissance Periodization)', u:'https://www.youtube.com/watch?v=hh5516HCu4k'}] },
+
+{ id:'ex2', b:'b2', num:'2', name:'Cable woodchop (alto pra baixo)', img:'img/v_WKFHw415Vdw.jpg', kgPh:'nível',
+  chips:['4× 8–10','cada lado'], eq:'descanso 1:30', rest:90,
+  cue:'<b>Quadril e core giram juntos</b>, braços só guiam · ativa o bracing pro agacho.',
+  sets:[{t:'S1',k:'ud'},{t:'S2',k:'ud'},{t:'S3',k:'ud'},{t:'S4',k:'ud'}],
+  desc:'Cabo na posição alta, puxa diagonal de cima pra baixo. Quadril e core giram JUNTOS, braços quase estendidos só guiando. Core aqui no início tem função direta: bracing ativado pro agachamento que vem em seguida. No campo, anota o nível do cabo.',
+  links:[{t:'Cable Woodchop (High to Low)', u:'https://www.youtube.com/watch?v=WKFHw415Vdw'}] },
+
+{ id:'ex3', b:'b3', num:'3', name:'Agachamento livre profundo (high bar)', img:'img/v_JH8mDZzFt5U.jpg',
+  chips:['3× 4–6'], eq:'DESCIDA 3 s · descanso 2:30–3:00', rest:150,
+  badge:['CADÊNCIA 3 s','#a3e635'], nota:true, notaLabel:'profundidade',
+  cue:'Semanas 1–2 no <b>paralelo</b> · 3–4 descendo até onde controla · calcanhar no chão, tronco ereto.',
+  sets:[{t:'S1',k:'br'},{t:'S2',k:'br'},{t:'S3',k:'br'}],
+  desc:'DESCIDA 3 s CRONOMETRADA, subida forte. Semanas 1–2 no paralelo · semanas 3–4 descendo até onde controla. Calcanhar no chão, tronco ereto. Começa 10–15% abaixo da carga antiga. É a dose HSR principal da semana — pesado E lento é o que remodela o tendão. <strong>Dor atrás da patela = patelofemoral · abaixo da patela = tendão</strong> — anota no Como Foi Hoje.',
+  links:[{t:'Deep Squatting with Perfect Form', u:'https://www.youtube.com/watch?v=JH8mDZzFt5U'},{t:'High Bar vs Low Bar (Squat University)', u:'https://www.youtube.com/watch?v=BUIu720DQH4'}] },
+
+{ id:'ex4', b:'b3', num:'4', name:'RDL (romeno)', img:'img/v_u87dwyD3EL0.jpg',
+  chips:['3× 5–6'], eq:'descanso 2:00–2:30 · pesado-rápido', rest:120,
+  cue:'Barra perto do corpo, <b>quadril pra trás</b> — dobradiça, não agacho.',
+  sets:[{t:'S1',k:'br'},{t:'S2',k:'br'},{t:'S3',k:'br'}],
+  desc:'Barra perto do corpo, quadril pra trás. Pesado-rápido liberado aqui: é dobradiça de quadril, não de joelho.',
+  links:[{t:'Barbell Romanian Deadlift (Physio Plus)', u:'https://www.youtube.com/watch?v=u87dwyD3EL0'}] },
+
+{ id:'ex5', b:'b3', num:'5', name:'Step-up com kettlebell', img:'img/v_NGDPf5OIc1M.jpg',
+  chips:['3× 5–6','cada perna'], eq:'banco joelho ~90° · descanso 1:30–2:00', rest:90,
+  badge:['CADÊNCIA 3 s','#a3e635'],
+  cue:'<b>Subida EXPLOSIVA, descida 3 s</b> — a descida lenta trata, a subida transfere.',
+  sets:[{t:'S1',k:'ud'},{t:'S2',k:'ud'},{t:'S3',k:'ud'}],
+  desc:'Subida EXPLOSIVA, descida 3 s controlada. Altura do banco: joelho ~90°. Transferência direta pro basquete (potência vertical single-leg).',
+  links:[{t:'Kettlebell Step Up (OPEX)', u:'https://www.youtube.com/watch?v=NGDPf5OIc1M'}] },
+
+{ id:'ex6', b:'b3', num:'6', name:'Hip thrust com barra', img:'img/v_23nVTEiO8iQ.jpg',
+  chips:['3× 6–8'], eq:'descanso 2:00 · pesado-rápido', rest:120,
+  cue:'Pad na barra, ombros no banco, <b>queixo baixo, canelas verticais</b> — pelve neutra no topo.',
+  sets:[{t:'S1',k:'br'},{t:'S2',k:'br'},{t:'S3',k:'br'}],
+  desc:'Pad na barra, ombros no banco, queixo baixo, canelas verticais. Pelve neutra no topo (sem hiperextender a lombar). Começa 60 kg e sobe rápido. Referência: 1,5× o peso corporal.',
+  links:[{t:'Hip Thrust: Barbell Set-Up', u:'https://www.youtube.com/watch?v=23nVTEiO8iQ'},{t:'10 passos do hip thrust perfeito (Bret Contreras)', u:'https://bretcontreras.com/10-steps-to-the-perfect-hip-thrust/'}] },
+
+{ id:'ex7', b:'b3', num:'7', name:'Nordic curl assistido', img:'img/v_49Uozp9wfik.jpg',
+  chips:['2× 4 → 3× 4–6'], eq:'semanas 1–2: 2× 4 · descanso 2:00', rest:120,
+  cue:'<b>Desce em 3–5 s até o paralelo</b>, quadril estendido o tempo todo.',
+  sets:[{t:'S1',k:'r_tx'},{t:'S2',k:'r'},{t:'S3*',k:'r'}],
+  desc:'Elástico no alto da máquina de puxada, pés embaixo do apoio de joelho. Desce em 3–5 s até o paralelo, quadril estendido o tempo todo. Empurra com as mãos pra voltar se precisar. Sozinho, foco total na técnica. Semanas 1–2: 2× 4 · depois 3× 4–6 — a S3* só entra da semana 3. <strong>Nas semanas 1–2, fez as 2 séries? Fecha o card no ✓ do canto</strong> (ele marca a S3* junto e o treino conta 33/33). No campo da S1, anota a assistência (elástico usado).',
+  links:[{t:'Nordic Curl com elástico', u:'https://www.youtube.com/watch?v=49Uozp9wfik'}] },
+
+{ id:'ex8', b:'b4', num:'8', name:'Remada com barra', img:'img/v_rqTOAM8WoeM.jpg',
+  chips:['4× 6–8'], eq:'descanso 1:30', rest:90,
+  cue:'Tronco a <b>~45 graus</b>, puxa pro abdômen.',
+  sets:[{t:'S1',k:'br'},{t:'S2',k:'br'},{t:'S3',k:'br'},{t:'S4',k:'br'}],
+  desc:'Tronco ~45 graus, puxa pro abdômen. Variação bilateral da remada unilateral de segunda.',
+  links:[{t:'Barbell Bent Over Row (Runna)', u:'https://www.youtube.com/watch?v=rqTOAM8WoeM'}] },
+
+{ id:'ex9', b:'b4', num:'9', name:'Supino com halter (reto)', img:'img/v_M0tN99QgPyU.jpg',
+  chips:['3× 8–12'], eq:'descanso 1:30', rest:90,
+  cue:'Complementa o inclinado de segunda — halteres pra estabilização.',
+  sets:[{t:'S1',k:'br'},{t:'S2',k:'br'},{t:'S3',k:'br'}],
+  desc:'3 séries × 8–12. Complementa o supino inclinado de segunda (aqui é reto). Halteres pra trabalhar a estabilização.',
+  links:[{t:'Flat Dumbbell Bench Press', u:'https://www.youtube.com/watch?v=M0tN99QgPyU'}] },
+
+{ id:'ex10', b:'b4', num:'10', name:'Rosca inclinada com halteres', img:'img/v_S2cYwsDhpI4.jpg',
+  chips:['3× 8–12'], eq:'banco 45–60° · descanso 1:30', rest:90,
+  cue:'Braço <b>pendurado atrás do corpo</b> (cabeça longa alongada) · supina no topo · <b>descida 3 s</b>.',
+  sets:[{t:'S1',k:'br'},{t:'S2',k:'br'},{t:'S3',k:'br'}],
+  desc:'Banco a 45–60°. Braço pendurado atrás do corpo (cabeça longa alongada). Supina completo no topo. Descida 3 s.',
+  links:[{t:'Dumbbell Incline Curl (Buff Dudes)', u:'https://www.youtube.com/watch?v=S2cYwsDhpI4'}] }
+];
+
+var FORM = [
+  { id:'energia',  t:'Energia (1–10)',                 k:'num' },
+  { id:'joelhos',  t:'Joelhos (1–10)',                 k:'num' },
+  { id:'cadencia', t:'Cadência 3 s no agacho — segurou em todas?', k:'simnao' },
+  { id:'profund',  t:'Agacho — até onde desceu hoje? (paralelo / abaixo / completo)', k:'txt' },
+  { id:'patela',   t:'Dor atrás ou abaixo da patela? (qual / 0–10)', k:'txt' },
+  { id:'stepup',   t:'Step-up — sentiu potência na subida?', k:'simnao' },
+  { id:'nordic',   t:'Nordic — até onde desceu com controle?', k:'txt' },
+  { id:'difed',    t:'Diferença E/D (step-up / panturrilha / woodchop)', k:'txt' },
+  { id:'obs',      t:'Observações',                    k:'area' }
+];
+
+// ===================== APP =====================
+(function () {
+  var KEY = 'gym_fb2_v1';
+  var app = document.getElementById('app');
+  var byId = {};
+  DATA.forEach(function (e) { byId[e.id] = e; });
+
+  // ---------- estado ----------
+  function hoje() {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+  var DIA_CARREGADO = hoje();
+  var state = { d: hoje(), vals: {}, sets: {}, steps: {} };
+  var ant = { d: null, vals: {} };
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && p.ex) throw 0; // formato de outro app — ignora
+      if (p && p.d === hoje()) {
+        state = { d: p.d, vals: p.vals || {}, sets: p.sets || {}, steps: p.steps || {} };
+        ant = p.ant || ant;
+      } else if (p) {
+        // novo dia: sessão anterior vira referência (se tinha dados); estado zera
+        // merge: campos não preenchidos na última sessão preservam a referência mais antiga
+        var tinha = p.vals && Object.keys(p.vals).length > 0;
+        if (tinha) ant = { d: p.d, vals: Object.assign({}, (p.ant && p.ant.vals) || {}, p.vals) };
+        else ant = p.ant || ant;
+      }
+    }
+  } catch (e) {}
+
+  function stSteps(id) {
+    if (!state.steps[id]) state.steps[id] = { i: 0, done: false };
+    return state.steps[id];
+  }
+  function stSets(id) {
+    if (!state.sets[id]) state.sets[id] = byId[id].sets.map(function () { return false; });
+    return state.sets[id];
+  }
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ d: state.d, vals: state.vals, sets: state.sets, steps: state.steps, ant: ant }));
+      var d = new Date();
+      msg('salvo às ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2));
+    } catch (e) { msg(''); }
+  }
+  function msg(t) {
+    var el = document.getElementById('saveMsg');
+    el.textContent = t;
+    clearTimeout(msg._t);
+    if (t) msg._t = setTimeout(function () { el.textContent = ''; }, 2500);
+  }
+
+  // ---------- som / wake lock ----------
+  function ensureAudio() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      beep.ctx = beep.ctx || new AC();
+      if (beep.ctx.state === 'suspended') beep.ctx.resume();
+      if (!ensureAudio.unmuted) {
+        ensureAudio.unmuted = true;
+        var un = document.createElement('audio');
+        un.setAttribute('playsinline', '');
+        un.src = 'data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YZABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+        var pr = un.play();
+        if (pr && pr.catch) pr.catch(function () {});
+      }
+    } catch (e) {}
+  }
+  function beep(times, freq, gain) {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      beep.ctx = beep.ctx || new AC();
+      var t0 = beep.ctx.currentTime;
+      for (var k = 0; k < times; k++) {
+        var o = beep.ctx.createOscillator(), g = beep.ctx.createGain();
+        o.frequency.value = freq || 880; o.connect(g); g.connect(beep.ctx.destination);
+        g.gain.setValueAtTime(gain || 0.15, t0 + k * 0.25);
+        g.gain.exponentialRampToValueAtTime(0.001, t0 + k * 0.25 + 0.18);
+        o.start(t0 + k * 0.25); o.stop(t0 + k * 0.25 + 0.2);
+      }
+    } catch (e) {}
+    if (navigator.vibrate) { try { navigator.vibrate(times === 1 ? 150 : [150, 100, 150]); } catch (e) {} }
+  }
+  function tick() { beep(1, 660, 0.07); }
+
+  var wl = null, wlWanted = false, wlPending = false;
+  function wakeOn() {
+    if (!('wakeLock' in navigator)) return;
+    wlWanted = true;
+    if (wl || wlPending) return;
+    wlPending = true;
+    navigator.wakeLock.request('screen').then(function (l) {
+      wlPending = false;
+      if (!wlWanted) { try { l.release(); } catch (e) {} return; }
+      // o SO solta o lock sozinho ao esconder a página: limpa wl pra permitir readquirir
+      l.addEventListener('release', function () { if (wl === l) wl = null; });
+      wl = l;
+    }).catch(function () { wlPending = false; });
+  }
+  function wakeOff() {
+    wlWanted = false;
+    if (wl) { try { wl.release(); } catch (e) {} wl = null; }
+  }
+
+  // ---------- render ----------
+  var nav = document.getElementById('chipsNav');
+  BLOCOS.forEach(function (b) {
+    var a = document.createElement('a');
+    a.className = 'chip'; a.id = 'chip-' + b.id; a.href = '#' + b.id;
+    a.style.setProperty('--bc', b.cor);
+    a.dataset.base = b.nav;
+    a.textContent = b.nav;
+    nav.appendChild(a);
+  });
+
+  function esc(v) {
+    return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function antVal(fid, fallback) {
+    return (ant.vals && ant.vals[fid] != null && ant.vals[fid] !== '') ? String(ant.vals[fid]) : fallback;
+  }
+  function inputHtml(fid, cls, fallback, mode) {
+    var tipo = cls === 'tx' ? 'text' : 'number';
+    var im = cls === 'tx' ? '' : ' inputmode="' + (mode || 'decimal') + '"';
+    return '<input class="' + cls + '" id="' + fid + '" type="' + tipo + '"' + im + ' placeholder="' + esc(antVal(fid, fallback)) + '" value="' + (state.vals[fid] != null ? esc(state.vals[fid]) : '') + '">';
+  }
+
+  BLOCOS.forEach(function (b) {
+    if (b.id === 'hj') return;
+    var sec = document.createElement('section');
+    sec.className = 'bloco'; sec.id = b.id;
+    sec.style.setProperty('--acc', b.cor);
+    var head = document.createElement('div');
+    head.className = 'bh';
+    head.innerHTML = '<h2>' + b.titulo + '<small>' + b.sub + '</small></h2>';
+    sec.appendChild(head);
+    DATA.filter(function (e) { return e.b === b.id; }).forEach(function (e) {
+      var art = document.createElement('article');
+      art.className = 'ex'; art.id = e.id;
+      var badge = e.badge ? '<span class="bpill" style="color:' + e.badge[1] + ';border-color:' + e.badge[1] + '">' + e.badge[0] + '</span>' : '';
+      var chips = e.chips.map(function (c) { return '<span>' + c + '</span>'; }).join('');
+      if (e.eq) chips += '<span class="eq">' + e.eq + '</span>';
+      var media = e.img
+        ? '<div class="media"><img class="thumb" src="' + e.img + '" alt="' + e.name.replace(/"/g, '&quot;') + '" loading="lazy" width="104" height="78">' +
+          '<div class="media-right"><div class="dose">' + chips + '</div><p class="cue">' + e.cue + '</p></div></div>'
+        : '<div class="media"><div class="media-right"><div class="dose">' + chips + '</div><p class="cue">' + e.cue + '</p></div></div>';
+      var rows = '';
+      if (e.sets) {
+        rows = '<div class="srows">' + e.sets.map(function (s, i) {
+          var base = e.id + '_' + i;
+          var inner, kph = e.kgPh || 'kg';
+          if (s.k === 'br') {
+            inner = inputHtml(base + '_kg', 'kg', kph) + '<span class="x">×</span>' + inputHtml(base + '_r', 'rp', 'reps', 'numeric');
+          } else if (s.k === 'ud') {
+            inner = inputHtml(base + '_kg', 'kg', kph) + '<span class="x">×</span>' + inputHtml(base + '_e', 'rp', 'E', 'numeric') + '<span class="x">/</span>' + inputHtml(base + '_d', 'rp', 'D', 'numeric');
+          } else if (s.k === 'r') {
+            inner = inputHtml(base + '_r', 'rp', 'reps', 'numeric');
+          } else if (s.k === 'r_tx') {
+            inner = inputHtml(base + '_r', 'rp', 'reps', 'numeric') + inputHtml(base + '_a', 'tx', 'assistência');
+          } else {
+            inner = inputHtml(base + '_kg', 'kg', kph) + '<span class="x">E</span>' + inputHtml(base + '_e', 'rp', '45 s', 'numeric') + '<span class="x">D</span>' + inputHtml(base + '_d', 'rp', '45 s', 'numeric');
+          }
+          return '<div class="srow" data-ex="' + e.id + '" data-i="' + i + '"><span class="slab">' + s.t + '</span>' + inner +
+                 '<button class="sdone" type="button" aria-label="série feita">✓</button></div>';
+        }).join('') + '</div>';
+        if (e.nota) {
+          var nk = e.id + '_nota';
+          rows += '<div class="nota-row"><label>' + (e.notaLabel || 'nota') + '</label><input type="text" id="' + nk + '" placeholder="' + esc(antVal(nk, '')) + '" value="' + (state.vals[nk] != null ? esc(state.vals[nk]) : '') + '"></div>';
+        }
+      }
+      var go = e.steps ? '<button class="go" type="button"></button>' : '';
+      var linksHtml = '';
+      if (e.links.length) {
+        linksHtml = '<div class="links"><div class="lh">Vídeos</div>' +
+          e.links.map(function (l) { return '<a href="' + l.u + '" target="_blank" rel="noopener">' + l.t + '</a>'; }).join('') + '</div>';
+      }
+      art.innerHTML =
+        '<div class="ex-head"><span class="num">' + e.num + '</span><h3>' + e.name + badge + '</h3>' +
+        '<button class="done-btn" type="button" aria-label="marcar exercício feito" aria-pressed="false">✓</button></div>' +
+        media + rows + go +
+        '<details class="how"><summary>Como fazer · vídeo</summary><div class="how-body">' +
+        '<p>' + e.desc + '</p>' + linksHtml + '</div></details>';
+      sec.appendChild(art);
+    });
+    app.appendChild(sec);
+  });
+
+  // formulário "como foi hoje"
+  (function () {
+    var b = BLOCOS[BLOCOS.length - 1];
+    var sec = document.createElement('section');
+    sec.className = 'bloco'; sec.id = 'hj';
+    sec.style.setProperty('--acc', b.cor);
+    var inner = FORM.map(function (f) {
+      var fid = 'hj_' + f.id;
+      var v = state.vals[fid] != null ? esc(state.vals[fid]) : '';
+      if (f.k === 'num') return '<div class="frow"><label>' + f.t + '</label><input type="number" inputmode="numeric" id="' + fid + '" placeholder="' + esc(antVal(fid, '–')) + '" value="' + v + '"></div>';
+      if (f.k === 'txt') return '<div class="frow"><label>' + f.t + '</label><input type="text" id="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '" value="' + v + '"></div>';
+      if (f.k === 'area') return '<div><label style="font-size:13.5px;color:#aeaeb8">' + f.t + '</label><textarea id="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '">' + v + '</textarea></div>';
+      return '<div class="frow"><label>' + f.t + '</label><span class="seg" id="' + fid + '">' +
+        '<button type="button" data-v="sim"' + (v === 'sim' ? ' class="on"' : '') + '>sim</button>' +
+        '<button type="button" data-v="não"' + (v === 'não' ? ' class="on"' : '') + '>não</button></span></div>';
+    }).join('');
+    sec.innerHTML = '<div class="bh"><h2>' + b.titulo + '<small>' + b.sub + '</small></h2></div>' +
+      '<article class="ex" id="exhj"><div class="frm">' + inner + '</div></article>';
+    app.appendChild(sec);
+  })();
+
+  // resumo
+  var rb = document.getElementById('resumoBody');
+  BLOCOS.forEach(function (b) {
+    if (b.id === 'hj') return;
+    var exs = DATA.filter(function (e) { return e.b === b.id; });
+    var p = document.createElement('p');
+    p.innerHTML = '<strong style="color:' + b.cor + '">' + b.titulo + '</strong><br>' +
+      exs.map(function (e) { return '<a href="#' + e.id + '" style="color:#aeaeb8;text-decoration:none">' + e.num + ' ' + e.name.split(' (')[0] + '</a>'; }).join(' · ');
+    rb.appendChild(p);
+  });
+
+  // ---------- motores ----------
+  var run = null;      // timer de passos (aquecimento / Rio)
+  var rest = null;     // descanso pós-série
+  function fmt(s) { return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+  function card(id) { return document.getElementById(id); }
+  function goBtn(id) { return card(id).querySelector('.go'); }
+
+  var restbar = document.getElementById('restbar');
+  function stopRest() {
+    if (rest) { clearInterval(rest.tick); rest = null; }
+    restbar.classList.remove('show');
+    if (!run) wakeOff();
+  }
+  function startRest(secs, label) {
+    if (rest) { clearInterval(rest.tick); rest = null; }
+    rest = { end: Date.now() + secs * 1000 };
+    document.getElementById('restL').textContent = label;
+    document.getElementById('restT').textContent = fmt(secs);
+    restbar.classList.add('show');
+    wakeOn();
+    rest.tick = setInterval(function () {
+      if (!rest) return;
+      var remMs = rest.end - Date.now();
+      if (remMs <= 0) { beep(2); stopRest(); return; }
+      document.getElementById('restT').textContent = fmt(Math.ceil(remMs / 1000));
+    }, 250);
+  }
+  restbar.addEventListener('click', function () { stopRest(); });
+
+  function stopRun() {
+    if (run) {
+      var old = run.id;
+      clearInterval(run.tick);
+      card(old).classList.remove('run');
+      run = null;
+      if (!rest) wakeOff();
+      renderGo(old);
+    }
+  }
+
+  function exDone(id) {
+    var e = byId[id];
+    if (e.sets) return stSets(id).every(function (v) { return v; });
+    return stSteps(id).done;
+  }
+
+  function renderGo(id) {
+    var e = byId[id];
+    if (!e.steps) return;
+    var s = stSteps(id), b = goBtn(id);
+    b.classList.remove('running', 'paused');
+    if (s.done || (e.sets && exDone(id))) { b.textContent = '✓ feito — refazer sequência'; return; }
+    var step = e.steps[Math.min(s.i, e.steps.length - 1)];
+    if (run && run.id === id) {
+      var rem = run.remaining != null ? run.remaining : Math.max(0, Math.ceil((run.end - Date.now()) / 1000));
+      b.textContent = (run.remaining != null ? '▶ retomar · ' : '⏸ ') + fmt(rem) + ' · ' + step.t;
+      b.classList.toggle('running', run.remaining == null);
+      b.classList.toggle('paused', run.remaining != null);
+      return;
+    }
+    if (step.s) b.textContent = '▶ ' + step.t + ' — ' + fmt(step.s);
+    else b.textContent = '✓ marcar · ' + step.t;
+  }
+
+  function renderCard(id) {
+    var done = exDone(id);
+    card(id).classList.toggle('is-done', done);
+    var db = card(id).querySelector('.done-btn');
+    db.setAttribute('aria-pressed', done ? 'true' : 'false');
+  }
+
+  function totalSets() {
+    return DATA.reduce(function (a, e) { return a + (e.sets ? e.sets.length : 0); }, 0);
+  }
+  function progress() {
+    var d = 0, total = totalSets();
+    var blocoDone = {};
+    BLOCOS.forEach(function (b) { blocoDone[b.id] = { done: 0, total: 0 }; });
+    DATA.forEach(function (e) {
+      if (e.sets) {
+        var rows = stSets(e.id);
+        blocoDone[e.b].total += rows.length;
+        rows.forEach(function (v) { if (v) { d++; blocoDone[e.b].done++; } });
+      } else {
+        blocoDone[e.b].total += 1;
+        if (stSteps(e.id).done) blocoDone[e.b].done++;
+      }
+    });
+    document.getElementById('progTxt').textContent = d + '/' + total + ' séries';
+    document.getElementById('pbar').style.width = (d / total * 100) + '%';
+    BLOCOS.forEach(function (b) {
+      var chip = document.getElementById('chip-' + b.id);
+      var base = chip.dataset.base;
+      var bd = blocoDone[b.id];
+      if (!bd.total) { chip.textContent = base; return; }
+      chip.textContent = bd.done >= bd.total ? base + ' ✓' : (bd.done > 0 ? base + ' ' + bd.done + '/' + bd.total : base);
+    });
+  }
+
+  function advance(fromId) {
+    var start = 0;
+    if (fromId) {
+      for (var j = 0; j < DATA.length; j++) if (DATA[j].id === fromId) { start = j + 1; break; }
+    }
+    var next = null;
+    for (var k = 0; k < DATA.length; k++) {
+      var e = DATA[(start + k) % DATA.length];
+      if (!exDone(e.id)) { next = e.id; break; }
+    }
+    if (next) setTimeout(function () {
+      card(next).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 700);
+  }
+
+  function flash(id) {
+    var el = card(id);
+    el.classList.add('flash');
+    setTimeout(function () { el.classList.remove('flash'); }, 1000);
+  }
+
+  // primeira série pendente do PAR de superset (se houver par)
+  function pendPar(e) {
+    if (!e.pair) return null;
+    var p = byId[e.pair], rows = stSets(e.pair);
+    for (var k = 0; k < rows.length; k++) if (!rows[k]) return { ex: p, set: p.sets[k].t };
+    return null;
+  }
+
+  // série marcada: pinta a linha, salva, dispara o descanso (respeitando supersets)
+  function setRow(exId, i, val, comDescanso) {
+    var e = byId[exId], rows = stSets(exId);
+    rows[i] = val;
+    var el = card(exId).querySelector('.srow[data-i="' + i + '"]');
+    el.classList.toggle('ok', val);
+    var completo = exDone(exId);
+    renderCard(exId);
+    progress();
+    save();
+    if (val && comDescanso) {
+      tick();
+      var par = pendPar(e);
+      if (completo) {
+        flash(exId);
+        if (par && e.rest) {
+          startRest(e.rest, 'DESCANSO · agora → ' + par.ex.num + ' ' + par.ex.name.split(' (')[0]);
+        } else { stopRest(); advance(exId); }
+      } else if (e.pairLead && par) {
+        // superset: do primeiro vai DIRETO pro par, sem descanso — só desliza a tela
+        setTimeout(function () {
+          card(par.ex.id).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 350);
+      } else if (e.rest) {
+        var alvo;
+        if (par) alvo = par.ex.num + ' ' + par.ex.name.split(' (')[0] + ' · ' + par.set;
+        else {
+          var nx = null;
+          for (var k = i + 1; k < rows.length; k++) if (!rows[k]) { nx = e.sets[k].t; break; }
+          alvo = e.name.split(' (')[0] + (nx ? ' → ' + nx : '');
+        }
+        startRest(e.rest, 'DESCANSO · ' + alvo);
+      }
+    }
+  }
+
+  // passos (aquecimento / Rio)
+  function completeStep(id, isTimer) {
+    var e = byId[id], s = stSteps(id);
+    s.i++;
+    var last = s.i >= e.steps.length;
+    if (isTimer) beep(last ? 2 : 1); else tick();
+    flash(id);
+    if (last) {
+      s.done = true;
+      renderCard(id);
+      progress();
+      save();
+      renderGo(id);
+      advance(id);
+    } else { renderGo(id); save(); }
+  }
+  function startTimer(id, secs) {
+    stopRun();
+    run = { id: id, end: Date.now() + secs * 1000, remaining: null };
+    card(id).classList.add('run');
+    wakeOn();
+    run.tick = setInterval(function () {
+      if (!run || run.remaining != null) return;
+      if (Date.now() >= run.end) { stopRun(); completeStep(id, true); return; }
+      renderGo(id);
+    }, 250);
+    renderGo(id);
+  }
+  function onGo(id) {
+    ensureAudio();
+    var e = byId[id], s = stSteps(id);
+    if (s.done || (e.sets && exDone(id))) {
+      s.done = false; s.i = 0;
+      renderCard(id); renderGo(id); progress(); save();
+      return;
+    }
+    if (run && run.id === id) {
+      if (run.remaining == null) {
+        run.remaining = Math.max(1, Math.ceil((run.end - Date.now()) / 1000));
+        if (!rest) wakeOff();
+      } else { run.end = Date.now() + run.remaining * 1000; run.remaining = null; wakeOn(); }
+      renderGo(id);
+      return;
+    }
+    var step = e.steps[Math.min(s.i, e.steps.length - 1)];
+    if (step.s) startTimer(id, step.s);
+    else completeStep(id, false);
+  }
+
+  // ---------- ligar tudo ----------
+  DATA.forEach(function (e) {
+    var id = e.id;
+    if (e.steps) {
+      goBtn(id).addEventListener('click', function () { onGo(id); });
+      renderGo(id);
+      // número volta um passo
+      card(id).querySelector('.num').addEventListener('click', function () {
+        var s = stSteps(id);
+        if (s.done || s.i <= 0) return;
+        if (run && run.id === id) stopRun();
+        s.i--;
+        tick();
+        renderGo(id);
+        save();
+      });
+    }
+    if (e.sets) {
+      card(id).querySelectorAll('.srow').forEach(function (row) {
+        var i = +row.dataset.i;
+        row.querySelector('.sdone').addEventListener('click', function () {
+          ensureAudio();
+          setRow(id, i, !stSets(id)[i], true);
+        });
+        if (stSets(id)[i]) row.classList.add('ok');
+      });
+    }
+    card(id).querySelector('.done-btn').addEventListener('click', function () {
+      ensureAudio();
+      var done = exDone(id);
+      if (run && run.id === id) stopRun();
+      if (e.sets) {
+        stSets(id).forEach(function (_, i) { setRow(id, i, !done, false); });
+        if (e.steps) { var s = stSteps(id); s.done = !done; s.i = done ? 0 : e.steps.length; renderGo(id); }
+        if (!done) stopRest();
+      } else {
+        var s2 = stSteps(id);
+        s2.done = !done; if (done) s2.i = 0;
+        renderGo(id);
+      }
+      renderCard(id);
+      progress();
+      save();
+    });
+    var thumb = card(id).querySelector('.thumb');
+    var det = card(id).querySelector('details.how');
+    if (thumb) thumb.addEventListener('click', function () { det.open = !det.open; });
+    det.querySelectorAll('.how-body a').forEach(function (a) {
+      a.addEventListener('click', function () { setTimeout(function () { det.open = false; }, 250); });
+    });
+    renderCard(id);
+  });
+
+  // inputs (séries + formulário) salvam no toque
+  document.querySelectorAll('.srow input, .nota-row input, .frm input, .frm textarea').forEach(function (inp) {
+    inp.addEventListener('input', function () {
+      state.vals[inp.id] = inp.value;
+      save();
+    });
+  });
+  document.querySelectorAll('.seg').forEach(function (seg) {
+    seg.querySelectorAll('button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        state.vals[seg.id] = btn.dataset.v;
+        seg.querySelectorAll('button').forEach(function (b2) { b2.classList.toggle('on', b2 === btn); });
+        save();
+      });
+    });
+  });
+
+  progress();
+
+  // retomar onde parou
+  var started = DATA.some(function (e) {
+    return exDone(e.id) || (e.sets && stSets(e.id).some(function (v) { return v; })) || (e.steps && stSteps(e.id).i > 0);
+  });
+  var allDone = DATA.every(function (e) { return exDone(e.id); });
+  if (started && !allDone) advance();
+
+  // zerar
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    if (!confirm('Zerar a sessão de hoje (marcações e campos)?')) return;
+    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
+    stopRun(); stopRest();
+    state = { d: hoje(), vals: {}, sets: {}, steps: {} };
+    try { localStorage.setItem(KEY, JSON.stringify({ d: state.d, vals: {}, sets: {}, steps: {}, ant: ant })); } catch (e) {}
+    location.reload();
+  });
+
+  // virada de dia + volta do background
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) return;
+    if (hoje() !== DIA_CARREGADO) {
+      if (!run && !rest) location.reload();  // com timer/descanso ativo, deixa terminar
+      return;
+    }
+    if (run && run.remaining == null) {
+      if (Date.now() >= run.end) { var rid = run.id; stopRun(); completeStep(rid, true); }
+      else { renderGo(run.id); wakeOn(); }
+    }
+    if (rest) {
+      if (Date.now() >= rest.end) { beep(2); stopRest(); }
+      else wakeOn();  // o SO soltou o lock no background; descanso ativo readquire
+    }
+  });
+  // watchdog: run PAUSADO conta como inativo — um pause esquecido não segura a virada
+  setInterval(function () {
+    var runAtivo = run && run.remaining == null;
+    if (hoje() !== DIA_CARREGADO && !runAtivo && !rest) location.reload();
+  }, 30000);
+
+  // scroll-spy
+  var secs = BLOCOS.map(function (b) { return document.getElementById(b.id); });
+  var topEl = document.querySelector('.top');
+  function spy() {
+    var lim = topEl.offsetHeight + 24;
+    var cur = null;
+    for (var i = 0; i < secs.length; i++) {
+      if (secs[i].getBoundingClientRect().top <= lim) cur = BLOCOS[i].id;
+    }
+    BLOCOS.forEach(function (b) {
+      var chip = document.getElementById('chip-' + b.id);
+      var on = b.id === cur;
+      chip.classList.toggle('on', on);
+      if (on) {
+        var L = chip.offsetLeft - 10, R = chip.offsetLeft + chip.offsetWidth + 10;
+        if (L < nav.scrollLeft) nav.scrollLeft = L;
+        else if (R > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = R - nav.clientWidth;
+      }
+    });
+  }
+  var spyT = null;
+  window.addEventListener('scroll', function () {
+    if (spyT) return;
+    spyT = setTimeout(function () { spyT = null; spy(); }, 120);
+  }, { passive: true });
+  spy();
+})();
+</script>
+</body>
+</html>
