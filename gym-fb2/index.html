@@ -204,11 +204,20 @@
   .restbar .rx { font-size:12px; font-weight:800; opacity:.75; }
 
   .foot { text-align:center; margin-top:26px; font-size:12.5px; color:#8e8e96; line-height:1.7; }
-  .foot .reset {
-    background:#1e1e24; border:1px solid #35353d; border-radius:10px; color:#c96a6a;
-    font-size:14px; font-weight:700; padding:11px 18px; cursor:pointer; margin-bottom:14px;
+  .foot-btns { display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:14px; }
+  .foot .reset, .foot .copiar {
+    background:#1e1e24; border:1px solid #35353d; border-radius:10px;
+    font-size:14px; font-weight:700; padding:11px 18px; cursor:pointer; min-height:44px;
   }
+  .foot .reset { color:#f59e0b; border-color:#4a3a14; }
+  .foot .copiar { color:#aeaeb8; font-size:13px; }
   .savemsg { font-size:12px; color:#4ade80; min-height:16px; }
+  .savemsg.err { color:#f87171; font-weight:700; }
+  .resumo-box { width:100%; min-height:140px; margin-top:10px; background:#16161b; color:#e8e8ec; border:1px solid #35353d;
+    border-radius:10px; padding:10px; font-size:13px; line-height:1.4; font-family:inherit; }
+  .sub.ref { margin-top:6px; color:#8e8e96; }
+  .fora { background:#3a2a10; color:#fbbf24; font-size:12.5px; line-height:1.4; text-align:center; padding:8px 12px; border-radius:8px; margin:10px 0 0; }
+  .antes { color:#8e8e96; font-size:12px; font-weight:600; white-space:nowrap; }
 </style>
 </head>
 <body>
@@ -223,6 +232,7 @@
 </div>
 
 <p class="sub"><strong>Lower pesado LENTO + upper moderado</strong> · ~80 min · pós-praça (~11h45)</p>
+<p class="sub ref" id="refTxt"></p>
 
 <details class="notas">
   <summary>Notas &amp; regras do treino</summary>
@@ -232,7 +242,7 @@
   <p><strong>CADÊNCIA:</strong> descida 3 s cronometrada no agacho e no step-up. RDL e hip thrust: pesado-rápido (dobradiça de quadril). <strong>Quebrou a cadência pra subir carga = não subiu.</strong></p>
   <p><strong>Por que essa ordem:</strong> panturrilha primeiro (ponto fraco fresco, mesmo esquema de segunda) · woodchop antes do lower (core ativado = melhor bracing no agacho) · agacho lento → RDL rápido → step-up misto → hip thrust (o tendão recebe a dose lenta fresco, o quadril recebe velocidade depois) · Nordic fecha o inferior (excêntrico pesado com o posterior já aquecido pelo RDL, sem nada depois competindo) · upper moderado no fim (frequência de manutenção, não precisa de frescor).</p>
   <p><strong>Cortados no v3 (não voltar por conta):</strong> single leg shoulder press (equilíbrio disfarçado de press — o landmine na quarta faz o trabalho de verdade) · bíceps martelo (rosca inclinada + African curl cobrem o braço) · flexora máquina (Nordic no lugar) · extensão lombar (RDL e hip thrust já cobrem) · abdominal máquina (um core por FB) · cardio 15 min (sprint da praça já foi o estímulo).</p>
-  <p><strong>Registro:</strong> preenche kg × reps e toca no ✓ da série — o descanso conta sozinho na barra laranja. Os números de hoje ficam salvos; na próxima sessão eles aparecem em cinza dentro dos campos como referência a bater.</p>
+  <p><strong>Registro:</strong> preenche kg × reps e toca no ✓ da série — o descanso conta sozinho na barra laranja. Os números de hoje ficam salvos a cada toque. Ao virar o dia, ou quando você toca em <strong>Encerrar treino de hoje</strong>, eles viram a referência cinza da próxima sessão (a data dela aparece sob o título) e as marcações voltam a zero. Campo em branco mantém a referência anterior. <strong>Copiar resumo</strong> gera o texto da sessão pra colar no Notes.</p>
   <p><strong>Errou um toque?</strong> Toca no ✓ da série pra desmarcar; nos cards de sequência (aquecimento), o número do card volta um passo.</p>
 </details>
 
@@ -244,8 +254,12 @@
 <div id="app"></div>
 
 <div class="foot">
-  <button class="reset" id="resetBtn">Zerar sessão de hoje</button>
+  <div class="foot-btns">
+    <button class="reset" id="resetBtn" type="button">Encerrar treino de hoje</button>
+    <button class="copiar" id="copiarBtn" type="button">Copiar resumo</button>
+  </div>
   <div class="savemsg" id="saveMsg"></div>
+  <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
   <div>SEX · GYM FB2 v3 — dupla: SEG FB1 · sábado é descanso completo</div>
   <div>GYM: <a href="../gym-fb1/">FB1 seg</a> · <a href="../quarta/">Quarta</a> · Matinal: <a href="../dia-b/">Dia B</a> · <a href="../">Completa</a></div>
 </div>
@@ -264,7 +278,7 @@ var BLOCOS = [
   { id:'b2', cor:'#22d3ee', nav:'2 · Core',   titulo:'BLOCO 2 — CORE',                       sub:'descanso 1:30' },
   { id:'b3', cor:'#ef4444', nav:'3 · Lower',  titulo:'BLOCO 3 — LOWER PESADO LENTO',         sub:'5 exercícios · dose HSR principal da semana' },
   { id:'b4', cor:'#fb7185', nav:'4 · Upper',  titulo:'BLOCO 4 — UPPER MODERADO',             sub:'3 exercícios · descanso 1:30' },
-  { id:'hj', cor:'#94a3b8', nav:'Hoje',       titulo:'COMO FOI HOJE',                        sub:'preenche no fim — vira tua referência da semana' }
+  { id:'hj', cor:'#94a3b8', nav:'Hoje',       titulo:'COMO FOI HOJE',                        sub:'preenche no fim — vira referência da próxima sessão' }
 ];
 
 // sets: 'br' = kg × reps · 'ud' = kg × reps E/D · 'r' = reps · 'r_tx' = reps + texto
@@ -387,6 +401,22 @@ var FORM = [
   var DIA_CARREGADO = hoje();
   var state = { d: hoje(), vals: {}, sets: {}, steps: {} };
   var ant = { d: null, vals: {} };
+  // arquivar: os valores digitados viram a referência cinza. É a ÚNICA função de promoção —
+  // usada na virada de dia (load) e no botão Encerrar. Campos vazios são ignorados; sem nenhum
+  // valor real não mexe em nada (nem na data). Merge: campo não preenchido herda a referência anterior.
+  function arquivar(vals, d) {
+    var limpo = {}, n = 0;
+    Object.keys(vals || {}).forEach(function (k) {
+      var v = vals[k];
+      if (v != null && String(v).trim() !== '') { limpo[k] = v; n++; }
+    });
+    if (!n || !d) return false;
+    // vals = referência mesclada (campo em branco herda); ult = só os valores desta sessão (pro Copiar resumo)
+    // mesma data = continuação da sessão (ex.: questionário preenchido depois de Encerrar): ult acumula
+    var mesmoDia = ant && ant.d === d;
+    ant = { d: d, vals: Object.assign({}, (ant && ant.vals) || {}, limpo), ult: mesmoDia ? Object.assign({}, ant.ult || {}, limpo) : limpo };
+    return true;
+  }
   try {
     var raw = localStorage.getItem(KEY);
     if (raw) {
@@ -396,14 +426,13 @@ var FORM = [
         state = { d: p.d, vals: p.vals || {}, sets: p.sets || {}, steps: p.steps || {} };
         ant = p.ant || ant;
       } else if (p) {
-        // novo dia: sessão anterior vira referência (se tinha dados); estado zera
-        // merge: campos não preenchidos na última sessão preservam a referência mais antiga
-        var tinha = p.vals && Object.keys(p.vals).length > 0;
-        if (tinha) ant = { d: p.d, vals: Object.assign({}, (p.ant && p.ant.vals) || {}, p.vals) };
-        else ant = p.ant || ant;
+        // novo dia: sessão anterior vira referência; estado zera
+        ant = p.ant || ant;
+        arquivar(p.vals, p.d);
       }
     }
   } catch (e) {}
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
 
   function stSteps(id) {
     if (!state.steps[id]) state.steps[id] = { i: 0, done: false };
@@ -417,15 +446,42 @@ var FORM = [
     try {
       localStorage.setItem(KEY, JSON.stringify({ d: state.d, vals: state.vals, sets: state.sets, steps: state.steps, ant: ant }));
       var d = new Date();
+      msg._fixo = '';  // salvou de novo = erro resolvido
       msg('salvo às ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2));
-    } catch (e) { msg(''); }
+      return true;
+    } catch (e) { msg('NÃO SALVOU — confira Ajustes › Safari › "Bloquear todos os cookies"', true); return false; }
   }
-  function msg(t) {
+  function msg(t, fixo) {
     var el = document.getElementById('saveMsg');
+    if (fixo) msg._fixo = t;  // aviso fixo (NÃO SALVOU) volta depois das mensagens passageiras
     el.textContent = t;
+    el.classList.toggle('err', !!fixo);
     clearTimeout(msg._t);
-    if (t) msg._t = setTimeout(function () { el.textContent = ''; }, 2500);
+    if (t && !fixo) msg._t = setTimeout(function () { el.textContent = msg._fixo || ''; el.classList.toggle('err', !!msg._fixo); }, 2500);
   }
+  // etiqueta "última sessão: seg 01/09" — monta a data por partes (new Date('AAAA-MM-DD') cairia em UTC e mostraria o dia anterior)
+  function fmtRef(d) {
+    var p = String(d || '').split('-');
+    if (p.length !== 3) return String(d || '');
+    var dt = new Date(+p[0], +p[1] - 1, +p[2]);
+    return ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'][dt.getDay()] + ' ' + p[2] + '/' + p[1];
+  }
+  function renderRef() {
+    var el = document.getElementById('refTxt');
+    if (el) el.textContent = ant.d ? 'última sessão: ' + fmtRef(ant.d) : 'sem referência ainda';
+  }
+  renderRef();
+  // aviso: aberto fora do ícone (Safari, link de outro app, Mac) = outra memória, nada fica no app da tela de início
+  (function () {
+    var standalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    var publicado = /github\.io$/.test(location.hostname);
+    if (standalone || !publicado) return;
+    var w = document.createElement('div');
+    w.className = 'fora';
+    w.textContent = 'Aberto fora do ícone — o que você digitar aqui não fica salvo no app da tela de início.';
+    var top = document.querySelector('.top');
+    top.parentNode.insertBefore(w, top.nextSibling);
+  })();
 
   // ---------- som / wake lock ----------
   function ensureAudio() {
@@ -574,7 +630,8 @@ var FORM = [
       if (f.k === 'num') return '<div class="frow"><label>' + f.t + '</label><input type="number" inputmode="numeric" id="' + fid + '" placeholder="' + esc(antVal(fid, '–')) + '" value="' + v + '"></div>';
       if (f.k === 'txt') return '<div class="frow"><label>' + f.t + '</label><input type="text" id="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '" value="' + v + '"></div>';
       if (f.k === 'area') return '<div><label style="font-size:13.5px;color:#aeaeb8">' + f.t + '</label><textarea id="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '">' + v + '</textarea></div>';
-      return '<div class="frow"><label>' + f.t + '</label><span class="seg" id="' + fid + '">' +
+      var antes = antVal(fid, '');
+      return '<div class="frow"><label>' + f.t + (antes ? ' <span class="antes">antes: ' + esc(antes) + '</span>' : '') + '</label><span class="seg" id="' + fid + '">' +
         '<button type="button" data-v="sim"' + (v === 'sim' ? ' class="on"' : '') + '>sim</button>' +
         '<button type="button" data-v="não"' + (v === 'não' ? ' class="on"' : '') + '>não</button></span></div>';
     }).join('');
@@ -863,7 +920,8 @@ var FORM = [
   // inputs (séries + formulário) salvam no toque
   document.querySelectorAll('.srow input, .nota-row input, .frm input, .frm textarea').forEach(function (inp) {
     inp.addEventListener('input', function () {
-      state.vals[inp.id] = inp.value;
+      if (inp.value === '') delete state.vals[inp.id];
+      else state.vals[inp.id] = inp.value;
       save();
     });
   });
@@ -886,14 +944,81 @@ var FORM = [
   var allDone = DATA.every(function (e) { return exDone(e.id); });
   if (started && !allDone) advance();
 
-  // zerar
+  // encerrar treino de hoje: arquiva (referência cinza) + zera marcações e campos + recarrega
   document.getElementById('resetBtn').addEventListener('click', function () {
-    if (!confirm('Zerar a sessão de hoje (marcações e campos)?')) return;
-    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
+    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }  // o dia já virou: a virada arquiva sozinha
+    var prog = document.getElementById('progTxt').textContent;
+    if (!confirm('Encerrar o treino de hoje (' + prog + ')?\n\nOs números viram a referência cinza do próximo treino e as marcações voltam a zero.')) return;
     stopRun(); stopRest();
+    arquivar(state.vals, state.d);
     state = { d: hoje(), vals: {}, sets: {}, steps: {} };
-    try { localStorage.setItem(KEY, JSON.stringify({ d: state.d, vals: {}, sets: {}, steps: {}, ant: ant })); } catch (e) {}
+    if (!save()) alert('NÃO SALVOU — confira Ajustes › Safari › "Bloquear todos os cookies". O treino de hoje continua aberto.');
     location.reload();
+  });
+
+  // copiar resumo: texto da sessão (hoje, ou a última arquivada) pra colar no Notes
+  function temValor(v) { return v != null && String(v).trim() !== ''; }
+  function rotuloCurto(t) { return String(t).split(' (')[0].replace(/\?$/, '').trim(); }
+  function resumoTexto() {
+    var usaHoje = Object.keys(state.vals).some(function (k) { return temValor(state.vals[k]); });
+    var vals = usaHoje ? state.vals : ant.ult;  // referência antiga (sem ult) não vira resumo: seria mistura de sessões
+    var d = usaHoje ? state.d : ant.d;
+    if (!d || !vals) return null;
+    var v = function (k) { return temValor(vals[k]) ? String(vals[k]).trim() : null; };
+    var p = String(d).split('-');
+    var titulo = document.querySelector('h1').textContent.trim();
+    var linhas = [titulo + ' · ' + fmtRef(d) + (p.length === 3 ? '/' + p[0] : '')];
+    DATA.forEach(function (e) {
+      var partes = [];
+      (e.sets || []).forEach(function (s, i) {
+        var base = e.id + '_' + i;
+        var kg = v(base + '_kg'), r = v(base + '_r'), E = v(base + '_e'), D = v(base + '_d'), a = v(base + '_a');
+        var txt = null;
+        if (s.k === 'br') { if (kg || r) txt = (kg || '–') + '×' + (r || '–'); }
+        else if (s.k === 'ud') { if (kg || E || D) txt = (kg || '–') + '×' + (E || '–') + '/' + (D || '–'); }
+        else if (s.k === 'rio') { if (kg || E || D) txt = (kg || '–') + ' · E ' + (E || '–') + ' s · D ' + (D || '–') + ' s'; }
+        else if (s.k === 'r') { if (r) txt = r + ' reps'; }
+        else if (s.k === 'r_tx') { if (r || a) txt = (r || '–') + ' reps' + (a ? ' (' + a + ')' : ''); }
+        if (txt) partes.push(s.t + ' ' + txt);
+      });
+      if (e.nota) { var nota = v(e.id + '_nota'); if (nota) partes.push((e.notaLabel || 'nota') + ': ' + nota); }
+      if (partes.length) linhas.push(e.num + ' ' + e.name.split(' (')[0] + ': ' + partes.join(' · '));
+    });
+    var hj = [], obs = [];
+    FORM.forEach(function (f) {
+      var x = v('hj_' + f.id);
+      if (!x) return;
+      if (f.k === 'area') obs.push(rotuloCurto(f.t) + ': ' + x);
+      else hj.push(rotuloCurto(f.t) + ': ' + x);
+    });
+    if (hj.length) linhas.push('Como foi hoje: ' + hj.join(' · '));
+    obs.forEach(function (o) { linhas.push(o); });
+    return { txt: linhas.join('\n'), hoje: usaHoje, d: d };
+  }
+  function copiarTexto(txt, cb) {
+    var fallback = function () {
+      var ta = document.createElement('textarea');
+      ta.value = txt; ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.top = '-1000px';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { ta.setSelectionRange(0, txt.length); } catch (e) {}
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      cb(ok);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { cb(true); }, fallback);
+    } else fallback();
+  }
+  document.getElementById('copiarBtn').addEventListener('click', function () {
+    var box = document.getElementById('resumoBox');
+    var r = resumoTexto();
+    if (!r) { msg('nada pra copiar ainda'); return; }
+    copiarTexto(r.txt, function (ok) {
+      if (ok) { box.hidden = true; msg('resumo copiado (' + (r.hoje ? 'hoje' : fmtRef(r.d)) + ') — cola no Notes'); }
+      else { box.value = r.txt; box.hidden = false; box.focus(); box.select(); msg('não consegui copiar — segura no texto e escolhe Selecionar tudo'); }
+    });
   });
 
   // virada de dia + volta do background

@@ -233,11 +233,20 @@
   .restbar .rx { font-size:12px; font-weight:800; opacity:.75; }
 
   .foot { text-align:center; margin-top:26px; font-size:12.5px; color:#8f978c; line-height:1.7; }
-  .foot .reset {
-    background:#1c211c; border:1px solid #2f362f; border-radius:10px; color:#c96a6a;
-    font-size:14px; font-weight:700; padding:11px 18px; cursor:pointer; margin-bottom:14px;
+  .foot-btns { display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:14px; }
+  .foot .reset, .foot .copiar {
+    background:#1c211c; border:1px solid #2f362f; border-radius:10px;
+    font-size:14px; font-weight:700; padding:11px 18px; cursor:pointer; min-height:44px;
   }
+  .foot .reset { color:#a3e635; border-color:#3f4f1a; }
+  .foot .copiar { color:#b9c0b4; font-size:13px; }
   .savemsg { font-size:12px; color:#4ade80; min-height:16px; }
+  .savemsg.err { color:#f87171; font-weight:700; }
+  .resumo-box { width:100%; min-height:140px; margin-top:10px; background:#151a15; color:#e9ece7; border:1px solid #2f362f;
+    border-radius:10px; padding:10px; font-size:13px; line-height:1.4; font-family:inherit; }
+  .sub.ref { margin-top:6px; color:#8f978c; }
+  .fora { background:#3a2a10; color:#fbbf24; font-size:12.5px; line-height:1.4; text-align:center; padding:8px 12px; border-radius:8px; margin:10px 0 0; }
+  .antes { color:#8f978c; font-size:12px; font-weight:600; white-space:nowrap; }
 </style>
 </head>
 <body>
@@ -253,12 +262,17 @@
 </div>
 
 <p class="sub" id="subT">Explosão de perna mora aqui · qualidade &gt; quantidade</p>
+<p class="sub ref" id="refTxt"></p>
 
 <div id="app"></div>
 
 <div class="foot">
-  <button class="reset" id="resetBtn">Zerar sessão de hoje</button>
+  <div class="foot-btns">
+    <button class="reset" id="resetBtn" type="button">Encerrar treino de hoje</button>
+    <button class="copiar" id="copiarBtn" type="button">Copiar resumo</button>
+  </div>
   <div class="savemsg" id="saveMsg"></div>
+  <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
   <div>QUA · Plio Casa v3 / Atlético Academia v3 — se técnica cair, PARA</div>
   <div>Matinal: <a href="../dia-b/">Dia B</a> · GYM: <a href="../gym-fb1/">FB1</a> · <a href="../">Completa</a></div>
 </div>
@@ -272,6 +286,7 @@
 <div class="chooser" id="chooser">
   <h2>Que quarta é hoje?</h2>
   <div class="csub">uma missão, duas rotas — escolhe pela manhã</div>
+  <div class="csub" id="chooserRef"></div>
   <div class="regra"><strong>Portão das 24h (de manhã):</strong> passou → qualquer rota completa. Não passou → no Atlético: box jump fica, trap bar jump e Bloco B saem, o tempo vai pro Bloco D (+1 série em cada). Joelho reclamando ou semana pesada de quadra → o padrão é o Atlético.</div>
   <button class="rota-btn casa" type="button" data-rota="casa">
     <div class="rt1">PLIO CASA</div>
@@ -297,7 +312,7 @@ var BLOCOS_CASA = [
   { id:'cC',  cor:'#ef4444', nav:'C · Iso',     titulo:'BLOCO C — ISOMETRIA + EQUILÍBRIO INFERIOR · INTOCÁVEL', sub:'4 exercícios · ~8 min · objetivo: estabilidade single-leg + rigidez tendínea · DEPOIS do explosivo (não compete com o estímulo neural)' },
   { id:'cS',  cor:'#fb923c', nav:'Superior',    titulo:'SUPERIOR — EXPLOSÃO',                        sub:'4 exercícios · ~12 min' },
   { id:'cR',  cor:'#eab308', nav:'Core',        titulo:'CORE REATIVO',                               sub:'3 exercícios' },
-  { id:'chj', cor:'#94a3b8', nav:'Hoje',        titulo:'COMO FOI HOJE',                              sub:'preenche no fim' }
+  { id:'chj', cor:'#94a3b8', nav:'Hoje',        titulo:'COMO FOI HOJE',                              sub:'preenche no fim — vira referência da próxima vez nesta rota' }
 ];
 
 var BLOCOS_GYM = [
@@ -307,7 +322,7 @@ var BLOCOS_GYM = [
   { id:'gC',  cor:'#ef4444', nav:'C · Iso',     titulo:'BLOCO C — ISOMETRIA + EQUILÍBRIO · INTOCÁVEL', sub:'4 exercícios · descanso 0:45' },
   { id:'gD',  cor:'#c084fc', nav:'D · Intrínseco', titulo:'BLOCO D — INTRÍNSECO COM CARGA',          sub:'3 exercícios' },
   { id:'gE',  cor:'#fb923c', nav:'E · Upper',   titulo:'BLOCO E — POTÊNCIA UPPER',                   sub:'5 exercícios' },
-  { id:'ghj', cor:'#94a3b8', nav:'Hoje',        titulo:'COMO FOI HOJE',                              sub:'preenche no fim' }
+  { id:'ghj', cor:'#94a3b8', nav:'Hoje',        titulo:'COMO FOI HOJE',                              sub:'preenche no fim — vira referência da próxima vez nesta rota' }
 ];
 
 // sets: cada linha tem tipo — ed (E/D), r (reps), kg_r, kg_ed, alt (cm), alt_n (cm+nota), kg_tx, sec_ed (segundos E/D)
@@ -619,8 +634,7 @@ var FORM_GYM = [
 var NOTAS_CASA = '<p><strong>Regra de ouro:</strong> se a técnica cair, PARA. Qualidade &gt; quantidade, sempre.</p>' +
 '<p><strong>Lógica:</strong> single-leg primeiro (neural fresco) · ativação isométrica → unilateral explosivo → bilateral explosivo → reatividade rápida → estabilidade/isometria · mix fast SSC (&lt;250 ms) + slow SSC · isometria curta antes de plio = PAP · equilíbrio entre séries = recuperação ativa que melhora propriocepção. <em>Baseado em: Verkhoshansky, Chu, Grover (Jump Attack), Joel Smith, meta-análises 2020–2026.</em></p>' +
 '<p><strong>Curto de tempo (corta nesta ordem):</strong> 1) lateral bounds pra 2× 4 (~2 min) · 2) core reativo (~6 min) · 3) metade do superior explosão — 2 séries de cada (~6 min). <strong>BLOCO C NUNCA SAI</strong> — é remédio do tendão, não acessório. Cortar remédio não é poupar, é parar o tratamento.</p>' +
-'<p><strong>Volume:</strong> férias ~100 contatos alta/média ok (menos jogo na semana). In-season: alvo 70–80 — cortar SL hurdle hops (<a class="xref" href="#c3" style="color:#bef264">#3</a>) ou reduzir depth jump pra 2× 4 traz pra ~80. Semana pesada de basquete ou fadiga: mesma redução vale nas férias.</p>' +
-'<p><strong>Registro:</strong> anota as reps E/D de cada série e toca no ✓ — o descanso conta na barra verde. Números da semana passada aparecem em cinza.</p>';
+'<p><strong>Volume:</strong> férias ~100 contatos alta/média ok (menos jogo na semana). In-season: alvo 70–80 — cortar SL hurdle hops (<a class="xref" href="#c3" style="color:#bef264">#3</a>) ou reduzir depth jump pra 2× 4 traz pra ~80. Semana pesada de basquete ou fadiga: mesma redução vale nas férias.</p>';
 
 var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho reclama ou a semana de quadra é pesada (jogo, atlética).</p>' +
 '<p><strong>Princípio:</strong> DECOLAGEM SIM, ATERRISSAGEM DURA NÃO. Box jump aterrissa na caixa. Depth DROP cai e segura (não salta de novo). Trap bar jump leve e só com joelho limpo.</p>' +
@@ -628,6 +642,8 @@ var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho r
 '<p><strong>Versão curta (~50 min, dia apertado) — corta nesta ordem:</strong> slam → high pull → flexão explosiva → aterrissagem lateral. <strong>BLOCO C NUNCA SAI.</strong></p>' +
 '<p><strong>Por que essa ordem:</strong> potência primeiro (neural fresco) · absorção depois (corpo aquecido, antes da fadiga) · Bloco C depois do explosivo (não compete com o estímulo neural e alivia o tendão) · intrínseco no fim do inferior (estabilizador cansado = 4º quarto) · upper explosivo por último (não rouba nada do inferior).</p>' +
 '<p><strong>Contatos:</strong> ~40 de média/alta intensidade + pogos leves.</p>';
+
+var NOTAS_REGISTRO = '<p><strong>Registro:</strong> anota as reps E/D (ou kg, cm) de cada série e toca no ✓ — o descanso conta na barra verde. Os números ficam salvos a cada toque. Ao virar o dia, ou quando você toca em <strong>Encerrar treino de hoje</strong>, eles viram a referência cinza da próxima quarta na mesma rota (a data e a rota aparecem sob o título), as marcações voltam a zero e o seletor de rota volta. O Bloco C é o mesmo nas duas rotas: o cinza dele vale nas duas. Campo em branco mantém a referência anterior. <strong>Copiar resumo</strong> gera o texto da sessão pra colar no Notes.</p>';
 
 // ===================== APP =====================
 (function () {
@@ -642,7 +658,23 @@ var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho r
   }
   var DIA_CARREGADO = hoje();
   var state = { d: hoje(), rota: null, vals: {}, sets: {}, steps: {} };
-  var ant = { d: null, vals: {} };
+  var ant = { d: null, rota: null, vals: {} };
+  // arquivar: os valores digitados viram a referência cinza. É a ÚNICA função de promoção —
+  // usada na virada de dia (load) e no botão Encerrar. Campos vazios são ignorados; sem nenhum
+  // valor real não mexe em nada (nem na data). vals = referência mesclada (campo em branco herda);
+  // ult = só os valores desta sessão (pro Copiar resumo); rota = de qual rota foi a sessão.
+  function arquivar(vals, d, rota) {
+    var limpo = {}, n = 0;
+    Object.keys(vals || {}).forEach(function (k) {
+      var v = vals[k];
+      if (v != null && String(v).trim() !== '') { limpo[k] = v; n++; }
+    });
+    if (!n || !d) return false;
+    // mesma data = continuação da sessão: ult acumula e a rota do primeiro Encerrar do dia é a da sessão real
+    var mesmoDia = ant && ant.d === d;
+    ant = { d: d, rota: (mesmoDia && ant.rota) || rota || null, vals: Object.assign({}, (ant && ant.vals) || {}, limpo), ult: mesmoDia ? Object.assign({}, ant.ult || {}, limpo) : limpo };
+    return true;
+  }
   try {
     var raw = localStorage.getItem(KEY);
     if (raw) {
@@ -651,12 +683,13 @@ var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho r
         state = { d: p.d, rota: p.rota || null, vals: p.vals || {}, sets: p.sets || {}, steps: p.steps || {} };
         ant = p.ant || ant;
       } else if (p) {
-        var tinha = p.vals && Object.keys(p.vals).length > 0;
-        if (tinha) ant = { d: p.d, vals: Object.assign({}, (p.ant && p.ant.vals) || {}, p.vals) };
-        else ant = p.ant || ant;
+        // novo dia: sessão anterior vira referência; estado zera (e o seletor volta)
+        ant = p.ant || ant;
+        arquivar(p.vals, p.d, p.rota);
       }
     }
   } catch (e) {}
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
 
   function stSteps(id) { if (!state.steps[id]) state.steps[id] = { i: 0, done: false }; return state.steps[id]; }
   function stSets(id) { if (!state.sets[id]) state.sets[id] = byId[id].sets.map(function () { return false; }); return state.sets[id]; }
@@ -664,15 +697,46 @@ var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho r
     try {
       localStorage.setItem(KEY, JSON.stringify({ d: state.d, rota: state.rota, vals: state.vals, sets: state.sets, steps: state.steps, ant: ant }));
       var d = new Date();
+      msg._fixo = '';  // salvou de novo = erro resolvido
       msg('salvo às ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2));
-    } catch (e) { msg(''); }
+      return true;
+    } catch (e) { msg('NÃO SALVOU — confira Ajustes › Safari › "Bloquear todos os cookies"', true); return false; }
   }
-  function msg(t) {
+  function msg(t, fixo) {
     var el = document.getElementById('saveMsg');
+    if (fixo) msg._fixo = t;  // aviso fixo (NÃO SALVOU) volta depois das mensagens passageiras
     el.textContent = t;
+    el.classList.toggle('err', !!fixo);
     clearTimeout(msg._t);
-    if (t) msg._t = setTimeout(function () { el.textContent = ''; }, 2500);
+    if (t && !fixo) msg._t = setTimeout(function () { el.textContent = msg._fixo || ''; el.classList.toggle('err', !!msg._fixo); }, 2500);
   }
+  // etiqueta "última sessão: qua 27/08 · Atlético" — monta a data por partes (new Date('AAAA-MM-DD') cairia em UTC e mostraria o dia anterior)
+  function fmtRef(d) {
+    var p = String(d || '').split('-');
+    if (p.length !== 3) return String(d || '');
+    var dt = new Date(+p[0], +p[1] - 1, +p[2]);
+    return ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'][dt.getDay()] + ' ' + p[2] + '/' + p[1];
+  }
+  function nomeRota(r) { return r === 'gym' ? 'Atlético' : 'Plio Casa'; }
+  function renderRef() {
+    var el = document.getElementById('refTxt'), ch = document.getElementById('chooserRef');
+    if (!ant.d) { if (el) el.textContent = 'sem referência ainda'; if (ch) ch.textContent = ''; return; }
+    var t = fmtRef(ant.d) + (ant.rota ? ' · ' + nomeRota(ant.rota) : '');
+    if (el) el.textContent = 'última sessão: ' + t;
+    if (ch) ch.textContent = 'última sessão: ' + t;
+  }
+  renderRef();
+  // aviso: aberto fora do ícone (Safari, link de outro app, Mac) = outra memória, nada fica no app da tela de início
+  (function () {
+    var standalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    var publicado = /github\.io$/.test(location.hostname);
+    if (standalone || !publicado) return;
+    var w = document.createElement('div');
+    w.className = 'fora';
+    w.textContent = 'Aberto fora do ícone — o que você digitar aqui não fica salvo no app da tela de início.';
+    var top = document.querySelector('.top');
+    top.parentNode.insertBefore(w, top.nextSibling);
+  })();
   function esc(v) {
     return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
@@ -760,7 +824,7 @@ var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho r
     wrap.className = rotaCls;
     var det = document.createElement('details');
     det.className = 'notas';
-    det.innerHTML = '<summary>Notas &amp; regras</summary>' + notasHtml +
+    det.innerHTML = '<summary>Notas &amp; regras</summary>' + notasHtml + NOTAS_REGISTRO +
       '<p><strong>Errou um toque?</strong> ✓ da série desmarca; o número do card volta um passo das sequências.</p>';
     wrap.appendChild(det);
     blocos.forEach(function (b) {
@@ -825,7 +889,8 @@ var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho r
       if (f.k === 'num') return '<div class="frow"><label>' + f.t + '</label><input type="number" inputmode="numeric" data-k="' + fid + '" placeholder="' + esc(antVal(fid, '–')) + '" value="' + v + '"></div>';
       if (f.k === 'txt') return '<div class="frow"><label>' + f.t + '</label><input type="text" data-k="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '" value="' + v + '"></div>';
       if (f.k === 'area') return '<div><label style="font-size:13.5px;color:#b9c0b4">' + f.t + '</label><textarea data-k="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '">' + v + '</textarea></div>';
-      return '<div class="frow"><label>' + f.t + '</label><span class="seg" data-seg="' + fid + '">' +
+      var antes = antVal(fid, '');
+      return '<div class="frow"><label>' + f.t + (antes ? ' <span class="antes">antes: ' + esc(antes) + '</span>' : '') + '</label><span class="seg" data-seg="' + fid + '">' +
         '<button type="button" data-v="sim"' + (state.vals[fid] === 'sim' ? ' class="on"' : '') + '>sim</button>' +
         '<button type="button" data-v="não"' + (state.vals[fid] === 'não' ? ' class="on"' : '') + '>não</button></span></div>';
     }).join('');
@@ -1167,7 +1232,8 @@ var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho r
 
   document.querySelectorAll('input[data-k], textarea[data-k]').forEach(function (el) {
     el.addEventListener('input', function () {
-      state.vals[el.dataset.k] = el.value;
+      if (el.value === '') delete state.vals[el.dataset.k];
+      else state.vals[el.dataset.k] = el.value;
       // Bloco C existe nas duas rotas com a mesma chave: espelha o campo gêmeo
       document.querySelectorAll('[data-k="' + el.dataset.k + '"]').forEach(function (tw) {
         if (tw !== el) tw.value = el.value;
@@ -1204,12 +1270,88 @@ var NOTAS_GYM = '<p><strong>Quando usar:</strong> é o padrão quando o joelho r
     if (started && !allDone) advance();
   }
 
+  // encerrar treino de hoje: arquiva (referência cinza, com a rota) + zera marcações/campos/rota + recarrega
   document.getElementById('resetBtn').addEventListener('click', function () {
-    if (!confirm('Zerar a sessão de hoje (marcações, campos e rota)?')) return;
-    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
+    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }  // o dia já virou: a virada arquiva sozinha
+    var prog = document.getElementById('progTxt').textContent;
+    if (!confirm('Encerrar o treino de hoje (' + prog + ')?\n\nOs números viram a referência cinza da próxima quarta, as marcações voltam a zero e o seletor de rota volta.')) return;
     stopRun(); stopRest();
-    try { localStorage.setItem(KEY, JSON.stringify({ d: hoje(), rota: null, vals: {}, sets: {}, steps: {}, ant: ant })); } catch (e) {}
+    arquivar(state.vals, state.d, state.rota);
+    state = { d: hoje(), rota: null, vals: {}, sets: {}, steps: {} };
+    if (!save()) alert('NÃO SALVOU — confira Ajustes › Safari › "Bloquear todos os cookies". O treino de hoje continua aberto.');
     location.reload();
+  });
+
+  // copiar resumo: texto da sessão (hoje, ou a última arquivada) pra colar no Notes
+  function temValor(v) { return v != null && String(v).trim() !== ''; }
+  function rotuloCurto(t) { return String(t).split(' (')[0].replace(/\?$/, '').trim(); }
+  function resumoTexto() {
+    var usaHoje = Object.keys(state.vals).some(function (k) { return temValor(state.vals[k]); });
+    var vals = usaHoje ? state.vals : ant.ult;  // referência antiga (sem ult) não vira resumo: seria mistura de sessões
+    var d = usaHoje ? state.d : ant.d;
+    var rota = usaHoje ? (state.rota || 'casa') : (ant.rota || 'casa');
+    if (!d || !vals) return null;
+    var v = function (k) { return temValor(vals[k]) ? String(vals[k]).trim() : null; };
+    var dados = rota === 'gym' ? DATA_GYM : DATA_CASA;
+    var form = rota === 'gym' ? FORM_GYM : FORM_CASA;
+    var formId = rota === 'gym' ? 'fg' : 'fc';
+    var p = String(d).split('-');
+    var linhas = ['QUA · ' + nomeRota(rota) + ' · ' + fmtRef(d) + (p.length === 3 ? '/' + p[0] : '')];
+    dados.forEach(function (e) {
+      var partes = [];
+      (e.sets || []).forEach(function (s, i) {
+        var base = (e.fid || e.id) + '_' + i;
+        var kg = v(s.k === 'kg_tx' ? base + '_kg' : e.id + '_' + i + '_kg');
+        var E = v(base + '_e'), D = v(base + '_d'), r = v(base + '_r'), alt = v(base + '_alt'), n = v(base + '_n'), ok = v(base + '_ok');
+        var txt = null;
+        if (s.k === 'ed') { if (E || D) txt = (E || '–') + '/' + (D || '–'); }
+        else if (s.k === 'sec_ed') { if (E || D) txt = (E || '–') + ' s / ' + (D || '–') + ' s'; }
+        else if (s.k === 'r') { if (r) txt = r + ' reps'; }
+        else if (s.k === 'kg_r') { if (kg || r) txt = (kg || '–') + '×' + (r || '–'); }
+        else if (s.k === 'kg_ed') { if (kg || E || D) txt = (kg || '–') + '×' + (E || '–') + '/' + (D || '–'); }
+        else if (s.k === 'alt') { if (alt) txt = alt + ' cm'; }
+        else if (s.k === 'alt_n') { if (alt || n) txt = (alt || '–') + ' cm' + (n ? ' · nota ' + n : ''); }
+        else if (s.k === 'kg_tx') { if (kg || ok) txt = (kg || '–') + ' kg' + (ok ? ' · ' + ok : ''); }
+        if (txt) partes.push(s.t + ' ' + txt);
+      });
+      if (e.nota) { var nota = v(e.id + '_nota'); if (nota) partes.push('nota: ' + nota); }
+      if (partes.length) linhas.push(e.num + ' ' + e.name.split(' (')[0] + ': ' + partes.join(' · '));
+    });
+    var hj = [], obs = [];
+    form.forEach(function (f) {
+      var x = v(formId + '_' + f.id);
+      if (!x) return;
+      if (f.k === 'area') obs.push(rotuloCurto(f.t) + ': ' + x);
+      else hj.push(rotuloCurto(f.t) + ': ' + x);
+    });
+    if (hj.length) linhas.push('Como foi hoje: ' + hj.join(' · '));
+    obs.forEach(function (o) { linhas.push(o); });
+    return { txt: linhas.join('\n'), hoje: usaHoje, d: d };
+  }
+  function copiarTexto(txt, cb) {
+    var fallback = function () {
+      var ta = document.createElement('textarea');
+      ta.value = txt; ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.top = '-1000px';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { ta.setSelectionRange(0, txt.length); } catch (e) {}
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      cb(ok);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { cb(true); }, fallback);
+    } else fallback();
+  }
+  document.getElementById('copiarBtn').addEventListener('click', function () {
+    var box = document.getElementById('resumoBox');
+    var r = resumoTexto();
+    if (!r) { msg('nada pra copiar ainda'); return; }
+    copiarTexto(r.txt, function (ok) {
+      if (ok) { box.hidden = true; msg('resumo copiado (' + (r.hoje ? 'hoje' : fmtRef(r.d)) + ') — cola no Notes'); }
+      else { box.value = r.txt; box.hidden = false; box.focus(); box.select(); msg('não consegui copiar — segura no texto e escolhe Selecionar tudo'); }
+    });
   });
 
   document.addEventListener('visibilitychange', function () {
