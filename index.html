@@ -22,7 +22,6 @@
   }
   a { color:#58a6ff; }
 
-  /* ---------- topo fixo ---------- */
   .top {
     position:sticky; top:0; z-index:10; background:rgba(13,17,23,.93);
     -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
@@ -41,11 +40,10 @@
   }
   .chip.on { background:var(--bc); border-color:var(--bc); color:#0d1117; }
   .pbar { height:3px; background:#1c2330; margin:0 -14px; }
-  .pbar i { display:block; height:100%; width:0%; background:#f97316; transition:width .4s, background .4s; }
+  .pbar i { display:block; height:100%; width:0%; background:#f97316; transition:width .4s; }
 
   .sub { font-size:12.5px; color:#8b949e; margin:12px 0 0; text-align:center; }
 
-  /* ---------- notas ---------- */
   details.notas {
     background:#161b22; border:1px solid #2b3442; border-radius:12px;
     padding:0 14px; margin:12px 0 4px;
@@ -60,7 +58,6 @@
   details.notas p { font-size:13.5px; color:#a8b3c1; line-height:1.55; padding-bottom:10px; }
   details.notas p strong { color:#e6edf3; }
 
-  /* ---------- cabeçalho de bloco ---------- */
   section.bloco { --acc:#f97316; scroll-margin-top:calc(100px + env(safe-area-inset-top)); }
   .bh {
     display:flex; align-items:center; justify-content:space-between;
@@ -73,7 +70,6 @@
     padding:12px 0 12px 12px; cursor:pointer; flex-shrink:0;
   }
 
-  /* ---------- card ---------- */
   .ex {
     background:#161b22; border:1px solid #2b3442; border-radius:14px;
     padding:14px 14px 12px; margin-bottom:12px; transition:opacity .3s, border-color .3s;
@@ -81,6 +77,7 @@
   }
   .ex.run { border-color:var(--acc); }
   .ex.is-done { opacity:.5; }
+  .ex.is-skip { opacity:.45; }
   .ex.flash { animation:fl .45s 2; }
   @keyframes fl { 50% { border-color:#22c55e; box-shadow:0 0 0 3px #22c55e33; } }
 
@@ -88,9 +85,15 @@
   .num {
     width:28px; height:28px; border-radius:50%; background:var(--acc); color:#0d1117;
     font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center;
-    flex-shrink:0; margin-top:1px; cursor:pointer;
+    flex-shrink:0; margin-top:1px; cursor:pointer; position:relative;
   }
+  .num::after { content:""; position:absolute; inset:-8px; border-radius:50%; }  /* área de toque 44 px */
   .ex-head h3 { flex:1; font-size:17px; font-weight:750; line-height:1.25; letter-spacing:-.2px; }
+  .bpill {
+    display:inline-block; border:1.5px solid; border-radius:999px; padding:1px 7px;
+    font-size:10px; font-weight:800; letter-spacing:.4px; margin:2px 0 0 6px;
+    vertical-align:2px; white-space:nowrap;
+  }
   .done-btn {
     width:44px; height:44px; margin:-8px -8px 0 0; flex-shrink:0; border-radius:12px;
     border:1.5px solid #2b3442; background:transparent;
@@ -121,6 +124,7 @@
   .go.running { background:var(--acc); color:#0d1117; font-size:24px; }
   .go.paused { background:#1c2330; border-color:#9aa4b2; color:#e6edf3; }
   .is-done .go { border-color:#22c55e; color:#22c55e; font-size:15px; }
+  .is-skip .go { border-color:#4a5568; color:#8b949e; cursor:default; }
 
   details.how { margin-top:10px; border-top:1px solid #21283367; padding-top:2px; }
   details.how summary {
@@ -143,18 +147,52 @@
   .links a { display:block; color:#a8b3c1; text-decoration:none; font-size:13.5px; padding:10px 0; }
   .links a::before { content:"→ "; color:var(--acc); }
 
-  .tip {
-    background:#161b22; border-left:3px solid var(--acc); border-radius:0 10px 10px 0;
-    padding:10px 14px; margin:4px 0 14px; font-size:13.5px; color:#a8b3c1; line-height:1.55;
-  }
-  .tip strong { color:var(--acc); }
-
   .foot { text-align:center; margin-top:26px; font-size:12.5px; color:#8b949e; line-height:1.7; }
   .foot .reset {
     background:#1d1d23; border:1px solid #2b3442; border-radius:10px; color:#c96a6a;
     font-size:14px; font-weight:700; padding:11px 18px; cursor:pointer; margin-bottom:14px;
   }
   .savemsg { font-size:12px; color:#22c55e; min-height:16px; }
+
+  .tip {
+    background:#0d1117; border:1px dashed #2b3442; border-radius:12px; padding:10px 12px;
+    margin:-4px 0 12px; font-size:13px; color:#9aa4b2; line-height:1.5;
+  }
+  .tip strong { color:var(--acc); }
+  /* vC.12: dia corrido, portão das 24 h, campos ANOTA */
+  .toggle-row { display:flex; justify-content:center; margin:10px 0 0; }
+  .toggle-row[hidden], .gate[hidden], .log-hist[hidden] { display:none; }
+  .tg {
+    background:#161b22; border:1.5px solid #2b3442; border-radius:999px; color:#a8b3c1;
+    font-size:13px; font-weight:700; padding:8px 16px; min-height:40px; cursor:pointer;
+  }
+  .tg.on { background:#22c55e1f; border-color:#22c55e; color:#22c55e; }
+  .gate {
+    background:#161b22; border:1px solid #2b3442; border-left:4px solid #ef4444; border-radius:12px;
+    padding:10px 12px; margin:12px 0 0; font-size:13.5px; color:#a8b3c1; line-height:1.45;
+  }
+  .gate strong { color:#e6edf3; }
+  .gate .grow { display:flex; align-items:center; gap:10px; margin-top:8px; flex-wrap:wrap; }
+  .log-row { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin:10px 0 4px; }
+  .log-row .ll { font-size:11px; font-weight:800; letter-spacing:.6px; color:#ff6b9d; }
+  .log-row label, .log-row .lbl, .gate label { font-size:13.5px; color:#9aa4b2; display:inline-flex; align-items:center; gap:5px; }
+  .log-row input, .gate input {
+    width:66px; height:40px; background:#0d1117; border:1px solid #2b3442; border-radius:8px;
+    color:#e6edf3; font-size:16px; font-weight:700; text-align:center; font-variant-numeric:tabular-nums;
+  }
+  .log-row input::placeholder, .gate input::placeholder { color:#8b949e; font-weight:600; }
+  .seg { display:inline-flex; gap:6px; }
+  .seg button {
+    background:#0d1117; border:1px solid #2b3442; border-radius:8px; color:#a8b3c1;
+    font-size:13px; font-weight:700; padding:8px 12px; min-height:40px; cursor:pointer;
+  }
+  .seg button.on { background:#ff6b9d; border-color:#ff6b9d; color:#0d1117; }
+  .antes { font-size:11.5px; color:#8b949e; font-weight:600; }
+  .log-hist { display:none; font-size:12px; color:#8b949e; line-height:1.55; margin:2px 0 6px; }
+  .log-hist.show, .log-hist.always { display:block; }
+  .log-hist .hk { color:#a8b3c1; font-weight:700; }
+  .log-hist b { color:#e6edf3; }
+  .log-prog { font-size:12px; color:#8b949e; margin:0 0 6px; }
 </style>
 </head>
 <body>
@@ -162,21 +200,24 @@
 <div class="top">
   <div class="top-row">
     <h1>Sessão Matinal Completa</h1>
-    <span class="prog-txt" id="progTxt">0/37</span>
+    <span class="prog-txt" id="progTxt">0/0</span>
   </div>
   <nav class="chips-nav" id="chipsNav"></nav>
   <div class="pbar"><i id="pbar"></i></div>
 </div>
 
-<p class="sub">Pé · Alongamentos · Isometria · Mobilidade · Band — 7h30 · seg–sex · ~55–60 min</p>
+<p class="sub"><strong>SÁBADO</strong> · ~55–60 min · única sessão física do dia · Copenhagen 3ª dose</p>
+<p class="sub">Pé · Mobilidade · Band · Isometria · FIXO — carga antes de alongar; bloco fixo por último, quente · Par: <a href="dia-a/">Dia A</a> · <a href="dia-b/">Dia B</a></p>
+<div class="toggle-row" hidden><button type="button" class="tg" id="corridoBtn">Dia corrido?</button></div>
 
 <details class="notas">
   <summary>Notas &amp; regras do dia</summary>
-  <p><strong>Tempo total real:</strong> ~55–60 min (os blocos somam ~44 min de exercício + transições). Qualidade &gt; velocidade — tudo bem passar do previsto.</p>
-  <p><strong>Dias corridos:</strong> usar a versão rápida (~15 min, 15 exercícios essenciais — por enquanto no arquivo Sessao_Matinal_RAPIDA; vira um guia aqui no app em breve).</p>
-  <p><strong>Dias de basquete (seg, qui, dom):</strong> ênfase nos blocos <a href="#b3">3 · Isometria</a> e <a href="#b5">5 · Band</a>.</p>
-  <p><strong>Muito corrido mesmo (5 min):</strong> <a class="xref" href="#ex1">#1</a> Bolinha + <a class="xref" href="#ex5">#5</a> Calf raise + <a class="xref" href="#ex15">#15</a> Panturrilha na parede.</p>
-  <p><strong>Progresso:</strong> as marcações valem por hoje — amanhã o app começa zerado sozinho (o aparelho guarda só no Safari deste celular).</p>
+  <p><strong>Tempo total real:</strong> ~55–60 min (os blocos somam ~53 min de exercício + transições). Qualidade &gt; velocidade — tudo bem passar do previsto.</p>
+  <p><strong>Alongamento = BLOCO FIXO</strong>, o mesmo de A e B, sempre por último (<a href="#b5">bloco 5</a>). Carga antes de alongar; isometria (Copenhagen) ~45–60 min depois do colágeno das 8h30.</p>
+  <p><strong>Copenhagen (<a class="xref" href="#ex23">#23</a>):</strong> 3ª dose da semana (ter · qui · sáb).</p>
+  <p><strong>Big 3:</strong> nunca na primeira hora depois de acordar (McGill) — no fluxo normal já é o fim da sessão.</p>
+  <p><strong>vC.12:</strong> o bloco de alongamento antigo (12 cards) e o cat-cow do meio saíram; o alongamento agora é o bloco fixo no fim (<a href="#b5">bloco 5</a>, cat-cow abre como F1); ordem Pé → Mobilidade → Band → Isometria → Fixo.</p>
+  <p><strong>Progresso:</strong> as marcações valem por hoje — amanhã o app começa zerado sozinho.</p>
   <p><strong>Errou um toque?</strong> Toca no <strong>número</strong> do exercício pra voltar um passo; o ✓ do canto desmarca o exercício inteiro.</p>
 </details>
 
@@ -190,23 +231,26 @@
 <div class="foot">
   <button class="reset" id="resetBtn">Zerar o dia (tirar marcações)</button>
   <div class="savemsg" id="saveMsg"></div>
-  <div>Fontes: @garcia_effect_official · @newmindstart · @yourpainmechanic · @reillyherbststrength · Rathleff et al. 2015</div>
+  <div>vC.12 — Sessão Matinal COMPLETA (sábado · ~55–60 min) · Par: <a href="dia-a/">DIA A</a> (seg · qua · sex) · <a href="dia-b/">DIA B</a> (ter · qui · dom)</div>
+  <div>Fontes: Rathleff 2015 · Haroy 2019 · Lauersen 2014 · Rio 2015 · Thomas 2018 · DiGiovanni 2003 · McGill (Big 3) · Afonso 2021 · @squat_university · @lokonga.training · @garcia_effect_official · @newmindstart · @yourpainmechanic</div>
 </div>
 
 <script>
 // ===================== DADOS =====================
 var BLOCOS = [
-  { id:'b1', key:'f', cor:'#f97316', nav:'1 · Pé', titulo:'BLOCO 1 — Pé / Fáscia Plantar', sub:'~7 min · descalço' },
-  { id:'b2', key:'s', cor:'#06b6d4', nav:'2 · Along', titulo:'BLOCO 2 — Alongamentos', sub:'~15 min · 30–45 s cada' },
-  { id:'b3', key:'i', cor:'#ef4444', nav:'3 · Iso', titulo:'BLOCO 3 — Isometria · Proteção Articular', sub:'~7 min' },
-  { id:'b4', key:'m', cor:'#22c55e', nav:'4 · Mob', titulo:'BLOCO 4 — Mobilidade Articular', sub:'~5 min' },
-  { id:'b5', key:'b', cor:'#a855f7', nav:'5 · Band', titulo:'BLOCO 5 — Exercícios com Band', sub:'~10 min' }
+  { id:'b1', cor:'#f97316', nav:'1 · Pé',   titulo:'BLOCO 1 — Pé / Fáscia Plantar',              sub:'5 exercícios · ~7 min · descalço' },
+  { id:'b2', cor:'#22c55e', nav:'2 · Mob',  titulo:'BLOCO 2 — Mobilidade Articular',             sub:'5 exercícios · ~5 min' },
+  { id:'b3', cor:'#a855f7', nav:'3 · Band', titulo:'BLOCO 3 — Exercícios com Band',              sub:'7 exercícios · ~10 min' },
+  { id:'b4', cor:'#ef4444', nav:'4 · Iso',  titulo:'BLOCO 4 — Isometria · Proteção Articular',   sub:'7 exercícios · ~7 min · Copenhagen 3ª dose' },
+  { id:'b5', cor:'#eab308', nav:'5 · Fixo', titulo:'BLOCO 5 — FIXO: Big 3 + alongamentos',       sub:'13 exercícios · ~24 min · 4 apoios → chão → em pé' }
 ];
 
-// steps: com "s" = cronometrado (segundos); sem "s" = marcar no toque
+var NUC = ['NÚCLEO', '#22c55e'], MODA = ['MÓDULO A', '#a855f7'], MODB = ['MÓDULO B', '#06b6d4'], FIXO = ['FIXO', '#eab308'], ISO = ['ISO DO DIA', '#f97316'], TERQUI = ['SÓ TER · QUI', '#ef4444'], S30 = ['2× 30 s', '#fb7185'], NOVO = ['NOVO vC.12', '#58a6ff'], ANOTA = ['ANOTA', '#ff6b9d'];
+var GATE_DIAS = [];
+
+// steps: com "s" = cronometrado; sem "s" = marcar no toque
 var DATA = [
-// ---------- BLOCO 1 ----------
-{ n:1, b:'b1', name:'Rolar Bola de Tênis na Fáscia', img:'img/ex01.jpg',
+{ n:1, b:'b1', name:'Rolar Bola de Tênis na Fáscia', img:'img/ex01.jpg', bad:[],
   chips:['1 min','cada pé'], eq:'bola de tênis ou lacrosse',
   cue:'Rola <b>devagar</b> do calcanhar à base dos dedos — <b>insiste 10 s nos pontos doloridos</b>.',
   steps:[{t:'Pé E',s:60},{t:'Pé D',s:60}],
@@ -215,7 +259,7 @@ var DATA = [
     {t:'Plantar Fascia Ball Rolling (demo rápida)', u:'https://www.youtube.com/watch?v=3gDuNVtDO_M'},
     {t:'Tennis Ball Rollout p/ Plantar Fascia (Impact Care)', u:'https://www.youtube.com/watch?v=N9ERNNM-i4M'}]},
 
-{ n:2, b:'b1', name:'Towel Scrunch (Garra no Chão)', img:'img/ex02.jpg',
+{ n:2, b:'b1', name:'Towel Scrunch (Garra no Chão)', img:'img/ex02.jpg', bad:[],
   chips:['2× 30 s','cada pé'], eq:'toalha no chão',
   cue:'Dedos <b>agarram e puxam</b> a toalha em direção ao calcanhar — como garra.',
   steps:[{t:'Pé E · série 1',s:30},{t:'Pé D · série 1',s:30},{t:'Pé E · série 2',s:30},{t:'Pé D · série 2',s:30}],
@@ -224,7 +268,7 @@ var DATA = [
     {t:'Towel Scrunch (demo clássica)', u:'https://www.youtube.com/watch?v=1ogSryKJXB4'},
     {t:'Towel Scrunch (NHS Ayrshire)', u:'https://www.youtube.com/watch?v=1RZXwuxXb4Y'}]},
 
-{ n:3, b:'b1', name:'Toe Splay (Toe Yoga simplificado)', img:'img/ex03.jpg',
+{ n:3, b:'b1', name:'Toe Splay (Toe Yoga simplificado)', img:'img/ex03.jpg', bad:[],
   chips:['1 min','cada pé'], eq:'descalço',
   cue:'Abre todos os dedos como um <b>leque</b> · segura 5 s · relaxa · repete.',
   steps:[{t:'Pé E',s:60},{t:'Pé D',s:60}],
@@ -234,7 +278,7 @@ var DATA = [
     {t:'Toe Splay Routine (The Foot Collective)', u:'https://www.youtube.com/watch?v=lb7WWz5aUiQ'},
     {t:'@newmindstart (Instagram)', u:'https://instagram.com/p/DRz0KHIjm87'}]},
 
-{ n:4, b:'b1', name:'Short Foot (Arco Ativo)', img:'img/ex04.jpg',
+{ n:4, b:'b1', name:'Short Foot (Arco Ativo)', img:'img/ex04.jpg', bad:[],
   chips:['3× 10 s','cada pé'], eq:null,
   cue:'Dedos <b>retos</b> no chão — encurta o pé <b>“sugando” o chão</b>: só o arco sobe.',
   steps:[{t:'Pé E · 1/3',s:10},{t:'Pé D · 1/3',s:10},{t:'Pé E · 2/3',s:10},{t:'Pé D · 2/3',s:10},{t:'Pé E · 3/3',s:10},{t:'Pé D · 3/3',s:10}],
@@ -243,7 +287,7 @@ var DATA = [
     {t:'The BEST Short Foot', u:'https://www.youtube.com/watch?v=L8tDWslYA8Y'},
     {t:'Short Arch Activation (Physio Series)', u:'https://www.youtube.com/watch?v=Bi6y6l3gEbI'}]},
 
-{ n:5, b:'b1', name:'Calf Raise Excêntrico', img:'img/ex05.jpg',
+{ n:5, b:'b1', name:'Calf Raise Excêntrico', img:'img/ex05.jpg', bad:[],
   chips:['2× 12','bilateral'], eq:'degrau ou chão',
   cue:'Sobe 1 s · <b>desce lento 3 s</b> · <b>segura embaixo 3 s</b>.',
   steps:[{t:'Série 1 · 12 reps'},{t:'Série 2 · 12 reps'}],
@@ -253,186 +297,7 @@ var DATA = [
     {t:'Plantar Fascia Calf Raise', u:'https://www.youtube.com/watch?v=VvOWR1PKtUQ'}],
   tip:'<strong>Short foot vs Garra:</strong> na garra (towel), os dedos DOBRAM e agarram. No short foot, os dedos ficam RETOS — só o arco sobe. São músculos diferentes. Ambos são importantes.'},
 
-// ---------- BLOCO 2 ----------
-{ n:6, b:'b2', name:'Posterior com Pé na Mesa', img:'img/ex06.jpg',
-  chips:['45 s','cada perna'], eq:null,
-  cue:'Perna reta na mesa, inclina o tronco com as <b>costas retas</b> — sente atrás da coxa.',
-  steps:[{t:'Perna E',s:45},{t:'Perna D',s:45}],
-  desc:'Perna reta na mesa, incline o tronco com <strong>costas RETAS</strong> (não arredondar). Sentir atrás da coxa. Se sentir atrás do joelho, flexione levemente. <em>Crucial pra quem é rígido na posterior.</em>',
-  links:[
-    {t:'Alongamento posterior na mesa', u:'https://www.youtube.com/watch?v=W9d98XmJJ1Y'},
-    {t:'World\'s Greatest Stretch (posterior + hip)', u:'https://www.youtube.com/watch?v=nnbYao-5bSI'}]},
-
-{ n:7, b:'b2', name:'Forward Fold Elevado (Jefferson Curl)', img:'img/ex07.jpg',
-  chips:['30–45 s','no banco'], eq:'peso leve opcional (2–5 kg)',
-  cue:'<b>Desce vértebra por vértebra</b>, pernas retas, braços soltos.',
-  steps:[{t:'Jefferson Curl',s:45}],
-  desc:'Em pé num banco, pernas RETAS. <strong>Desce o tronco vértebra por vértebra</strong> em direção aos pés, braços soltos (pode segurar peso leve nas mãos). Alonga a <strong>cadeia posterior INTEIRA</strong> de uma vez — lombar + posterior da coxa + panturrilha. <em>Versão avançada do <a class="xref" href="#ex6">#6</a>. Se lombar sensível: sem peso, ou fica no chão.</em>',
-  links:[
-    {t:'Jefferson Curl tutorial', u:'https://www.youtube.com/watch?v=UpSXywh9OW0'},
-    {t:'@reillyherbststrength (Instagram)', u:'https://instagram.com/p/DVhtA07jJkJ'}]},
-
-{ n:8, b:'b2', name:'Quad / Hip Flexor em Posição de Búlgaro', img:'img/ex08.jpg',
-  chips:['45 s','cada lado'], eq:'pé de trás na cadeira',
-  cue:'Pé de trás na cadeira, joelho dobrado — <b>empurra o quadril pra frente</b>.',
-  steps:[{t:'Lado E',s:45},{t:'Lado D',s:45}],
-  desc:'Pé de trás na cadeira, joelho dobrado. Empurre o quadril pra frente. <strong>Alonga quadríceps E hip flexor ao mesmo tempo</strong> — mais eficiente que o lunge clássico.',
-  links:[
-    {t:'Bulgarian hip flexor/quad stretch', u:'https://www.youtube.com/watch?v=08ZxLPpmKu8'},
-    {t:'Reverse Nordic com Band (variação)', u:'https://www.youtube.com/watch?v=b94Afc3dWic'}]},
-
-{ n:9, b:'b2', name:'90/90 Hip Stretch', img:'img/ex09.jpg',
-  chips:['30 s','cada lado'], eq:null,
-  cue:'Joelhos a 90°, inclina sobre a perna da frente; troca com <b>“windshield wiper”</b>.',
-  steps:[{t:'Lado E',s:30},{t:'Lado D',s:30}],
-  desc:'Sentado, ambos os joelhos a 90°. Perna da frente em rotação externa, a de trás em interna. Incline sobre a da frente pra aprofundar. <strong>Transição “windshield wiper”</strong>: rode os dois joelhos pro outro lado sem levantar.',
-  links:[
-    {t:'90/90 Hip Stretch', u:'https://www.youtube.com/watch?v=t4Zz6-aG8Iw'},
-    {t:'World\'s Greatest Stretch (complemento)', u:'https://www.youtube.com/watch?v=-CiWQ2IvY34'}]},
-
-{ n:10, b:'b2', name:'Frog / Butterfly (Adutor)', img:'img/ex10.jpg',
-  chips:['45 s'], eq:'joelhos abertos · tíbias a 90°',
-  cue:'<b>Empurra o quadril pra trás</b> devagar até sentir o adutor — lombar neutra.',
-  steps:[{t:'Frog',s:45}],
-  desc:'Quadrupedia com joelhos abertos, tíbias a 90°. <strong>Empurre o quadril pra trás</strong> devagar até sentir o adutor. Mantenha a lombar neutra. <em>O adutor magno é parte da cadeia posterior — destravar ele ajuda o alongamento de ísquio e a abertura de quadril pro basquete.</em> Variante: sentado butterfly (plantas dos pés juntas, joelhos caem).',
-  links:[
-    {t:'Frog Pose Stretch (groin + inner thigh)', u:'https://www.youtube.com/watch?v=MLTBWj_7v1s'},
-    {t:'“Frog” Adductor Stretch (variação kneeling)', u:'https://www.youtube.com/watch?v=JzOkzgDuHzY'}]},
-
-{ n:11, b:'b2', name:'Cobra → Child\'s Pose', img:'img/ex11.jpg',
-  chips:['30 s + 30 s'], eq:null,
-  cue:'Cobra com <b>quadril no chão</b> → bunda nos calcanhares, braços esticados.',
-  steps:[{t:'Cobra',s:30},{t:'Child\'s Pose',s:30}],
-  desc:'Cobra: deitado de bruços, empurre o tronco pra cima mantendo o <strong>quadril NO CHÃO</strong>. Abre a cadeia anterior. Depois <strong>joga a bunda pra trás sobre os calcanhares</strong>, braços esticados na frente, testa no chão. Alonga e descomprime toda a lombar. Fluxo natural — um leva ao outro.',
-  links:[
-    {t:'Child\'s Pose to Cobra Flow — Lower Back Mobility', u:'https://www.youtube.com/watch?v=ggoXGZTJtRw'},
-    {t:'Cobra → Child\'s Pose Tutorial — Back & Abs', u:'https://www.youtube.com/watch?v=h271BbzPL44'}]},
-
-{ n:12, b:'b2', name:'Thread the Needle / Open Book (T-spine)', img:'img/ex12.jpg',
-  chips:['6–8','cada lado'], eq:'rotação torácica',
-  cue:'Braço <b>por baixo</b> (thread) → <b>abre pra cima</b> (open book), quadril estável.',
-  steps:[{t:'Lado E · 6–8 reps'},{t:'Lado D · 6–8 reps'}],
-  desc:'Quadrupedia, <strong>passe um braço POR BAIXO do outro</strong> (thread the needle) até apoiar o ombro no chão, depois <strong>abre o braço pra cima</strong> girando o tronco (open book). Mantenha o quadril estável. <em>Destrava a rotação torácica — crucial pra quem é rígido. Abre drible/passe e tira carga da lombar.</em> Variante: deitado de lado com joelhos dobrados, gire só o tronco.',
-  links:[
-    {t:'Thoracic Rotation Open Book', u:'https://www.youtube.com/watch?v=peeW19ofFUg'},
-    {t:'Thread the Needle — Thoracic Spine', u:'https://www.youtube.com/watch?v=uenqxybA9kU'}]},
-
-{ n:13, b:'b2', name:'Peitoral na Porta + Lats Quadrupedia', img:'img/ex13.jpg',
-  chips:['30 s cada'], eq:'combo peito + lats',
-  cue:'Porta: cotovelo a 90°, passo à frente · Lats: mãos no banco, <b>afunda o peito</b>.',
-  steps:[{t:'Peitoral · braço E',s:30},{t:'Peitoral · braço D',s:30},{t:'Lats (prayer stretch)',s:30}],
-  desc:'<strong>Peitoral:</strong> braço no batente da porta, cotovelo a 90°, passo à frente. Abre peito e ombro (anti-rounded). <strong>Lats (Prayer Stretch):</strong> quadrupedia de joelhos, mãos num banco/cadeira à frente, <strong>afunde o peito pro chão</strong> com os braços estendidos. Alonga lat + torácica. Fazer os dois em sequência — complementares.',
-  links:[
-    {t:'Doorway Pec Stretch (MedBridge)', u:'https://www.youtube.com/watch?v=M850sCj9LHQ'},
-    {t:'Quadruped Lat Stretch (PPSC)', u:'https://www.youtube.com/watch?v=RQzXOEu_8JQ'}]},
-
-{ n:14, b:'b2', name:'Pigeon (Glúteos)', img:'img/ex14.jpg',
-  chips:['45 s','cada lado'], eq:null,
-  cue:'Perna da frente dobrada, inclina o tronco sobre ela — <b>glúteo profundo</b>.',
-  steps:[{t:'Lado E',s:45},{t:'Lado D',s:45}],
-  desc:'Perna da frente dobrada na frente, a de trás estendida. Incline o tronco sobre a da frente. <strong>Alonga glúteo profundo e piriforme.</strong> Previne dor ciática e melhora a rotação do quadril pro basquete.',
-  links:[
-    {t:'Pigeon Pose tutorial', u:'https://www.youtube.com/watch?v=1jcQN5byMww'},
-    {t:'90/90 Hip (complemento) — exercício', u:'#ex9', x:true}]},
-
-{ n:15, b:'b2', name:'Panturrilha na Parede', img:'img/ex15.jpg',
-  chips:['30 s','2 variações · cada pé'], eq:null,
-  cue:'<b>Joelho reto</b> = gastrocnêmio · <b>joelho flexionado</b> = sóleo + fáscia.',
-  steps:[{t:'Joelho reto · Pé E',s:30},{t:'Joelho reto · Pé D',s:30},{t:'Flexionado · Pé E',s:30},{t:'Flexionado · Pé D',s:30}],
-  desc:'<strong>Joelho RETO</strong> = gastrocnêmio. <strong>Joelho FLEXIONADO</strong> = sóleo + fáscia plantar. Fazer AS DUAS variações — o sóleo é sempre negligenciado e é crucial pra fascite.',
-  links:[
-    {t:'Calf stretch na parede', u:'https://www.youtube.com/watch?v=mtVqe4CR_60'},
-    {t:'Knee-to-Wall (dorsiflexão)', u:'https://www.youtube.com/watch?v=u3NbKOXl75k'}]},
-
-{ n:16, b:'b2', name:'Alongamento Fáscia Plantar', img:'img/ex16.jpg',
-  chips:['30 s','cada pé'], eq:null,
-  cue:'Dedos pra cima contra a parede (ou puxa com a mão), inclina pra frente.',
-  steps:[{t:'Pé E',s:30},{t:'Pé D',s:30}],
-  desc:'<strong>Opção 1:</strong> pé contra a parede, dedos pra cima, calcanhar no chão. Incline o corpo pra frente. <strong>Opção 2:</strong> sentado, puxe os dedos do pé pra trás com a mão.',
-  links:[
-    {t:'Fáscia plantar stretch', u:'https://www.youtube.com/watch?v=ex82U6NvBZM'},
-    {t:'Tennis Ball Rollout (complemento) — exercício', u:'#ex1', x:true}]},
-
-{ n:17, b:'b2', name:'Pescoço — Circuito Completo', img:'img/ex17.svg',
-  chips:['~3 min','11 passos'], eq:null,
-  cue:'Mão puxa <b>leve</b>, ombro não sobe — o timer guia os 11 passos.',
-  steps:[
-    {t:'Flexão lateral · E',s:20},{t:'Flexão lateral · D',s:20},
-    {t:'Rotação · E',s:20},{t:'Rotação · D',s:20},
-    {t:'Flexão (queixo ao peito)',s:20},{t:'Extensão (olhar pro teto)',s:15},
-    {t:'Chin tuck · 10× 3 s',s:40},
-    {t:'Isometria · frente',s:10},{t:'Isometria · lado E',s:10},{t:'Isometria · lado D',s:10},{t:'Isometria · trás',s:10}],
-  desc:'<strong>Flexão lateral</strong> (orelha ao ombro): 20 s cada lado. Mão puxa leve, ombro NÃO sobe.<br><strong>Rotação</strong> (olhar pro lado): 20 s cada lado. Queixo alinhado com o ombro.<br><strong>Flexão</strong> (queixo ao peito): 20 s. Mãos atrás da cabeça com peso leve.<br><strong>Extensão</strong> (olhar pro teto): 15 s. Suave, sem forçar.<br><strong>Chin tuck</strong> (queixo duplo): 10× segurando 3 s. Ativa os flexores profundos.<br><strong>Isometria</strong>: mão na testa, empurre a cabeça contra a mão SEM mover. 10 s cada direção (frente, lados, trás).',
-  links:[]},
-
-// ---------- BLOCO 3 ----------
-{ n:18, b:'b3', name:'Lunge Isométrico', img:'img/ex18.jpg',
-  chips:['2× 20–30 s','cada perna'], eq:null,
-  cue:'Joelho a 90°, tronco reto, core firme — <b>segura</b>.',
-  steps:[{t:'Perna E · série 1',s:30},{t:'Perna D · série 1',s:30},{t:'Perna E · série 2',s:30},{t:'Perna D · série 2',s:30}],
-  desc:'Posição de lunge, joelho a 90°. <strong>SEGURA.</strong> Tronco reto, core firme. Carrega o tendão patelar e treina single-leg. Progressão: 20 s → 30 s → com peso.',
-  links:[
-    {t:'Isometric Lunge hold', u:'https://www.youtube.com/watch?v=XblZ99nCrFs'},
-    {t:'Variação na ponta do pé — exercício #19', u:'#ex19', x:true}]},
-
-{ n:19, b:'b3', name:'Lunge Isométrico na Ponta do Pé', img:'img/ex19.jpg',
-  chips:['2× 15–20 s','cada perna'], eq:null,
-  cue:'Mesmo lunge, mas <b>na ponta do pé da frente</b> — quad + panturrilha + tornozelo.',
-  steps:[{t:'Perna E · série 1',s:20},{t:'Perna D · série 1',s:20},{t:'Perna E · série 2',s:20},{t:'Perna D · série 2',s:20}],
-  desc:'Mesmo lunge, mas <strong>SOBE na ponta do pé da frente</strong>. Adiciona trabalho de panturrilha e tornozelo à isometria. Combo poderoso: quad + calf + ankle stability.',
-  links:[
-    {t:'Lunge iso ponta do pé', u:'https://www.youtube.com/watch?v=gl7ytWqcabQ'},
-    {t:'Lunge iso básico — exercício #18', u:'#ex18', x:true}]},
-
-{ n:20, b:'b3', name:'Wall Sit com Bola', img:'img/ex20.jpg',
-  chips:['2× 30 s'], eq:'bola entre os joelhos',
-  cue:'Coxas paralelas, costas na parede — <b>aperta a bola</b> entre os joelhos.',
-  steps:[{t:'Série 1',s:30},{t:'Série 2',s:30}],
-  desc:'Costas na parede, coxas paralelas. <strong>Bola entre os joelhos, APERTAR.</strong> Ativa o VMO (proteção medial do joelho) + adutores. Sem bola = wall sit normal.',
-  links:[
-    {t:'Wall sit com ativação de adutor', u:'https://www.youtube.com/watch?v=2aCUHj-Rb9k'},
-    {t:'Abdução isométrica (complemento) — exercício #22', u:'#ex22', x:true}]},
-
-{ n:21, b:'b3', name:'Tib Raise Sentado (Figura-4)', img:'img/ex21.jpg',
-  chips:['3× 20','cada pé'], eq:'band ancorada embaixo',
-  cue:'Figura-4, band no peito do pé — <b>levanta contra a band</b>, desce devagar.',
-  steps:[{t:'Pé E · 1/3'},{t:'Pé D · 1/3'},{t:'Pé E · 2/3'},{t:'Pé D · 2/3'},{t:'Pé E · 3/3'},{t:'Pé D · 3/3'}],
-  desc:'Versão <strong>sentada unilateral</strong> — foco isolado no tibial anterior, sem compensação. Complementa o <a class="xref" href="#ex25">#25</a> (em pé bilateral) e fecha a equação anterior da perna junto com a panturrilha <a class="xref" href="#ex15">#15</a> + calf raise <a class="xref" href="#ex5">#5</a>. <strong>Sentado na cadeira, tornozelo do pé de cima apoiado no joelho oposto (figura-4)</strong>, band passando por cima do peito do pé e ancorada numa barra/pé da cama puxando pra baixo. <strong>LEVANTE o pé contra a resistência da band</strong> (dorsiflexão), desce devagar. Troca de pé. Crítico pro teu pé plano + fascite plantar.',
-  links:[
-    {t:'KOT Wall Shin Raises (Dr. Joel Seedman)', u:'https://www.youtube.com/watch?v=t3JPQkBMjuU'},
-    {t:'Tibialis Raise tutorial (Move Better Nick)', u:'https://www.youtube.com/watch?v=XEXiCcdaDpI'},
-    {t:'Tib raises + backwards walking (contexto)', u:'https://www.youtube.com/watch?v=BGoW1IQ4y2E'}]},
-
-{ n:22, b:'b3', name:'Abdução Isométrica com Band', img:'img/ex22.jpg',
-  chips:['2× 20 s'], eq:'band nos joelhos',
-  cue:'Semi-squat — <b>empurra os joelhos pra fora</b> contra a band e segura.',
-  steps:[{t:'Série 1',s:20},{t:'Série 2',s:20}],
-  desc:'Band nos joelhos, semi-squat. <strong>Empurre os joelhos PRA FORA contra a band e SEGURE.</strong> Queima no glúteo médio. Equilibra com a adução do wall sit.',
-  links:[
-    {t:'Isometric hip abduction w/ band', u:'https://www.youtube.com/watch?v=AL52255zMjg'},
-    {t:'Lateral Band Walk (dinâmico)', u:'https://www.youtube.com/watch?v=y_bqFDQZSHQ'}]},
-
-{ n:23, b:'b3', name:'Copenhagen Plank', img:'img/ex23.jpg',
-  chips:['3× 10–20 s','cada lado'], eq:'joelho no banco (short-lever)',
-  cue:'Deitado de lado, <b>joelho de cima no banco</b> — levanta o quadril, corpo alinhado.',
-  steps:[{t:'Lado E · 1/3',s:15},{t:'Lado D · 1/3',s:15},{t:'Lado E · 2/3',s:15},{t:'Lado D · 2/3',s:15},{t:'Lado E · 3/3',s:15},{t:'Lado D · 3/3',s:15}],
-  desc:'Força do adutor — padrão-ouro pra prevenir lesão de virilha em corte lateral (basquete). Complementa o Frog/Butterfly (<a class="xref" href="#ex10">#10</a>), que é MOBILIDADE — aqui é FORÇA. <strong>Comece short-lever:</strong> deitado de lado, JOELHO da perna de cima no banco/cadeira, levante o quadril. Progrida pro long-lever (PÉ no banco) quando aguentar 3× 20 s. Mantém o corpo alinhado, sem deixar o quadril cair.',
-  links:[
-    {t:'Copenhagen progressions (E3 Rehab)', u:'https://www.youtube.com/watch?v=YRRnnZsRs9U'},
-    {t:'Long lever step-by-step (Physio Plus)', u:'https://www.youtube.com/watch?v=aGuAemGeyvA'},
-    {t:'Eccentric programming (E3 Rehab)', u:'https://www.youtube.com/watch?v=kD1t1hWzIDE'}]},
-
-{ n:24, b:'b3', name:'Prone Y-Raise Hold', img:'img/ex24.jpg',
-  chips:['2× 15 s'], eq:null,
-  cue:'De bruços, braços em Y — <b>levanta braços e peito</b> e segura.',
-  steps:[{t:'Série 1',s:15},{t:'Série 2',s:15}],
-  desc:'Deitado de bruços, braços em Y acima da cabeça. <strong>Levante os braços e o peito do chão e SEGURE.</strong> Trabalha o trapézio inferior e a postura. Substitui o dead hang — não precisa de barra.',
-  links:[
-    {t:'Prone Y-Raise Hold', u:'https://www.youtube.com/watch?v=w1AWGKubE5U'},
-    {t:'Lat Stretch (complemento) — exercício #13', u:'#ex13', x:true}]},
-
-// ---------- BLOCO 4 ----------
-{ n:25, b:'b4', name:'Tib Raise em Pé + Círculos', img:'img/ex25.jpg',
+{ n:6, b:'b2', name:'Tib Raise em Pé + Círculos', img:'img/ex06.jpg', bad:[],
   chips:['3× 10','cada pé'], eq:'band verde entre os pés',
   cue:'Costas na parede — <b>levanta a ponta do pé</b> contra a band; na descida, círculos.',
   steps:[{t:'Pé E · 1/3'},{t:'Pé D · 1/3'},{t:'Pé E · 2/3'},{t:'Pé D · 2/3'},{t:'Pé E · 3/3'},{t:'Pé D · 3/3'}],
@@ -441,7 +306,7 @@ var DATA = [
     {t:'Ankle Circles em pé', u:'https://www.youtube.com/watch?v=j0OvdTSQMYE'},
     {t:'Tibialis + Ankle Mobility (com band)', u:'https://www.youtube.com/watch?v=wFPPA-Hf2-4'}]},
 
-{ n:26, b:'b4', name:'Eversão / Inversão com Band', img:'img/ex26.jpg',
+{ n:7, b:'b2', name:'Eversão / Inversão com Band', img:'img/ex07.jpg', bad:[],
   chips:['2× 10','cada direção · cada pé'], eq:'band média',
   cue:'Movimento <b>só no tornozelo</b> — o joelho não mexe.',
   steps:[{t:'Eversão · Pé E · 1/2'},{t:'Eversão · Pé D · 1/2'},{t:'Eversão · Pé E · 2/2'},{t:'Eversão · Pé D · 2/2'},{t:'Inversão · Pé E · 1/2'},{t:'Inversão · Pé D · 1/2'},{t:'Inversão · Pé E · 2/2'},{t:'Inversão · Pé D · 2/2'}],
@@ -450,7 +315,7 @@ var DATA = [
     {t:'Ankle Eversion com Band', u:'https://www.youtube.com/watch?v=xfrncpP5ONQ'},
     {t:'Ankle Inversion com Band (sportsinjuryclinic)', u:'https://www.youtube.com/watch?v=v_zjz5mOvuY'}]},
 
-{ n:27, b:'b4', name:'Dorsiflexão Knee-to-Wall', img:'img/ex27.jpg',
+{ n:8, b:'b2', name:'Dorsiflexão Knee-to-Wall', img:'img/ex08.jpg', bad:[],
   chips:['10','cada pé'], eq:'sem equipamento',
   cue:'Joelho tenta <b>encostar na parede</b> sem levantar o calcanhar.',
   steps:[{t:'Pé E · 10 reps'},{t:'Pé D · 10 reps'}],
@@ -459,7 +324,7 @@ var DATA = [
     {t:'Knee-to-Wall Test & Drill', u:'https://www.youtube.com/watch?v=pSMPd12mrg0'},
     {t:'Como fazer certo (Aleks Physio)', u:'https://www.youtube.com/watch?v=u3NbKOXl75k'}]},
 
-{ n:28, b:'b4', name:'Deep Spanish Squats com Band', img:'img/ex28.jpg',
+{ n:9, b:'b2', name:'Deep Spanish Squats com Band', img:'img/ex09.jpg', bad:[],
   chips:['2–3× 10–12'], eq:'band forte em rack/poste · peso leve opcional',
   cue:'Band <b>atrás dos joelhos</b>, tronco vertical, peso nos calcanhares.',
   steps:[{t:'Série 1 · 10–12 reps'},{t:'Série 2 · 10–12 reps'},{t:'Série 3 (opcional)'}],
@@ -468,16 +333,7 @@ var DATA = [
     {t:'How to Set Up Spanish Squats — E3 Rehab', u:'https://www.youtube.com/watch?v=hgFxm5KIF7M'},
     {t:'Spanish Squat for Patellar Tendon', u:'https://www.youtube.com/watch?v=NzBj2XEzySc'}]},
 
-{ n:29, b:'b4', name:'Cat-Cow', img:'img/ex29.jpg',
-  chips:['10 reps','4 apoios'], eq:null,
-  cue:'Cow inspira (peito abre) · Cat expira (costas arredondam) — <b>lento, com a respiração</b>.',
-  steps:[{t:'10 reps lentas'}],
-  desc:'<strong>Cow (inspira):</strong> barriga desce, peito abre, olhar sobe. <strong>Cat (expira):</strong> costas arredondam, queixo ao peito, umbigo pra cima. Movimento LENTO sincronizado com a respiração — não acelera.',
-  links:[
-    {t:'How to Cat-Cow', u:'https://www.youtube.com/watch?v=MgDn34q4Hm8'},
-    {t:'Cat-Cow para atletas', u:'https://www.youtube.com/watch?v=kqnua4rHVVA'}]},
-
-{ n:30, b:'b4', name:'World\'s Greatest Stretch', img:'img/ex30.jpg',
+{ n:10, b:'b2', name:'World\'s Greatest Stretch', img:'img/ex10.jpg', bad:[],
   chips:['5×','cada lado'], eq:null,
   cue:'Lunge → cotovelo ao chão <b>por dentro</b> → roda e estende o braço pro céu.',
   steps:[{t:'Lado E · 5×'},{t:'Lado D · 5×'}],
@@ -485,8 +341,7 @@ var DATA = [
   links:[
     {t:'World\'s Greatest Stretch — tutorial (Squat University)', u:'https://www.youtube.com/watch?v=-CiWQ2IvY34'}]},
 
-// ---------- BLOCO 5 ----------
-{ n:31, b:'b5', name:'Extensão Quadríceps com Band', img:'img/ex31.jpg',
+{ n:11, b:'b3', name:'Extensão Quadríceps com Band', img:'img/ex11.jpg', bad:[],
   chips:['3× 15','cada perna'], eq:'band presa atrás',
   cue:'Chuta pra frente até esticar, <b>segura 1 s no topo</b>, volta controlado.',
   steps:[{t:'Perna E · 1/3'},{t:'Perna D · 1/3'},{t:'Perna E · 2/3'},{t:'Perna D · 2/3'},{t:'Perna E · 3/3'},{t:'Perna D · 3/3'}],
@@ -495,7 +350,7 @@ var DATA = [
     {t:'Banded Leg Extension', u:'https://www.youtube.com/watch?v=TVlDMU1e-24'},
     {t:'Reverse Nordic com Band (Elite Performance)', u:'https://www.youtube.com/watch?v=b94Afc3dWic'}]},
 
-{ n:32, b:'b5', name:'Kickback com Band', img:'img/ex32.jpg',
+{ n:12, b:'b3', name:'Kickback com Band', img:'img/ex12.jpg', bad:[],
   chips:['3× 12','cada perna'], eq:'band nos tornozelos',
   cue:'Chuta pra trás com <b>extensão completa do quadril</b> — sem jogar a lombar.',
   steps:[{t:'Perna E · 1/3'},{t:'Perna D · 1/3'},{t:'Perna E · 2/3'},{t:'Perna D · 2/3'},{t:'Perna E · 3/3'},{t:'Perna D · 3/3'}],
@@ -504,7 +359,7 @@ var DATA = [
     {t:'Banded Kickback (standing)', u:'https://www.youtube.com/watch?v=jBmarLD4Nog'},
     {t:'Kickback hip extension tutorial', u:'https://www.youtube.com/watch?v=YGsTbdt_JnE'}]},
 
-{ n:33, b:'b5', name:'CAR de Quadril com Band', img:'img/ex33.jpg',
+{ n:13, b:'b3', name:'CAR de Quadril com Band', img:'img/ex13.jpg', bad:[],
   chips:['5×','cada direção · cada perna'], eq:'band nos tornozelos ou joelhos',
   cue:'Círculo completo e <b>lento</b> (5 s): joelho sobe → abre → trás → volta. Tronco parado.',
   steps:[{t:'Perna E · horário'},{t:'Perna E · anti-horário'},{t:'Perna D · horário'},{t:'Perna D · anti-horário'}],
@@ -512,7 +367,7 @@ var DATA = [
   links:[
     {t:'Hip CAR Tutorial (Dr. Beau Beard)', u:'https://www.youtube.com/watch?v=NNMW_h-fzLg'}]},
 
-{ n:34, b:'b5', name:'Ponte Glúteos Unilateral com Band', img:'img/ex34.jpg',
+{ n:14, b:'b3', name:'Ponte Glúteos Unilateral com Band', img:'img/ex14.jpg', bad:[],
   chips:['2× 10','cada perna'], eq:'band acima dos joelhos',
   cue:'Sobe o quadril com <b>uma perna</b>, a outra no ar — aperta o glúteo no topo.',
   steps:[{t:'Perna E · série 1'},{t:'Perna D · série 1'},{t:'Perna E · série 2'},{t:'Perna D · série 2'}],
@@ -521,7 +376,7 @@ var DATA = [
     {t:'Single-Leg Glute Bridge (demo A)', u:'https://www.youtube.com/watch?v=b1zTCyGJXCQ'},
     {t:'Single-Leg Glute Bridge (demo B)', u:'https://www.youtube.com/watch?v=3NXv0Nany-Q'}]},
 
-{ n:35, b:'b5', name:'Band Overhead Press (Explosão)', img:'img/ex35.jpg',
+{ n:15, b:'b3', name:'Band Overhead Press (Explosão)', img:'img/ex15.jpg', bad:[],
   chips:['2× 12','explosivo'], eq:'band pisada nos pés',
   cue:'Empurra pra cima com intenção <b>explosiva</b>, desce controlado.',
   steps:[{t:'Série 1 · 12 reps'},{t:'Série 2 · 12 reps'}],
@@ -530,7 +385,7 @@ var DATA = [
     {t:'Banded Overhead Press', u:'https://www.youtube.com/watch?v=5gyCR4N735g'},
     {t:'Band Overhead Press (FitnessBlender)', u:'https://www.youtube.com/watch?v=Zli1UXH9ZeE'}]},
 
-{ n:36, b:'b5', name:'Monster Walk', img:'img/ex36.jpg',
+{ n:16, b:'b3', name:'Monster Walk', img:'img/ex16.jpg', bad:[],
   chips:['2× 10 passos','cada lado'], eq:'band nos tornozelos',
   cue:'Mini-squat, passos laterais largos — joelhos <b>empurram pra fora</b> contra a band.',
   steps:[{t:'Série 1'},{t:'Série 2'}],
@@ -539,7 +394,7 @@ var DATA = [
     {t:'Monster Walk tutorial', u:'https://www.youtube.com/watch?v=snbNxUIUQPc'},
     {t:'Lateral Band Walk (FIT.nl)', u:'https://www.youtube.com/watch?v=y_bqFDQZSHQ'}]},
 
-{ n:37, b:'b5', name:'Single-Leg Balance no Foam Roller', img:'img/ex37.jpg',
+{ n:17, b:'b3', name:'Single-Leg Balance no Foam Roller', img:'img/ex17.jpg', bad:[],
   chips:['30 s','cada pé'], eq:'foam roller (meio ou redondo)',
   cue:'Em pé no rolo, <b>leve flexão de joelho</b>, olhar fixo à frente.',
   steps:[{t:'Pé E',s:30},{t:'Pé D',s:30}],
@@ -547,17 +402,213 @@ var DATA = [
   links:[
     {t:'Single-Leg Balance on Foam Roller', u:'https://www.youtube.com/watch?v=TVw2XO2OlOw'},
     {t:'Single-Leg Foam Roller (Dr. Joel Seedman)', u:'https://www.youtube.com/watch?v=bHVByoLZNgE'},
-    {t:'@r.a_movement (Instagram)', u:'https://instagram.com/p/DWuKMjq-QOp/'}]}
+    {t:'@r.a_movement (Instagram)', u:'https://instagram.com/p/DWuKMjq-QOp/'}]},
+
+{ n:18, b:'b4', name:'Lunge Isométrico', img:'img/ex18.jpg', bad:[],
+  chips:['2× 20–30 s','cada perna'], eq:null,
+  cue:'Joelho a 90°, tronco reto, core firme — <b>segura</b>.',
+  steps:[{t:'Perna E · série 1',s:30},{t:'Perna D · série 1',s:30},{t:'Perna E · série 2',s:30},{t:'Perna D · série 2',s:30}],
+  desc:'Posição de lunge, joelho a 90°. <strong>SEGURA.</strong> Tronco reto, core firme. Carrega o tendão patelar e treina single-leg. Progressão: 20 s → 30 s → com peso.',
+  links:[
+    {t:'Isometric Lunge hold', u:'https://www.youtube.com/watch?v=XblZ99nCrFs'},
+    {t:'Variação na ponta do pé — exercício #19', u:'#ex19', x:true}]},
+
+{ n:19, b:'b4', name:'Lunge Isométrico na Ponta do Pé', img:'img/ex19.jpg', bad:[],
+  chips:['2× 15–20 s','cada perna'], eq:null,
+  cue:'Mesmo lunge, mas <b>na ponta do pé da frente</b> — quad + panturrilha + tornozelo.',
+  steps:[{t:'Perna E · série 1',s:20},{t:'Perna D · série 1',s:20},{t:'Perna E · série 2',s:20},{t:'Perna D · série 2',s:20}],
+  desc:'Mesmo lunge, mas <strong>SOBE na ponta do pé da frente</strong>. Adiciona trabalho de panturrilha e tornozelo à isometria. Combo poderoso: quad + calf + ankle stability.',
+  links:[
+    {t:'Lunge iso ponta do pé', u:'https://www.youtube.com/watch?v=gl7ytWqcabQ'},
+    {t:'Lunge iso básico — exercício #18', u:'#ex18', x:true}]},
+
+{ n:20, b:'b4', name:'Wall Sit com Bola', img:'img/ex20.jpg', bad:[],
+  chips:['2× 30 s'], eq:'bola entre os joelhos',
+  cue:'Coxas paralelas, costas na parede — <b>aperta a bola</b> entre os joelhos.',
+  steps:[{t:'Série 1',s:30},{t:'Série 2',s:30}],
+  desc:'Costas na parede, coxas paralelas. <strong>Bola entre os joelhos, APERTAR.</strong> Ativa o VMO (proteção medial do joelho) + adutores. Sem bola = wall sit normal.',
+  links:[
+    {t:'Wall sit com ativação de adutor', u:'https://www.youtube.com/watch?v=2aCUHj-Rb9k'},
+    {t:'Abdução isométrica (complemento) — exercício #22', u:'#ex22', x:true}]},
+
+{ n:21, b:'b4', name:'Tib Raise Sentado (Figura-4)', img:'img/ex21.jpg', bad:[],
+  chips:['3× 20','cada pé'], eq:'band ancorada embaixo',
+  cue:'Figura-4, band no peito do pé — <b>levanta contra a band</b>, desce devagar.',
+  steps:[{t:'Pé E · 1/3'},{t:'Pé D · 1/3'},{t:'Pé E · 2/3'},{t:'Pé D · 2/3'},{t:'Pé E · 3/3'},{t:'Pé D · 3/3'}],
+  desc:'Versão <strong>sentada unilateral</strong> — foco isolado no tibial anterior, sem compensação. Complementa o <a class="xref" href="#ex6">#6</a> (em pé bilateral) e fecha a equação anterior da perna junto com a panturrilha <a class="xref" href="#ex36">#36</a> + calf raise <a class="xref" href="#ex5">#5</a>. <strong>Sentado na cadeira, tornozelo do pé de cima apoiado no joelho oposto (figura-4)</strong>, band passando por cima do peito do pé e ancorada numa barra/pé da cama puxando pra baixo. <strong>LEVANTE o pé contra a resistência da band</strong> (dorsiflexão), desce devagar. Troca de pé. Crítico pro teu pé plano + fascite plantar.',
+  links:[
+    {t:'KOT Wall Shin Raises (Dr. Joel Seedman)', u:'https://www.youtube.com/watch?v=t3JPQkBMjuU'},
+    {t:'Tibialis Raise tutorial (Move Better Nick)', u:'https://www.youtube.com/watch?v=XEXiCcdaDpI'},
+    {t:'Tib raises + backwards walking (contexto)', u:'https://www.youtube.com/watch?v=BGoW1IQ4y2E'}]},
+
+{ n:22, b:'b4', name:'Abdução Isométrica com Band', img:'img/ex22.jpg', bad:[],
+  chips:['2× 20 s'], eq:'band nos joelhos',
+  cue:'Semi-squat — <b>empurra os joelhos pra fora</b> contra a band e segura.',
+  steps:[{t:'Série 1',s:20},{t:'Série 2',s:20}],
+  desc:'Band nos joelhos, semi-squat. <strong>Empurre os joelhos PRA FORA contra a band e SEGURE.</strong> Queima no glúteo médio. Equilibra com a adução do wall sit.',
+  links:[
+    {t:'Isometric hip abduction w/ band', u:'https://www.youtube.com/watch?v=AL52255zMjg'},
+    {t:'Lateral Band Walk (dinâmico)', u:'https://www.youtube.com/watch?v=y_bqFDQZSHQ'}]},
+
+{ n:23, b:'b4', name:'Copenhagen Plank', img:'img/ex23.jpg', bad:[],
+  chips:['3× 10–20 s','cada lado'], eq:'joelho no banco (short-lever)',
+  cue:'Deitado de lado, <b>joelho de cima no banco</b> — levanta o quadril, corpo alinhado.',
+  steps:[{t:'Lado E · 1/3',s:15},{t:'Lado D · 1/3',s:15},{t:'Lado E · 2/3',s:15},{t:'Lado D · 2/3',s:15},{t:'Lado E · 3/3',s:15},{t:'Lado D · 3/3',s:15}],
+  desc:'Força do adutor — padrão-ouro pra prevenir lesão de virilha em corte lateral (basquete). Complementa o Frog/Butterfly (<a class="xref" href="#ex28">#28</a>), que é MOBILIDADE — aqui é FORÇA. <strong>Comece short-lever:</strong> deitado de lado, JOELHO da perna de cima no banco/cadeira, levante o quadril. Progrida pro long-lever (PÉ no banco) quando aguentar 3× 20 s. Mantém o corpo alinhado, sem deixar o quadril cair.',
+  links:[
+    {t:'Copenhagen progressions (E3 Rehab)', u:'https://www.youtube.com/watch?v=YRRnnZsRs9U'},
+    {t:'Long lever step-by-step (Physio Plus)', u:'https://www.youtube.com/watch?v=aGuAemGeyvA'},
+    {t:'Eccentric programming (E3 Rehab)', u:'https://www.youtube.com/watch?v=kD1t1hWzIDE'}]},
+
+{ n:24, b:'b4', name:'Prone Y-Raise Hold', img:'img/ex24.jpg', bad:[],
+  chips:['2× 15 s'], eq:null,
+  cue:'De bruços, braços em Y — <b>levanta braços e peito</b> e segura.',
+  steps:[{t:'Série 1',s:15},{t:'Série 2',s:15}],
+  desc:'Deitado de bruços, braços em Y acima da cabeça. <strong>Levante os braços e o peito do chão e SEGURE.</strong> Trabalha o trapézio inferior e a postura. Substitui o dead hang — não precisa de barra.',
+  links:[
+    {t:'Prone Y-Raise Hold', u:'https://www.youtube.com/watch?v=w1AWGKubE5U'},
+    {t:'Lat Stretch (complemento) — exercício #29', u:'#ex29', x:true}]},
+
+{ n:25, b:'b5', name:'Cat-cow', img:'img/ex25.jpg', bad:[FIXO],
+  chips:['8 reps','lentas · com a respiração'], eq:null,
+  cue:'Cow inspira (peito abre) · Cat expira (costas arredondam) — <b>lento, com a respiração</b>.',
+  steps:[{t:'8 reps lentas'}],
+  desc:'<strong>Cow (inspira):</strong> barriga desce, peito abre, olhar sobe. <strong>Cat (expira):</strong> costas arredondam, queixo ao peito, umbigo pra cima. Movimento LENTO sincronizado com a respiração — não acelera. Abre o bloco fixo: aquecimento de coluna do McGill antes do Big 3 — sem hold no fim de curso, só movimento.',
+  links:[{t:'How to Cat-Cow', u:'https://www.youtube.com/watch?v=MgDn34q4Hm8'}]},
+
+{ n:26, b:'b5', name:'Tronco — Big 3 (McGill)', img:'img/ex26.jpg', bad:[FIXO],
+  chips:['~4 min','Big 3'], eq:'curl-up 4–5× 8 s · prancha lateral 3× 10–15 s/lado · bird dog 4–5× 8 s/lado',
+  cue:'Curl-up · prancha lateral · bird dog — holds curtos, <b>lombar neutra</b>.',
+  steps:[
+    {t:'Curl-up · 4–5 reps de 8 s'},
+    {t:'Prancha lateral E · 1/3',s:15},{t:'Prancha lateral D · 1/3',s:15},
+    {t:'Prancha lateral E · 2/3',s:15},{t:'Prancha lateral D · 2/3',s:15},
+    {t:'Prancha lateral E · 3/3',s:15},{t:'Prancha lateral D · 3/3',s:15},
+    {t:'Bird dog · 4–5 cada lado'}],
+  desc:'<strong>Curl-up modificado</strong>: deitado, mãos SOB a lombar (preserva a curva natural), um joelho dobrado. Levanta SÓ cabeça e ombros um dedo do chão, segura 8 s respirando normal, desce. 4–5 reps. NÃO é abdominal — a lombar não flexiona em momento nenhum.<br><strong>Prancha lateral</strong>: antebraço no chão, apoio nos joelhos (progressão: pés), quadril alinhado com o corpo — 3× 10–15 s cada lado.<br><strong>Bird dog</strong>: quatro apoios, estica braço e perna OPOSTOS, lombar neutra (imagina um copo d\'água nas costas), segura 8 s — 4–5 cada lado.<br>Padrão conservador com melhor evidência pra lombar. Se algum doer: corta na hora. Nunca na primeira hora depois de acordar. Sessão logo ao acordar? Faz o Big 3 por último.',
+  links:[{t:'The McGill Big 3 — 3 best exercises for lower back', u:'https://www.youtube.com/watch?v=FmZwkgg7pqU'}]},
+
+{ n:27, b:'b5', name:'Thread the needle / open book (T-spine)', img:'img/ex27.jpg', bad:[FIXO],
+  chips:['6–8','cada lado · em 4 apoios'], eq:'rotação torácica',
+  cue:'Braço <b>por baixo</b> (thread) → <b>abre pra cima</b> (open book), quadril estável.',
+  steps:[{t:'Lado E · 6–8 reps'},{t:'Lado D · 6–8 reps'}],
+  desc:'Quadrupedia, <strong>passe um braço POR BAIXO do outro</strong> (thread the needle) até apoiar o ombro no chão, depois <strong>abre o braço pra cima</strong> girando o tronco (open book). Mantenha o quadril estável. <em>Destrava a rotação torácica — crucial pra quem é rígido. Abre drible/passe e tira carga da lombar.</em> Variante: deitado de lado com joelhos dobrados, gire só o tronco.',
+  links:[{t:'Thread the Needle — Thoracic Spine', u:'https://www.youtube.com/watch?v=uenqxybA9kU'}]},
+
+{ n:28, b:'b5', name:'Frog / rock-back de adutor', img:'img/ex28.jpg', bad:[FIXO],
+  chips:['8 balanços lentos','+ 30 s hold no fundo'], eq:'joelhos abertos · tíbias a 90°',
+  cue:'<b>Empurra o quadril pra trás</b> devagar até sentir o adutor — lombar neutra.',
+  steps:[{t:'8 balanços lentos pra trás'},{t:'Hold no fundo',s:30}],
+  desc:'Quadrupedia com joelhos abertos, tíbias a 90°. <strong>Empurre o quadril pra trás</strong> devagar até sentir o adutor. Mantenha a lombar neutra. <em>O adutor magno é parte da cadeia posterior — destravar ele ajuda o alongamento de ísquio e a abertura de quadril pro basquete.</em> Variante: sentado butterfly (plantas dos pés juntas, joelhos caem). Lombar neutra o tempo todo — quem se mexe é o quadril, não a coluna. Único alongamento de adutor da semana: Copenhagen é força, isso é comprimento.',
+  links:[{t:'Frog Pose Stretch (groin + inner thigh)', u:'https://www.youtube.com/watch?v=MLTBWj_7v1s'}]},
+
+{ n:29, b:'b5', name:'Lat prayer (dorsal)', img:'img/ex29.jpg', bad:[FIXO],
+  chips:['30 s','ajoelhado · mãos no banco'], eq:null,
+  cue:'Ajoelhado, mãos no banco à frente — <b>afunda o peito</b> em direção ao chão, quadril pra trás.',
+  steps:[{t:'Lat prayer',s:30}],
+  desc:'Ajoelhado, mãos no banco à frente, braços esticados. Afunda o PEITO em direção ao chão deixando o quadril ir pra trás. Alonga lat + torácica e abre o overhead. A 1,96 m de arremesso e rebote, essa lateral do tronco importa e ninguém alonga. Substitui a versão na parede: aqui você já está no chão.',
+  links:[{t:'Quadruped Lat Stretch (PPSC)', u:'https://www.youtube.com/watch?v=RQzXOEu_8JQ'}]},
+
+{ n:30, b:'b5', name:'Pigeon (glúteos)', img:'img/ex30.jpg', bad:[FIXO],
+  chips:['45 s','cada lado'], eq:null,
+  cue:'<b>Peito alto, dobra no quadril</b> — não arredonda a lombar pra afundar mais.',
+  steps:[{t:'Lado E',s:45},{t:'Lado D',s:45}],
+  desc:'Perna da frente dobrada, a de trás estendida. Inclina o tronco sobre a da frente. Glúteo profundo e piriforme. <strong>Peito alto, dobra no quadril</strong> — não arredonda a lombar pra afundar mais. Joelho da frente reclamou no chão? Canela apoiada no banco — mesma coisa, sem peso no joelho e sem arredondar a lombar.',
+  links:[{t:'Pigeon Pose tutorial', u:'https://www.youtube.com/watch?v=1jcQN5byMww'}]},
+
+{ n:31, b:'b5', name:'90/90 com lift-off', img:'img/ex31.jpg', bad:[FIXO],
+  chips:['2× 5–8','cada lado · segura 2–5 s'], eq:null,
+  cue:'Senta <b>alto</b>, levanta o joelho de trás do chão e segura 2–5 s.',
+  steps:[{t:'Lado E · 1/2'},{t:'Lado D · 1/2'},{t:'Lado E · 2/2'},{t:'Lado D · 2/2'}],
+  desc:'Sentado, perna da frente a 90° (girada pra fora), a de trás a 90° (girada pra dentro). Senta <strong>alto</strong>, sem arredondar a lombar. <strong>Levanta ativamente o joelho de trás do chão</strong> e segura 2–5 s. Força no fim de curso da rotação de quadril — é o que faz a amplitude ficar. Rotação interna/externa, o gap mais comum em quem é alto.',
+  links:[{t:'90-90 Rotations', u:'https://www.youtube.com/watch?v=Idty0yMS1Dk'}]},
+
+{ n:32, b:'b5', name:'Posterior unilateral deitado com band', img:'img/ex32.jpg', bad:[FIXO, S30],
+  chips:['2× 30 s','cada perna'], eq:'a 2ª série entra 1–2 cm além',
+  cue:'Band no pé, <b>joelho esticado</b>, lombar trancada no chão.',
+  steps:[{t:'Perna E · 1/2',s:30},{t:'Perna D · 1/2',s:30},{t:'Perna E · 2/2',s:30},{t:'Perna D · 2/2',s:30}],
+  desc:'Deitado de costas, perna estendida pra cima com a band no peito do pé. Puxa em direção ao peito com o joelho esticado, <strong>lombar trancada no chão</strong>. Encurtamento nomeado pela fisio. 1× 30 s não muda amplitude; 2× 30 s todo dia passa do limiar.',
+  links:[{t:'Hamstring Stretch with a Strap, Supine (Doctor Jo)', u:'https://www.youtube.com/watch?v=Il1L75v6gq0'}]},
+
+{ n:33, b:'b5', name:'Fáscia plantar sentado', img:'img/ex33.jpg', bad:[FIXO],
+  chips:['10× 10 s','cada pé'], eq:'tornozelo cruzado sobre o joelho',
+  cue:'Segura a base dos dedos e <b>puxa todos os dedos pra trás</b> até a sola tensionar — 10 s, solta, 10 vezes.',
+  steps:[{t:'Pé E · 10× 10 s'},{t:'Pé D · 10× 10 s'}],
+  desc:'Sentado, tornozelo cruzado sobre o joelho oposto. Segura a base dos dedos e puxa TODOS os dedos pra trás até a sola tensionar (dá pra sentir a fáscia com o polegar). 10 s, solta, 10 vezes. Mesmo mecanismo do windlass do bloco 1: lá é de pé e em carga, aqui é sentado e no fim, quente — 2 doses por sessão. Protocolo DiGiovanni 2003, melhor que alongar só a panturrilha.',
+  links:[{t:'Plantar Fascia Stretch | Plantar Fasciitis (Physiotutors)', u:'https://www.youtube.com/watch?v=A6xAC0RGGaQ'}]},
+
+{ n:34, b:'b5', name:'Couch stretch ativo', img:'img/ex34.jpg', bad:[FIXO, S30],
+  chips:['2× 30 s','cada lado'], eq:'FIXO diário',
+  cue:'<b>Roda a pelve pra trás e aperta o glúteo</b> — relaxa o hip flexor.',
+  steps:[{t:'Lado E · 1/2',s:30},{t:'Lado D · 1/2',s:30},{t:'Lado E · 2/2',s:30},{t:'Lado D · 2/2',s:30}],
+  desc:'Pé de trás apoiado atrás, joelho no chão (acolchoado). <strong>Roda a pelve pra trás e aperta o glúteo</strong> do lado que alonga — relaxa o hip flexor. No fim, empurra o joelho contra o chão 5 s e estende mais o quadril. Alonga hip flexor + reto femoral. Se a rótula incomodar no chão, faz em pé com a perna só estendida.',
+  links:[{t:'Couch Stretch With Glute Squeeze', u:'https://www.youtube.com/watch?v=hVux5YXW1vE'}]},
+
+{ n:35, b:'b5', name:'Peitoral na parede', img:'img/ex35.jpg', bad:[FIXO],
+  chips:['30 s','cada lado'], eq:null,
+  cue:'Antebraço na parede a 90°, passo à frente e <b>gira o peito pro lado oposto</b>.',
+  steps:[{t:'Lado E',s:30},{t:'Lado D',s:30}],
+  desc:'Antebraço na parede, cotovelo na altura do ombro (90°). Passo à frente com a perna do MESMO lado e gira o peito pro lado oposto até alongar o peitoral. 4–7 h de código encurtam essa cadeia em silêncio — este hold é o contrapeso direto. Se pinicar na frente do ombro, baixa o cotovelo uns graus.',
+  links:[{t:'Wall Pec Stretch — chest & shoulder mobility', u:'https://www.youtube.com/watch?v=7yJ1357Hj5M'}]},
+
+{ n:36, b:'b5', name:'Panturrilha na parede (reto + flexionado)', img:'img/ex36.jpg', bad:[FIXO],
+  chips:['30 s','2 variações · cada pé'], eq:null,
+  cue:'Joelho <b>reto</b> = gastrocnêmio · <b>flexionado</b> = sóleo + fáscia.',
+  steps:[{t:'Reto · pé E',s:30},{t:'Reto · pé D',s:30},{t:'Flexionado · pé E',s:30},{t:'Flexionado · pé D',s:30}],
+  desc:'Contra a parede: joelho reto = gastrocnêmio. Joelho flexionado = <strong>sóleo + fáscia</strong>. Faz as duas variações. Panturrilha todo dia é a melhor amiga da fascite. Força foi no calf raise do bloco 1; aqui é comprimento.',
+  links:[{t:'Wall Calf Stretch — soleus & gastrocnemius', u:'https://www.youtube.com/watch?v=mtVqe4CR_60'}]},
+
+{ n:37, b:'b5', name:'Pescoço — circuito completo', img:'img/ex37.jpg', bad:[FIXO],
+  chips:['~3 min','11 passos'], eq:null,
+  cue:'Movimentos lentos, sem forçar — o timer guia os 11 passos.',
+  steps:[
+    {t:'Flexão lateral · E',s:20},{t:'Flexão lateral · D',s:20},
+    {t:'Rotação · E',s:20},{t:'Rotação · D',s:20},
+    {t:'Flexão (queixo ao peito)',s:20},{t:'Extensão (olhar pro teto)',s:15},
+    {t:'Chin tuck · 10× 3 s',s:40},
+    {t:'Isometria · frente',s:10},{t:'Isometria · lado E',s:10},{t:'Isometria · lado D',s:10},{t:'Isometria · trás',s:10}],
+  desc:'<strong>Flexão lateral</strong> (orelha ao ombro): 20 s cada lado. <strong>Rotação</strong> (olhar pro lado): 20 s cada lado. <strong>Flexão</strong> (queixo ao peito): 20 s. <strong>Extensão</strong> (olhar pro teto): 15 s. <strong>Chin tuck</strong> (queixo duplo): 10× segurando 3 s. <strong>Isometria</strong>: mão empurra a cabeça (frente, lados, trás) sem mover, 10 s cada. Último card: termina em pé — pronto pro dia.',
+  links:[{t:'Isometric Neck Strengthening Exercises (Dr. Abelson)', u:'https://www.youtube.com/watch?v=0kWF968uFXY'}]}
 ];
 
-// ===================== RENDER =====================
 (function () {
   var KEY = 'sessao_matinal_v1';
   var app = document.getElementById('app');
   var byId = {};
   DATA.forEach(function (e) { byId['ex' + e.n] = e; });
 
-  // nav de blocos
+  // Copenhagen só ter/qui: fora desses dias o card fica pulado e sai do total.
+  // O dia é CONGELADO no load: wiring, progress e advance ficam sempre coerentes
+  // entre si; a virada de dia é responsabilidade exclusiva do reload (watchdog abaixo).
+  var DIA_SEMANA = new Date().getDay();
+  var DIA_CARREGADO;
+  function terQui() { return DIA_SEMANA === 2 || DIA_SEMANA === 4; }
+  // vC.12: "dia corrido" = só o núcleo (state.corrido, escolha do dia); módulos ficam pulados e saem do total
+  function ativo(e) {
+    if (e.soTerQui && !terQui()) return false;
+    if (state.corrido && !e.nucleo) return false;
+    return true;
+  }
+  function esc(v) { return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function fmtRef(d) {
+    var p = String(d || '').split('-');
+    if (p.length !== 3) return String(d || '');
+    var dt = new Date(+p[0], +p[1] - 1, +p[2]);
+    return ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'][dt.getDay()] + ' ' + p[2] + '/' + p[1];
+  }
+  // campos ANOTA (estrutura; valores entram no wiring, depois do estado carregar)
+  function logHtml(e) {
+    if (!e.log) return '';
+    var f = e.log.map(function (l) {
+      if (l.opts) return '<span class="lbl">' + l.t + ' <span class="seg" data-logseg="' + l.k + '">' +
+        l.opts.map(function (o) { return '<button type="button" data-v="' + o + '">' + o + '</button>'; }).join('') +
+        '</span><small class="antes" data-antes="' + l.k + '"></small></span>';
+      return '<label>' + l.t + ' <input type="number" inputmode="decimal" data-log="' + l.k + '">' + (l.u ? ' ' + l.u : '') + '</label>';
+    }).join('');
+    return '<div class="log-row"><span class="ll">ANOTA</span>' + f + '</div>' +
+      '<div class="log-hist" data-hist="' + e.n + '"></div>' + (e.prog ? '<div class="log-prog">' + e.prog + '</div>' : '');
+  }
+
   var nav = document.getElementById('chipsNav');
   BLOCOS.forEach(function (b) {
     var a = document.createElement('a');
@@ -568,10 +619,9 @@ var DATA = [
     nav.appendChild(a);
   });
 
-  // seções + cards
   BLOCOS.forEach(function (b) {
     var sec = document.createElement('section');
-    sec.className = 'bloco'; sec.id = b.id; sec.dataset.b = b.id;
+    sec.className = 'bloco'; sec.id = b.id;
     sec.style.setProperty('--acc', b.cor);
     var head = document.createElement('div');
     head.className = 'bh';
@@ -580,6 +630,9 @@ var DATA = [
     DATA.filter(function (e) { return e.b === b.id; }).forEach(function (e) {
       var art = document.createElement('article');
       art.className = 'ex'; art.id = 'ex' + e.n;
+      var badges = (e.bad || []).map(function (bd) {
+        return '<span class="bpill" style="color:' + bd[1] + ';border-color:' + bd[1] + '">' + bd[0] + '</span>';
+      }).join('');
       var chips = e.chips.map(function (c) { return '<span>' + c + '</span>'; }).join('');
       if (e.eq) chips += '<span class="eq">' + e.eq + '</span>';
       var linksHtml = '';
@@ -592,29 +645,25 @@ var DATA = [
           }).join('') + '</div>';
       }
       art.innerHTML =
-        '<div class="ex-head"><span class="num">' + e.n + '</span><h3>' + e.name + '</h3>' +
+        '<div class="ex-head"><span class="num">' + e.n + '</span><h3>' + e.name + badges + '</h3>' +
         '<button class="done-btn" type="button" aria-label="marcar feito" aria-pressed="false">✓</button></div>' +
         '<div class="media"><img class="thumb" src="' + e.img + '" alt="' + e.name.replace(/"/g, '&quot;') + '" loading="lazy" width="104" height="78">' +
         '<div class="media-right"><div class="dose">' + chips + '</div><p class="cue">' + e.cue + '</p></div></div>' +
+        logHtml(e) +
         '<button class="go" type="button"></button>' +
         '<details class="how"><summary>Como fazer · vídeos</summary><div class="how-body">' +
         '<p>' + e.desc + '</p>' + linksHtml + '</div></details>';
       sec.appendChild(art);
-      if (e.tip) {
-        var tip = document.createElement('div');
-        tip.className = 'tip'; tip.innerHTML = e.tip;
-        sec.appendChild(tip);
-      }
+      if (e.tip) { var tip = document.createElement('div'); tip.className = 'tip'; tip.innerHTML = e.tip; sec.appendChild(tip); }
     });
     app.appendChild(sec);
   });
 
-  // resumo do treino (visão de conjunto, como o "Resumo Rápido" do guia original)
   var rb = document.getElementById('resumoBody');
   BLOCOS.forEach(function (b) {
     var exs = DATA.filter(function (e) { return e.b === b.id; });
     var p = document.createElement('p');
-    p.innerHTML = '<strong style="color:' + b.cor + '">' + b.titulo.replace('BLOCO ', '') + ' (' + b.sub.split(' ·')[0] + ')</strong><br>' +
+    p.innerHTML = '<strong style="color:' + b.cor + '">' + b.titulo + ' (' + b.sub.split(' ·')[0] + ')</strong><br>' +
       exs.map(function (e) { return '<a href="#ex' + e.n + '" style="color:#a8b3c1;text-decoration:none">' + e.name.split(' (')[0] + '</a>'; }).join(' · ');
     rb.appendChild(p);
   });
@@ -624,23 +673,25 @@ var DATA = [
     var d = new Date();
     return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
   }
-  var state = { d: hoje(), ex: {} };
+  DIA_CARREGADO = hoje();
+  var state = { d: hoje(), ex: {}, corrido: false, hist: {} };
   try {
     var raw = localStorage.getItem(KEY);
     if (raw) {
       var parsed = JSON.parse(raw);
-      // novo dia -> zera sozinho as marcações
       if (parsed && parsed.d === hoje() && parsed.ex) state = parsed;
+      else if (parsed && parsed.hist) state.hist = parsed.hist;  // histórico ANOTA sobrevive à virada de dia
     }
   } catch (e) {}
+  if (!state.hist) state.hist = {};
+  state.corrido = !!state.corrido;
 
   function st(id) {
     if (!state.ex[id]) state.ex[id] = { i: 0, done: false };
     return state.ex[id];
   }
-  // NÃO carimbar state.d aqui: o "d" só nasce na criação do estado e no reset.
-  // Se ele fosse atualizado a cada save, uma sessão atravessando a meia-noite
-  // faria as marcações de ontem sobreviverem à virada do dia.
+  // NÃO carimbar state.d no save: o "d" só nasce na criação do estado e no reset,
+  // senão marcações de ontem sobrevivem à virada da meia-noite.
   function save() {
     try {
       localStorage.setItem(KEY, JSON.stringify(state));
@@ -656,9 +707,6 @@ var DATA = [
   }
 
   // ===================== SOM / WAKE LOCK =====================
-  // iOS: AudioContext precisa nascer/ser retomado num toque; sem navigator.vibrate no iPhone.
-  // O <audio> silencioso com playsinline promove a sessão à categoria "playback",
-  // que ignora o interruptor lateral de silencioso — sem ele, o beep não toca em modo mudo.
   function ensureAudio() {
     try {
       var AC = window.AudioContext || window.webkitAudioContext;
@@ -691,8 +739,6 @@ var DATA = [
   }
   function tick() { beep(1, 660, 0.07); }
 
-  // wlWanted evita lock órfão: se wakeOff() rodar enquanto o request ainda
-  // está pendente, o .then libera o lock recém-chegado em vez de guardá-lo.
   var wl = null, wlWanted = false, wlPending = false;
   function wakeOn() {
     if (!('wakeLock' in navigator)) return;
@@ -702,6 +748,7 @@ var DATA = [
     navigator.wakeLock.request('screen').then(function (l) {
       wlPending = false;
       if (!wlWanted) { try { l.release(); } catch (e) {} return; }
+      l.addEventListener('release', function () { if (wl === l) wl = null; });  // o SO solta no background: deixa readquirir
       wl = l;
     }).catch(function () { wlPending = false; });
   }
@@ -711,7 +758,7 @@ var DATA = [
   }
 
   // ===================== MOTOR =====================
-  var run = null; // { id, end, remaining, tick }
+  var run = null;
   function fmt(s) { return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
   function card(id) { return document.getElementById(id); }
   function goBtn(id) { return card(id).querySelector('.go'); }
@@ -731,6 +778,7 @@ var DATA = [
   function renderGo(id) {
     var e = ex(id), s = st(id), b = goBtn(id);
     b.classList.remove('running', 'paused');
+    if (!ativo(e)) { b.textContent = (e.soTerQui && !terQui()) ? '— hoje não · só ter e qui' : '— pulado no dia corrido'; return; }
     if (s.done) { b.textContent = '✓ feito hoje — refazer'; return; }
     var step = e.steps[Math.min(s.i, e.steps.length - 1)];
     if (run && run.id === id) {
@@ -748,21 +796,21 @@ var DATA = [
   }
 
   function progress() {
-    var d = 0, total = DATA.length;
+    var ativos = DATA.filter(ativo);
+    var d = 0;
     var blocoDone = {};
     BLOCOS.forEach(function (b) { blocoDone[b.id] = { done: 0, total: 0 }; });
-    DATA.forEach(function (e) {
+    ativos.forEach(function (e) {
       blocoDone[e.b].total++;
       if (st('ex' + e.n).done) { d++; blocoDone[e.b].done++; }
     });
-    document.getElementById('progTxt').textContent = d + '/' + total;
-    var bar = document.getElementById('pbar');
-    bar.style.width = (d / total * 100) + '%';
+    document.getElementById('progTxt').textContent = d + '/' + ativos.length;
+    document.getElementById('pbar').style.width = (d / ativos.length * 100) + '%';
     BLOCOS.forEach(function (b) {
       var chip = document.getElementById('chip-' + b.id);
       var base = chip.dataset.base;
       var bd = blocoDone[b.id];
-      chip.textContent = bd.done >= bd.total ? base + ' ✓' : (bd.done > 0 ? base + ' ' + bd.done + '/' + bd.total : base);
+      chip.textContent = (bd.total > 0 && bd.done >= bd.total) ? base + ' ✓' : (bd.done > 0 ? base + ' ' + bd.done + '/' + bd.total : base);
     });
   }
 
@@ -779,8 +827,7 @@ var DATA = [
     save();
   }
 
-  // procura o próximo não-feito a partir do card atual (com volta ao início),
-  // pra não puxar o scroll de volta a um exercício pulado de propósito
+  // próximo não-feito a partir do card atual (com volta ao início); pula os inativos do dia
   function advance(fromId) {
     var start = 0;
     if (fromId) {
@@ -790,8 +837,9 @@ var DATA = [
     }
     var next = null;
     for (var k = 0; k < DATA.length; k++) {
-      var id = 'ex' + DATA[(start + k) % DATA.length].n;
-      if (!st(id).done) { next = id; break; }
+      var e = DATA[(start + k) % DATA.length];
+      var id = 'ex' + e.n;
+      if (ativo(e) && !st(id).done) { next = id; break; }
     }
     if (next) setTimeout(function () {
       card(next).scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -826,15 +874,16 @@ var DATA = [
   function onGo(id) {
     ensureAudio();
     var e = ex(id), s = st(id);
+    if (!ativo(e)) return;
     if (s.done) { setDone(id, false); return; }
     if (run && run.id === id) {
       if (run.remaining == null) {
         run.remaining = Math.max(1, Math.ceil((run.end - Date.now()) / 1000));
-        wakeOff();          // pausa longa não precisa segurar a tela acesa
+        wakeOff();
       } else {
         run.end = Date.now() + run.remaining * 1000;
         run.remaining = null;
-        wakeOn();           // o iOS solta o lock no background; retomar re-adquire
+        wakeOn();
       }
       renderGo(id);
       return;
@@ -847,8 +896,14 @@ var DATA = [
   // ===================== LIGAR TUDO =====================
   DATA.forEach(function (e) {
     var id = 'ex' + e.n;
+    if (!ativo(e)) {
+      card(id).classList.add('is-skip');
+      card(id).querySelector('.done-btn').disabled = true;
+      goBtn(id).disabled = true;
+    }
     goBtn(id).addEventListener('click', function () { onGo(id); });
     card(id).querySelector('.done-btn').addEventListener('click', function () {
+      if (!ativo(e)) return;
       ensureAudio();
       if (run && run.id === id) stopRun();
       setDone(id, !st(id).done);
@@ -856,16 +911,14 @@ var DATA = [
     var thumb = card(id).querySelector('.thumb');
     var det = card(id).querySelector('details.how');
     thumb.addEventListener('click', function () { det.open = !det.open; });
-    // tocar num vídeo/link dentro do "Como fazer" recolhe o accordion sozinho
     det.querySelectorAll('.how-body a').forEach(function (a) {
       a.addEventListener('click', function () {
         setTimeout(function () { det.open = false; }, 250);
       });
     });
-    // toque no número = volta um passo (desfazer toque acidental num passo de check)
     card(id).querySelector('.num').addEventListener('click', function () {
       var s = st(id);
-      if (s.done || s.i <= 0) return;
+      if (!ativo(e) || s.done || s.i <= 0) return;
       if (run && run.id === id) stopRun();
       s.i--;
       tick();
@@ -877,7 +930,79 @@ var DATA = [
   });
   progress();
 
-  // abrir/fechar todos os "como fazer" de um bloco
+  // ===================== ANOTA: histórico das últimas 8 entradas =====================
+  function histOf(k) { if (!state.hist[k]) state.hist[k] = []; return state.hist[k]; }
+  function histHoje(k) { var h = histOf(k), l = h[h.length - 1]; return (l && l.d === DIA_CARREGADO) ? l : null; }
+  function histUlt(k) { var h = histOf(k); for (var i = h.length - 1; i >= 0; i--) if (h[i].d !== DIA_CARREGADO) return h[i]; return null; }
+  function logSet(k, v) {
+    var h = histOf(k), l = h[h.length - 1], hojeJa = !!(l && l.d === DIA_CARREGADO);
+    if (v === '' || v == null) { if (hojeJa) h.pop(); }
+    else if (hojeJa) l.v = v;
+    else { h.push({ d: DIA_CARREGADO, v: v }); while (h.length > 8) h.shift(); }
+    save();
+  }
+  function histHtml(fields) {
+    return fields.map(function (l) {
+      var items = histOf(l.k).slice().reverse().map(function (x) { return fmtRef(x.d) + ' <b>' + esc(x.v) + (l.u ? ' ' + l.u : '') + '</b>'; });
+      return '<div><span class="hk">' + l.t + ':</span> ' + (items.length ? items.join(' · ') : 'sem histórico ainda') + '</div>';
+    }).join('');
+  }
+  function wireLog(root, fields, histEl, sempre) {
+    function mostra() { if (histEl) { histEl.innerHTML = histHtml(fields); histEl.classList.add('show'); } }
+    fields.forEach(function (l) {
+      var ult = histUlt(l.k), hj = histHoje(l.k);
+      if (l.opts) {
+        var seg = root.querySelector('[data-logseg="' + l.k + '"]');
+        var antes = root.querySelector('[data-antes="' + l.k + '"]');
+        if (antes) antes.textContent = (!hj && ult) ? 'antes: ' + ult.v : '';
+        seg.querySelectorAll('button').forEach(function (b) {
+          b.classList.toggle('on', !!hj && hj.v === b.dataset.v);
+          b.addEventListener('click', function () {
+            var on = b.classList.contains('on');
+            logSet(l.k, on ? '' : b.dataset.v);
+            seg.querySelectorAll('button').forEach(function (b2) { b2.classList.toggle('on', !on && b2 === b); });
+            if (antes) antes.textContent = (on && ult) ? 'antes: ' + ult.v : '';
+            mostra();
+          });
+        });
+      } else {
+        var inp = root.querySelector('[data-log="' + l.k + '"]');
+        inp.value = hj ? hj.v : '';
+        inp.placeholder = ult ? ult.v : (l.u || '–');
+        inp.addEventListener('focus', mostra);
+        inp.addEventListener('blur', function () { if (histEl && !sempre) setTimeout(function () { histEl.classList.remove('show'); }, 400); });
+        inp.addEventListener('input', function () { logSet(l.k, inp.value); if (histEl) histEl.innerHTML = histHtml(fields); });
+      }
+    });
+    if (sempre) mostra();
+  }
+  DATA.forEach(function (e) {
+    if (!e.log) return;
+    var c = card('ex' + e.n);
+    wireLog(c, e.log, c.querySelector('[data-hist]'), false);
+  });
+  // portão das 24 h: joelho de manhã, só nos dias de portão deste app
+  var gate = document.getElementById('gate');
+  if (gate && GATE_DIAS.indexOf(DIA_SEMANA) >= 0) {
+    gate.hidden = false;
+    wireLog(gate, [{ k: 'joelho', t: 'Histórico', u: '' }], document.getElementById('gateHist'), true);
+  }
+  // dia corrido: escolha do dia (zera na virada), aplicada com reload (wiring congelado)
+  var NUC_N = DATA.filter(function (e) { return e.nucleo; }).length;
+  var corridoBtn = document.getElementById('corridoBtn');
+  if (!NUC_N) corridoBtn.parentNode.hidden = true;
+  corridoBtn.classList.toggle('on', state.corrido);
+  corridoBtn.textContent = state.corrido
+    ? '✓ Dia corrido (' + NUC_N + ' cards) — tocar pra voltar ao completo'
+    : 'Dia corrido? (' + NUC_N + ' cards · ~30 min)';
+  corridoBtn.addEventListener('click', function () {
+    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
+    stopRun();
+    state.corrido = !state.corrido;
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+    location.reload();
+  });
+
   document.querySelectorAll('[data-exp]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var sec = document.getElementById(btn.dataset.exp);
@@ -888,43 +1013,43 @@ var DATA = [
     });
   });
 
-  // retomar onde parou (só se já tem progresso hoje e não acabou)
   var started = DATA.some(function (e) { var s = st('ex' + e.n); return s.done || s.i > 0; });
-  var allDone = DATA.every(function (e) { return st('ex' + e.n).done; });
+  var allDone = DATA.filter(ativo).every(function (e) { return st('ex' + e.n).done; });
   if (started && !allDone) advance();
 
-  // zerar o dia
   document.getElementById('resetBtn').addEventListener('click', function () {
     if (!confirm('Zerar as marcações de hoje?')) return;
+    // se o calendário virou desde o load, o wiring (dia congelado) está velho: recarrega
+    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
     stopRun();
-    state = { d: hoje(), ex: {} };
+    state = { d: hoje(), ex: {}, corrido: state.corrido, hist: state.hist };  // histórico ANOTA e a escolha do dia ficam
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
     DATA.forEach(function (e) {
       var id = 'ex' + e.n;
       card(id).classList.remove('is-done');
+      var db = card(id).querySelector('.done-btn');
+      db.setAttribute('aria-pressed', 'false'); db.setAttribute('aria-label', 'marcar feito');
       renderGo(id);
     });
     progress();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  // watchdog: página que fica VISÍVEL cruzando a meia-noite também vira o dia
-  // (espera qualquer timer terminar pra não engolir uma contagem em andamento)
-  setInterval(function () {
-    if (state.d !== hoje() && !run) location.reload();
-  }, 30000);
-
-  // volta do background: recalcula timer por timestamp + reata wake lock + vira o dia se mudou
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) return;
-    if (state.d !== hoje()) { location.reload(); return; }
+    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
     if (run && run.remaining == null) {
       if (Date.now() >= run.end) { var rid = run.id; stopRun(); completeStep(rid, true); }
       else { renderGo(run.id); wakeOn(); }
     }
   });
 
-  // scroll-spy: destaca o bloco atual na nav e mantém o chip ativo visível
+  // watchdog: página que fica VISÍVEL cruzando a meia-noite também recarrega
+  // (espera qualquer timer terminar pra não engolir uma contagem em andamento)
+  setInterval(function () {
+    if (hoje() !== DIA_CARREGADO && !run) location.reload();
+  }, 30000);
+
   var secs = BLOCOS.map(function (b) { return document.getElementById(b.id); });
   var topEl = document.querySelector('.top');
   function spy() {

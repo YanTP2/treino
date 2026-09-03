@@ -85,8 +85,9 @@
   .num {
     width:28px; height:28px; border-radius:50%; background:var(--acc); color:#0d1117;
     font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center;
-    flex-shrink:0; margin-top:1px; cursor:pointer;
+    flex-shrink:0; margin-top:1px; cursor:pointer; position:relative;
   }
+  .num::after { content:""; position:absolute; inset:-8px; border-radius:50%; }  /* área de toque 44 px */
   .ex-head h3 { flex:1; font-size:17px; font-weight:750; line-height:1.25; letter-spacing:-.2px; }
   .bpill {
     display:inline-block; border:1.5px solid; border-radius:999px; padding:1px 7px;
@@ -153,8 +154,14 @@
   }
   .savemsg { font-size:12px; color:#22c55e; min-height:16px; }
 
+  .tip {
+    background:#0d1117; border:1px dashed #2b3442; border-radius:12px; padding:10px 12px;
+    margin:-4px 0 12px; font-size:13px; color:#9aa4b2; line-height:1.5;
+  }
+  .tip strong { color:var(--acc); }
   /* vC.12: dia corrido, portão das 24 h, campos ANOTA */
   .toggle-row { display:flex; justify-content:center; margin:10px 0 0; }
+  .toggle-row[hidden], .gate[hidden], .log-hist[hidden] { display:none; }
   .tg {
     background:#161b22; border:1.5px solid #2b3442; border-radius:999px; color:#a8b3c1;
     font-size:13px; font-weight:700; padding:8px 16px; min-height:40px; cursor:pointer;
@@ -199,21 +206,22 @@
   <div class="pbar"><i id="pbar"></i></div>
 </div>
 
-<p class="sub">DIA A roda em: <strong>ter · qui · dom</strong> — par: <a href="../dia-b/">DIA B</a> (qua · sex)</p>
-<p class="sub">Tema: <strong>LATERAL · QUADRIL · ROTAÇÃO</strong> · ~43 min · 24 exercícios ter/qui · 23 no dom (sem Copenhagen)</p>
+<p class="sub">DIA A roda em: <strong>SEG · QUA · SEX</strong> — par: <a href="../dia-b/">DIA B</a> (ter · qui · dom) · Sáb: <a href="../">Completa</a></p>
+<p class="sub">Tema: <strong>UNIPODAL · POSTERIOR · ATERRISSAGEM</strong> · ~51 min · 29 exercícios · pé 12 · em pé 12 · chão 3 · fixo 24</p>
+<p class="sub">Segunda: em qualquer horário livre — depois do FB1 alonga quente, melhor ainda.</p>
 <div class="toggle-row"><button type="button" class="tg" id="corridoBtn">Dia corrido?</button></div>
-<div class="gate" id="gate" hidden><strong>Portão das 24 h (DOM):</strong> joelho de manhã, 0–10. <strong>&gt; 3 → saltos submáximos hoje.</strong><div class="grow"><label>Joelho hoje <input type="number" inputmode="numeric" min="0" max="10" data-log="joelho"></label><span class="log-hist always" id="gateHist"></span></div></div>
+<div class="gate" id="gate" hidden><strong>Portão das 24 h (QUA):</strong> joelho de manhã, 0–10. <strong>&gt; 3 → saltos submáximos hoje.</strong><div class="grow"><label>Joelho hoje <input type="number" inputmode="numeric" min="0" max="10" data-log="joelho"></label><span class="log-hist always" id="gateHist"></span></div></div>
 
 <details class="notas">
   <summary>Notas &amp; regras do dia</summary>
-  <p><strong>Estrutura:</strong> NÚCLEO diário + MÓDULO A: 13 cards rodam nos dois dias (badge NÚCLEO) e 11 são do tema do dia (MÓDULO A). <strong>Dia corrido = só o NÚCLEO</strong> (14 cards · ~27 min): toca em “Dia corrido?” no topo e o app pula os módulos sozinho. NUNCA cortar: bloco de pé inteiro, iso do dia, Big 3, posterior, couch.</p>
-  <p><strong>ISO DO DIA</strong> (A = wall sit com band (<a class="xref" href="#ex10">#10</a>)): analgesia do tendão por 2–8 h; por isso vem ANTES do deep squat, 90/90, couch e de qualquer sessão das 10h. <strong>REGRA DO RIO:</strong> se o protocolo Rio (extensora 4× 45 s) caiu no FB1 de segunda, na terça a iso do dia vira 5× 45 s.</p>
-  <p><strong>ALONGAMENTOS FIXOS:</strong> posterior (<a class="xref" href="#ex21">#21</a>) e couch (<a class="xref" href="#ex23">#23</a>) = 2× 30 s por lado, TODO DIA. Encurtamento nomeado pela fisio. 1× 30 s não passa do limiar de mudança de amplitude (~5 min/semana por grupo).</p>
-  <p><strong>Regra geral:</strong> varia em cima, estabiliza embaixo. Carga de joelho é a mesma todo dia; a variedade fica em tornozelo, quadril, tronco e ombro.</p>
+  <p><strong>Bloco fixo:</strong> o mesmo alongamento nos 7 dias (Dia A, Dia B e Completa), sempre o último bloco, sempre quente. Posterior e couch 2× 30 s por lado; fáscia em 2 doses (windlass no bloco 1 + sentado no fixo).</p>
+  <p><strong>ISO DO DIA</strong> (A = lunge isométrico, <a class="xref" href="#ex9">#9</a>): sempre no início do bloco 2, antes do deep squat e da sessão das 10h — analgesia do tendão por 2–8 h. <strong>REGRA DO RIO:</strong> se o protocolo Rio (extensora 4× 45 s) caiu no FB1 de segunda, na terça a iso do dia vira 5× 45 s.</p>
+  <p><strong>Big 3:</strong> nunca na primeira hora depois de acordar (McGill). No fluxo normal cai ~35 min depois do início — ok. Sessão logo ao acordar? Big 3 vai pro fim.</p>
+  <p><strong>Dia corrido</strong> (~30 min): bloco 1 inteiro + iso do dia + bloco fixo sem F3–F7 (16 cards; o deep squat, apesar de NÚCLEO, fica de fora). Toca em “Dia corrido?” no topo e o app pula o resto sozinho. NUNCA cortar: bloco 1, iso do dia, Big 3, posterior, couch, fáscia, panturrilha.</p>
+  <p><strong>Regra geral:</strong> varia em cima, estabiliza embaixo — carga de joelho é a mesma todo dia; a variedade está em tornozelo, quadril, tronco e ombro.</p>
   <p><strong>Portão das 24 h (qua e dom):</strong> joelho de manhã 0–10, no campo do topo (aparece só nesses dias, com histórico). &gt; 3 → saltos submáximos hoje.</p>
-<p><strong>Copenhagen (<a class="xref" href="#ex18">#18</a>):</strong> só TER e QUI — o app pula ele sozinho no DOM (24 ter/qui · 23 no dom). 3ª dose no SÁB, na Sessão Completa (48 h entre doses).</p>
-  <p><strong>ANOTA:</strong> knee-to-wall (cm), balance (s) e Copenhagen (s + lever) têm campo no card — são os ÚNICOS números que progridem; o resto é manutenção. O app guarda as últimas 8 entradas (toca no campo pra ver). Fechou a meta em 2 sessões seguidas → sobe (cm +1 · s +5 · lever short → long). O histórico é deste app: cada ícone tem memória própria no iPhone, então o Dia A guarda ter/qui/dom e o Dia B guarda qua/sex.</p>
-  <p><strong>vC.12:</strong> 3 blocos por posição (pé/parede → em pé → chão) · núcleo + módulo · 8 exercícios novos · fixos 2× 30 s · saem CAR de quadril, band dislocates, cossack, figura-4, tib sentado, ponte com band, wall sit com bola.</p>
+  <p><strong>ANOTA:</strong> knee-to-wall (cm) e balance (s) têm campo no card (o Copenhagen, s + lever, fica no DIA B) — são os ÚNICOS números que progridem; o resto é manutenção. O app guarda as últimas 8 entradas (toca no campo pra ver). Meta fechada em 2 sessões seguidas → sobe (cm +1 · s +5). O histórico é deste app: cada ícone tem memória própria no iPhone.</p>
+  <p><strong>vC.12:</strong> 4 blocos por posição · módulos A/B de verdade · bloco fixo de alongamento · 8 exercícios novos.</p>
   <p><strong>Progresso:</strong> as marcações valem por hoje — amanhã o app começa zerado sozinho (o histórico ANOTA fica).</p>
   <p><strong>Errou um toque?</strong> Toca no <strong>número</strong> do exercício pra voltar um passo; o ✓ do canto desmarca o exercício inteiro.</p>
 </details>
@@ -228,20 +236,21 @@
 <div class="foot">
   <button class="reset" id="resetBtn">Zerar o dia (tirar marcações)</button>
   <div class="savemsg" id="saveMsg"></div>
-  <div>vC.12 — Sessão Matinal DIA A (~43 min · dom ~41) · Par: <a href="../dia-b/">DIA B</a> (qua · sex) · Sáb: Sessão Completa (vC.6, com step-down + Copenhagen) — <a href="../">versão no app</a></div>
+  <div>vC.12 — Sessão Matinal DIA A (~51 min) · Par: <a href="../dia-b/">DIA B</a> (ter · qui · dom) · Sáb: <a href="../">Sessão Completa</a></div>
   <div>Fontes: Rathleff 2015 · Haroy 2019 · Lauersen 2014 · Rio 2015 · Thomas 2018 · DiGiovanni 2003 · McGill (Big 3) · Afonso 2021 · @squat_university · @lokonga.training · @garcia_effect_official · @newmindstart · @yourpainmechanic</div>
 </div>
 
 <script>
 // ===================== DADOS =====================
 var BLOCOS = [
-  { id:'b1', cor:'#f97316', nav:'1 · Pé',    titulo:'PÉ E TORNOZELO — descalço, tudo na parede', sub:'8 exercícios · ~13 min' },
-  { id:'b2', cor:'#06b6d4', nav:'2 · Em pé', titulo:'EM PÉ',                                     sub:'8 exercícios · ~14 min' },
-  { id:'b3', cor:'#a855f7', nav:'3 · Chão',  titulo:'CHÃO → LEVANTA',                            sub:'8 exercícios · ~16 min (dom ~14) · sentado → lado → costas → ajoelhado → em pé' }
+  { id:'b1', cor:'#f97316', nav:'1 · Pé',    titulo:'PÉ E TORNOZELO — núcleo · descalço, tudo na parede', sub:'7 exercícios · ~12 min' },
+  { id:'b2', cor:'#06b6d4', nav:'2 · Em pé', titulo:'EM PÉ — módulo A',  sub:'7 exercícios · ~12 min' },
+  { id:'b3', cor:'#a855f7', nav:'3 · Chão',  titulo:'CHÃO — módulo A',   sub:'2 exercícios · ~3 min' },
+  { id:'b4', cor:'#eab308', nav:'4 · Fixo',  titulo:'BLOCO FIXO — Big 3 + alongamentos', sub:'13 exercícios · ~24 min · 4 apoios → chão → em pé' }
 ];
 
-var NUC = ['NÚCLEO', '#22c55e'], MODA = ['MÓDULO A', '#a855f7'], MODB = ['MÓDULO B', '#06b6d4'], ISO = ['ISO DO DIA', '#f97316'], TERQUI = ['SÓ TER · QUI', '#ef4444'], FIXO = ['FIXO 2× 30 s', '#eab308'], NOVO = ['NOVO vC.12', '#58a6ff'], ANOTA = ['ANOTA', '#ff6b9d'];
-var GATE_DIAS = [0];
+var NUC = ['NÚCLEO', '#22c55e'], MODA = ['MÓDULO A', '#a855f7'], MODB = ['MÓDULO B', '#06b6d4'], FIXO = ['FIXO', '#eab308'], ISO = ['ISO DO DIA', '#f97316'], TERQUI = ['SÓ TER · QUI', '#ef4444'], S30 = ['2× 30 s', '#fb7185'], NOVO = ['NOVO vC.12', '#58a6ff'], ANOTA = ['ANOTA', '#ff6b9d'];
+var GATE_DIAS = [3];
 
 // steps: com "s" = cronometrado; sem "s" = marcar no toque
 var DATA = [
@@ -263,14 +272,14 @@ var DATA = [
   chips:['30 s','cada pé'], eq:'+ 5 pressões ativas no final',
   cue:'Dedão <b>subindo na parede (~45°)</b>, avança o corpo · no fim, 5 pressões de 3–5 s.',
   steps:[{t:'Pé E',s:30},{t:'Pé D',s:30}],
-  desc:'Dedão apoiado SUBINDO na parede (~45°), resto da planta no chão. Avança o corpo devagar até sentir alongar a sola. Nos últimos segundos, <strong>pressiona o dedão contra a parede</strong> 5× de 3–5 s. É o mecanismo de windlass: a fáscia tensiona quando o dedão estende — exatamente o que acontece em cada passada e cada salto. Fascite agradece, toe-off do sprint também.',
+  desc:'Dedão apoiado SUBINDO na parede (~45°), resto da planta no chão. Avança o corpo devagar até sentir alongar a sola. Nos últimos segundos, <strong>pressiona o dedão contra a parede</strong> 5× de 3–5 s. É o mecanismo de windlass: a fáscia tensiona quando o dedão estende — exatamente o que acontece em cada passada e cada salto. Fascite agradece, toe-off do sprint também. 1ª dose de fáscia da sessão; a 2ª é sentada, no bloco fixo.',
   links:[{t:'Plantar Fascia Wall Stretch', u:'https://www.youtube.com/watch?v=ex82U6NvBZM'}]},
 
 { n:4, b:'b1', name:'Tib raise em pé + círculos', img:'img/ex04.jpg', bad:[NUC], nucleo:true,
   chips:['3× 10–15','cada pé'], eq:'band entre os pés · costas na parede',
   cue:'<b>Levanta a ponta do pé contra a band</b>; na descida, círculos nas duas direções.',
   steps:[{t:'Pé E · 1/3'},{t:'Pé D · 1/3'},{t:'Pé E · 2/3'},{t:'Pé D · 2/3'},{t:'Pé E · 3/3'},{t:'Pé D · 3/3'}],
-  desc:'Band ancorada entre os pés, costas na parede. <strong>Levanta a ponta do pé contra a band</strong> (dorsiflexão), na descida faz círculos com o tornozelo nas duas direções. Tibial anterior + mobilidade de tornozelo. Desce com círculos nas duas direções — a versão sentada em figura-4 saiu.',
+  desc:'Band ancorada entre os pés, costas na parede. <strong>Levanta a ponta do pé contra a band</strong> (dorsiflexão), na descida faz círculos com o tornozelo nas duas direções. Tibial anterior + mobilidade de tornozelo.',
   links:[{t:'KOT Wall Shin Raises (Dr. Joel Seedman)', u:'https://www.youtube.com/watch?v=t3JPQkBMjuU'}]},
 
 { n:5, b:'b1', name:'Calf raise excêntrico', img:'img/ex05.jpg', bad:[NUC], nucleo:true,
@@ -289,72 +298,168 @@ var DATA = [
   prog:'Meta: fechou o mesmo cm em 2 sessões seguidas → +1 cm.',
   links:[{t:'Weight Bearing Lunge Test / Wall Test (ankle)', u:'https://www.youtube.com/watch?v=U7woPNLUT3Q'}]},
 
-{ n:7, b:'b1', name:'Single-leg balance no foam roller', img:'img/ex07.jpg', bad:[MODA, ANOTA], nucleo:true,
-  chips:['30 s','cada pé'], eq:'foam roller · olhos abertos → fechados → braços movendo',
-  cue:'Em pé no rolo, <b>leve flexão de joelho</b>, olhar fixo à frente.',
+{ n:7, b:'b1', name:'Single-leg balance olhos fechados', img:'img/ex07.jpg', bad:[MODA, ANOTA], nucleo:true,
+  chips:['30–40 s','cada pé'], eq:'perto da parede · 30 s → 45 s → viradas de cabeça',
+  cue:'Uma perna, leve flexão no joelho, <b>fecha os olhos</b> — fica perto da parede.',
   steps:[{t:'Pé E',s:30},{t:'Pé D',s:30}],
-  desc:'Pé em cima do foam roller, outro pé suspenso, leve flexão de joelho, olhar fixo à frente. Progressão: olhos abertos, depois fechados, depois movendo os braços.',
+  desc:'Em pé numa perna, leve flexão no joelho, <strong>fecha os olhos</strong>. Fica perto de uma parede por segurança. Progressão: 30 s → 45 s → viradas de cabeça pra esquerda/direita com os olhos fechados.',
   log:[{k:'bal_e',t:'E',u:'s'},{k:'bal_d',t:'D',u:'s'}],
   prog:'Meta: fechou a meta em 2 sessões seguidas → +5 s (ou o próximo nível da progressão).',
-  links:[{t:'Single Leg Balance on Half Foam Roller', u:'https://www.youtube.com/watch?v=TVw2XO2OlOw'}]},
+  links:[{t:'Single Leg Balance with Eyes Closed', u:'https://www.youtube.com/watch?v=4HtOeds_vyw'}]},
 
-{ n:8, b:'b1', name:'Panturrilha na parede (reto + flexionado)', img:'img/ex08.jpg', bad:[NUC], nucleo:true,
-  chips:['20 s','2 variações · cada pé'], eq:null,
-  cue:'Joelho <b>reto</b> = gastrocnêmio · <b>flexionado</b> = sóleo + fáscia.',
-  steps:[{t:'Joelho reto · Pé E',s:20},{t:'Joelho reto · Pé D',s:20},{t:'Flexionado · Pé E',s:20},{t:'Flexionado · Pé D',s:20}],
-  desc:'Contra a parede: joelho reto = gastrocnêmio. Joelho flexionado = <strong>sóleo + fáscia</strong>. Faz as duas variações. Todo dia (NÚCLEO): panturrilha diária é a melhor amiga da fascite. Carga antes de alongar: o calf raise foi o #5.',
-  links:[{t:'Wall Calf Stretch — soleus & gastrocnemius', u:'https://www.youtube.com/watch?v=mtVqe4CR_60'}]},
+{ n:8, b:'b2', name:'Reverse TKE com band', img:'img/ex08.jpg', bad:[MODA],
+  chips:['3× 10'], eq:'band em ponto baixo · posição de pike',
+  cue:'Em pike, <b>estende os joelhos com força contra a band</b> — aperta o quadríceps no fim.',
+  steps:[{t:'Série 1 · 10 reps'},{t:'Série 2 · 10 reps'},{t:'Série 3 · 10 reps'}],
+  desc:'Band presa num ponto baixo atrás de você, passando por trás dos joelhos. Posição de <strong>pike</strong>: mãos e pés no chão, quadril pro alto. Dobra levemente os joelhos e <strong>ESTENDE com força contra a band</strong>, apertando o quadríceps no final de cada rep. Extensão terminal: alta ativação de quadríceps com carga baixa no tendão. Referência da variação: @lokonga.training.',
+  links:[{t:'Banded Terminal Knee Extension (TKE)', u:'https://www.youtube.com/watch?v=7xG3MeoLjC0'}]},
 
-{ n:9, b:'b2', name:'Extensão de quadríceps com band', img:'img/ex09.jpg', bad:[MODA],
-  chips:['3× 15','cada perna'], eq:'band presa atrás · 1 s no topo',
-  cue:'Chuta até esticar, <b>segura 1 s no topo</b> contraindo, volta controlado.',
-  steps:[{t:'Perna E · 1/3'},{t:'Perna D · 1/3'},{t:'Perna E · 2/3'},{t:'Perna D · 2/3'},{t:'Perna E · 3/3'},{t:'Perna D · 3/3'}],
-  desc:'Band no tornozelo, presa atrás. Chute pra frente estendendo o joelho até reto, <strong>segura 1 s contraindo o quadríceps</strong>, volta controlado. Isolamento de quadríceps sem sobrecarregar o joelho.',
-  links:[{t:'Standing Leg Extension with Resistance Bands', u:'https://www.youtube.com/watch?v=TVlDMU1e-24'}]},
+{ n:9, b:'b2', name:'Lunge isométrico', img:'img/ex09.jpg', bad:[MODA, ISO], nucleo:true,
+  chips:['2× 30–45 s','cada perna'], eq:'últimos 10 s na ponta do pé',
+  cue:'Joelho a 90°, <b>segura</b> empurrando o chão · últimos 10 s na ponta do pé.',
+  steps:[{t:'Perna E · 1/2',s:45},{t:'Perna D · 1/2',s:45},{t:'Perna E · 2/2',s:45},{t:'Perna D · 2/2',s:45}],
+  desc:'Posição de lunge, joelho a 90°. <strong>SEGURA</strong>, empurrando o chão com o pé da frente. Progressão: nos últimos 10 s sobe na ponta do pé. ISO DO DIA: analgesia do tendão pras próximas horas — por isso vem antes do deep squat, do SL RDL e do atlético/praça das 10h. REGRA DO RIO: caiu o Rio no FB1 de segunda? A iso da terça (wall sit) vira 5× 45 s.',
+  links:[{t:'Isometric Lunge Hold', u:'https://www.youtube.com/watch?v=XblZ99nCrFs'}]},
 
-{ n:10, b:'b2', name:'Wall sit com band', img:'img/ex10.jpg', bad:[MODA, ISO, NOVO], nucleo:true,
-  chips:['2× 45 s','ter pós-Rio: 5× 45 s'], eq:'band acima dos joelhos',
-  cue:'Costas na parede, coxas paralelas — <b>empurra os joelhos pra fora contra a band</b> o tempo todo.',
-  steps:[{t:'1/2 · 45 s',s:45},{t:'2/2 · 45 s',s:45}],
-  desc:'Costas na parede, coxas paralelas ao chão, band acima dos joelhos. <strong>EMPURRA os joelhos pra fora contra a band o tempo todo</strong> — quadríceps + glúteo médio numa isometria só. Analgesia do tendão pras próximas horas: por isso vem antes do deep squat, do 90/90 e da sessão das 10h. <strong>REGRA DO RIO:</strong> caiu o Rio no FB1? Aqui vira 5× 45 s na terça. Substitui o wall sit com bola.',
-  links:[{t:'Banded Wall Sit (E3 Rehab Exercise Library)', u:'https://www.youtube.com/watch?v=om-kpJ4ezoA'}]},
-
-{ n:11, b:'b2', name:'Monster walk', img:'img/ex11.jpg', bad:[MODA],
-  chips:['2× 12 passos','cada lado'], eq:'band nos tornozelos',
-  cue:'Mini-squat, passos laterais — joelhos <b>empurram pra fora</b> contra a band.',
-  steps:[{t:'Série 1'},{t:'Série 2'}],
-  desc:'Band nos tornozelos, mini-squat, passos laterais com tensão constante. Joelhos empurram PRA FORA contra a band. Glúteo médio — estabilizador principal de quadril e joelho.',
-  links:[{t:'Monster Walk Exercise Demonstration', u:'https://www.youtube.com/watch?v=snbNxUIUQPc'}]},
-
-{ n:12, b:'b2', name:'Lateral lunge (peso do corpo)', img:'img/ex12.jpg', bad:[MODA, NOVO],
-  chips:['2× 6','cada lado'], eq:'só peso do corpo',
-  cue:'Passo lateral: <b>senta no quadril</b> de um lado, a outra perna reta com o pé pra frente — profundidade confortável pro joelho.',
-  steps:[{t:'E · 1/2'},{t:'D · 1/2'},{t:'E · 2/2'},{t:'D · 2/2'}],
-  desc:'Pés bem afastados. Passo lateral: senta no QUADRIL de um lado, a outra perna fica reta com o pé apontando pra frente. Profundidade CONFORTÁVEL pro joelho — o que interessa é o adutor da perna reta alongando sob carga e o padrão de corte/deslize defensivo. Empurra o chão pra voltar. Só peso do corpo. Substitui o cossack: mais raso, mesma virilha, menos joelho.',
-  links:[{t:'Bodyweight Lateral Lunge (E3 Rehab Exercise Library)', u:'https://www.youtube.com/watch?v=tmhESsZcpDY'}]},
-
-{ n:13, b:'b2', name:'Deep squat hold', img:'img/ex13.jpg', bad:[NUC], nucleo:true,
+{ n:10, b:'b2', name:'Deep squat hold', img:'img/ex10.jpg', bad:[NUC],
   chips:['45 s'], eq:'band no joelho se quiser',
   cue:'Agacha fundo, <b>calcanhares no chão</b> — segura.',
   steps:[{t:'Deep squat',s:45}],
   desc:'Agachamento profundo sem carga, calcanhares no chão. Mobiliza tornozelo, quadril e coluna de uma vez.',
   links:[{t:'Deep Squat for Ankle Mobility', u:'https://www.youtube.com/watch?v=DqVuqLmnUS8'}]},
 
-{ n:14, b:'b2', name:'Shoulder CARs (círculo controlado)', img:'img/ex14.jpg', bad:[MODA],
-  chips:['3–5 reps','lentas · cada lado'], eq:null,
-  cue:'O <b>maior círculo possível</b> com o braço, bem lento — resto do corpo parado.',
-  steps:[{t:'Lado E · 3–5 reps'},{t:'Lado D · 3–5 reps'}],
-  desc:'Em pé, um braço traça o <strong>maior círculo possível</strong>: sobe na frente até o alto, gira, leva pra trás e volta — bem lento, resto do corpo parado, tensão no braço todo. Controle ativo no fim de curso: ganha amplitude de ombro que fica, não só alonga passivo. Cobre flexão, rotação e extensão num movimento só.',
-  links:[{t:'How To Do Shoulder CARs (Movement Breakdown)', u:'https://www.youtube.com/watch?v=2hyNG1U5wYs'}]},
+{ n:11, b:'b2', name:'SL RDL — peso do corpo', img:'img/ex11.jpg', bad:[MODA, NOVO],
+  chips:['2× 8','cada perna · lento'], eq:null,
+  cue:'Dobra no <b>quadril</b>: tronco pra frente, perna livre pra trás na mesma linha, <b>quadril nivelado</b>.',
+  steps:[{t:'Perna E · 1/2'},{t:'Perna D · 1/2'},{t:'Perna E · 2/2'},{t:'Perna D · 2/2'}],
+  desc:'Em pé numa perna, joelho de apoio levemente dobrado. Dobra no QUADRIL: o tronco vai pra frente e a perna livre pra trás na mesma linha, costas retas, até sentir o posterior. Quadril NIVELADO — não gira pra abrir. Volta apertando o glúteo. É o hinge de uma perna só: o controle que decola no salto unipodal e freia no corte. Perdeu o equilíbrio? Toca o dedo do pé livre no chão e segue.',
+  links:[{t:'Master the Single Leg Romanian Deadlift!  |  Episode 32 ([P]rehab)', u:'https://www.youtube.com/watch?v=qRcMROB1l_E'}]},
 
-{ n:15, b:'b2', name:'Band pull-apart', img:'img/ex15.jpg', bad:[MODA],
-  chips:['2× 12'], eq:'band à frente do peito',
-  cue:'Braços retos, <b>abre a band até tocar o peito</b>.',
+{ n:12, b:'b2', name:'Snap-down (posição de aterrissagem)', img:'img/ex12.jpg', bad:[MODA, NOVO],
+  chips:['2× 5','trava 2 s em cada'], eq:'zero impacto — não sai do chão',
+  cue:'Braços pra cima → joga pra trás e <b>cai na posição de aterrissagem</b>: quadril pra trás, joelhos sobre os pés — <b>trava 2 s</b>.',
+  steps:[{t:'Série 1 · 5 reps'},{t:'Série 2 · 5 reps'}],
+  desc:'De pé, braços pra cima. Num movimento rápido joga os braços pra trás e CAI na posição de aterrissagem: quadril pra trás, joelhos em cima dos pés, peito à frente, pé inteiro no chão — e TRAVA 2 s, sem vacilar. Zero impacto: você não sai do chão. Ensina o quadril a absorver antes do joelho absorver. Cai como quer aterrissar no jogo. Antes do atlético (qua) e dos sprints (sex) de propósito.',
+  links:[{t:'Drop Downs (Snap Down) for Jump Landing & Injury Prevention (Simple Speed Coach)', u:'https://www.youtube.com/watch?v=1IDRgtr4u6g'}]},
+
+{ n:13, b:'b2', name:'Hip airplane', img:'img/ex13.jpg', bad:[MODA],
+  chips:['1–2× 8','cada perna'], eq:null,
+  cue:'RDL numa perna — <b>gira o quadril de apoio</b> pra dentro e pra fora, pelve nivelada.',
+  steps:[{t:'Perna E · 1/2'},{t:'Perna D · 1/2'},{t:'Perna E · 2/2 (opcional)'},{t:'Perna D · 2/2 (opcional)'}],
+  desc:'Em pé numa perna, tronco inclinado pra frente tipo RDL. <strong>Gira o quadril de apoio pra dentro e pra fora</strong> sob controle, pelve nivelada. Rotação de quadril + equilíbrio numa coisa só. <strong>Se sentir pinçamento na virilha, faz só a rotação pra fora.</strong> Começa só segurando o RDL 10 s, depois adiciona a rotação.',
+  links:[{t:'Hip Airplane — strong & mobile hips', u:'https://www.youtube.com/watch?v=zNGpdD6ig4U'}]},
+
+{ n:14, b:'b2', name:'Band overhead press (explosão)', img:'img/ex14.jpg', bad:[MODA],
+  chips:['2× 12','explosivo'], eq:'band pisada nos pés',
+  cue:'Empurra pra cima <b>explosivo</b>, desce controlado.',
   steps:[{t:'Série 1 · 12 reps'},{t:'Série 2 · 12 reps'}],
-  desc:'Band na frente do peito, braços retos, abre pros lados até tocar o peito. Trapézio + romboides, postura.',
-  links:[{t:'Band Pull Apart', u:'https://www.youtube.com/watch?v=_nwzN8RhIWY'}]},
+  desc:'Band pisada no chão, pontas nas mãos na altura dos ombros. <strong>Empurra pra cima com intenção EXPLOSIVA</strong>, desce controlado. Aquecimento explosivo de ombro, não força: intenção rápida na subida.',
+  links:[{t:'Resistance Band Overhead Press', u:'https://www.youtube.com/watch?v=5gyCR4N735g'}]},
 
-{ n:16, b:'b2', name:'Pescoço — circuito completo', img:'img/ex16.jpg', bad:[NUC], nucleo:true,
+{ n:15, b:'b3', name:'Ponte de alavanca longa (posterior)', img:'img/ex15.jpg', bad:[MODA, NOVO],
+  chips:['2× 20–30 s','hold · cada perna'], eq:'calcanhar no banco/step · joelho quase reto',
+  cue:'Calcanhar de UMA perna no banco, joelho quase reto — <b>levanta o quadril e segura</b>: o posterior trabalha alongado.',
+  steps:[{t:'Perna E · 1/2',s:30},{t:'Perna D · 1/2',s:30},{t:'Perna E · 2/2',s:30},{t:'Perna D · 2/2',s:30}],
+  desc:'Deitado, calcanhar de UMA perna no banco/step, joelho quase reto (~20 graus), outra perna no ar. Levanta o quadril até alinhar e SEGURA — o posterior trabalha alongado. Isometria de posterior, a mesma usada em prevenção e retorno de estiramento. Substitui a ponte curta com band: aquela era glúteo, essa é posterior de sprint. Puxou no local do posterior direito? Sai na hora.',
+  links:[{t:'Single Leg Long Lever Bridge (Isometric) (E3 Rehab Exercise Library)', u:'https://www.youtube.com/watch?v=aJvS2PODfwI'}]},
+
+{ n:16, b:'b3', name:'Extensão torácica no foam roller', img:'img/ex16.jpg', bad:[MODA, NOVO],
+  chips:['8–10 reps','roller sobe 2–3 cm entre reps'], eq:'roller nas escápulas — NUNCA na lombar',
+  cue:'Roller atravessado na altura das escápulas, mãos atrás da cabeça, quadril no chão — <b>estende por cima do roller</b> e volta.',
+  steps:[{t:'8–10 reps · roller sobe 2–3 cm entre as reps'}],
+  desc:'Roller atravessado nas costas na altura das escápulas — NUNCA na lombar. Mãos atrás da cabeça, cotovelos fechados, quadril no chão. Estende a torácica por cima do roller e volta. Rotação é o thread the needle do bloco fixo; extensão é isso — ninguém estende, e 4–7 h de código + arremesso overhead pedem. Já está no chão: emenda no cat-cow.',
+  links:[{t:'Thoracic Extension over Foam Roller Head Supported | Spine Range of Motion (E3 Rehab Exercise Library)', u:'https://www.youtube.com/watch?v=7CQc5JpyZso'}]},
+
+{ n:17, b:'b4', name:'Cat-cow', img:'img/ex17.jpg', bad:[FIXO], nucleo:true,
+  chips:['8 reps','lentas · com a respiração'], eq:null,
+  cue:'Cow inspira (peito abre) · Cat expira (costas arredondam) — <b>lento, com a respiração</b>.',
+  steps:[{t:'8 reps lentas'}],
+  desc:'<strong>Cow (inspira):</strong> barriga desce, peito abre, olhar sobe. <strong>Cat (expira):</strong> costas arredondam, queixo ao peito, umbigo pra cima. Movimento LENTO sincronizado com a respiração — não acelera. Abre o bloco fixo: aquecimento de coluna do McGill antes do Big 3 — sem hold no fim de curso, só movimento.',
+  links:[{t:'How to Cat-Cow', u:'https://www.youtube.com/watch?v=MgDn34q4Hm8'}]},
+
+{ n:18, b:'b4', name:'Tronco — Big 3 (McGill)', img:'img/ex18.jpg', bad:[FIXO], nucleo:true,
+  chips:['~4 min','Big 3'], eq:'curl-up 4–5× 8 s · prancha lateral 3× 10–15 s/lado · bird dog 4–5× 8 s/lado',
+  cue:'Curl-up · prancha lateral · bird dog — holds curtos, <b>lombar neutra</b>.',
+  steps:[
+    {t:'Curl-up · 4–5 reps de 8 s'},
+    {t:'Prancha lateral E · 1/3',s:15},{t:'Prancha lateral D · 1/3',s:15},
+    {t:'Prancha lateral E · 2/3',s:15},{t:'Prancha lateral D · 2/3',s:15},
+    {t:'Prancha lateral E · 3/3',s:15},{t:'Prancha lateral D · 3/3',s:15},
+    {t:'Bird dog · 4–5 cada lado'}],
+  desc:'<strong>Curl-up modificado</strong>: deitado, mãos SOB a lombar (preserva a curva natural), um joelho dobrado. Levanta SÓ cabeça e ombros um dedo do chão, segura 8 s respirando normal, desce. 4–5 reps. NÃO é abdominal — a lombar não flexiona em momento nenhum.<br><strong>Prancha lateral</strong>: antebraço no chão, apoio nos joelhos (progressão: pés), quadril alinhado com o corpo — 3× 10–15 s cada lado.<br><strong>Bird dog</strong>: quatro apoios, estica braço e perna OPOSTOS, lombar neutra (imagina um copo d\'água nas costas), segura 8 s — 4–5 cada lado.<br>Padrão conservador com melhor evidência pra lombar. Se algum doer: corta na hora. Nunca na primeira hora depois de acordar. Sessão logo ao acordar? Faz o Big 3 por último.',
+  links:[{t:'The McGill Big 3 — 3 best exercises for lower back', u:'https://www.youtube.com/watch?v=FmZwkgg7pqU'}]},
+
+{ n:19, b:'b4', name:'Thread the needle / open book (T-spine)', img:'img/ex19.jpg', bad:[FIXO],
+  chips:['6–8','cada lado · em 4 apoios'], eq:'rotação torácica',
+  cue:'Braço <b>por baixo</b> (thread) → <b>abre pra cima</b> (open book), quadril estável.',
+  steps:[{t:'Lado E · 6–8 reps'},{t:'Lado D · 6–8 reps'}],
+  desc:'Quadrupedia, <strong>passe um braço POR BAIXO do outro</strong> (thread the needle) até apoiar o ombro no chão, depois <strong>abre o braço pra cima</strong> girando o tronco (open book). Mantenha o quadril estável. <em>Destrava a rotação torácica — crucial pra quem é rígido. Abre drible/passe e tira carga da lombar.</em> Variante: deitado de lado com joelhos dobrados, gire só o tronco.',
+  links:[{t:'Thread the Needle — Thoracic Spine', u:'https://www.youtube.com/watch?v=uenqxybA9kU'}]},
+
+{ n:20, b:'b4', name:'Frog / rock-back de adutor', img:'img/ex20.jpg', bad:[FIXO],
+  chips:['8 balanços lentos','+ 30 s hold no fundo'], eq:'joelhos abertos · tíbias a 90°',
+  cue:'<b>Empurra o quadril pra trás</b> devagar até sentir o adutor — lombar neutra.',
+  steps:[{t:'8 balanços lentos pra trás'},{t:'Hold no fundo',s:30}],
+  desc:'Quadrupedia com joelhos abertos, tíbias a 90°. <strong>Empurre o quadril pra trás</strong> devagar até sentir o adutor. Mantenha a lombar neutra. <em>O adutor magno é parte da cadeia posterior — destravar ele ajuda o alongamento de ísquio e a abertura de quadril pro basquete.</em> Variante: sentado butterfly (plantas dos pés juntas, joelhos caem). Lombar neutra o tempo todo — quem se mexe é o quadril, não a coluna. Único alongamento de adutor da semana: Copenhagen é força, isso é comprimento.',
+  links:[{t:'Frog Pose Stretch (groin + inner thigh)', u:'https://www.youtube.com/watch?v=MLTBWj_7v1s'}]},
+
+{ n:21, b:'b4', name:'Lat prayer (dorsal)', img:'img/ex21.jpg', bad:[FIXO],
+  chips:['30 s','ajoelhado · mãos no banco'], eq:null,
+  cue:'Ajoelhado, mãos no banco à frente — <b>afunda o peito</b> em direção ao chão, quadril pra trás.',
+  steps:[{t:'Lat prayer',s:30}],
+  desc:'Ajoelhado, mãos no banco à frente, braços esticados. Afunda o PEITO em direção ao chão deixando o quadril ir pra trás. Alonga lat + torácica e abre o overhead. A 1,96 m de arremesso e rebote, essa lateral do tronco importa e ninguém alonga. Substitui a versão na parede: aqui você já está no chão.',
+  links:[{t:'Quadruped Lat Stretch (PPSC)', u:'https://www.youtube.com/watch?v=RQzXOEu_8JQ'}]},
+
+{ n:22, b:'b4', name:'Pigeon (glúteos)', img:'img/ex22.jpg', bad:[FIXO],
+  chips:['45 s','cada lado'], eq:null,
+  cue:'<b>Peito alto, dobra no quadril</b> — não arredonda a lombar pra afundar mais.',
+  steps:[{t:'Lado E',s:45},{t:'Lado D',s:45}],
+  desc:'Perna da frente dobrada, a de trás estendida. Inclina o tronco sobre a da frente. Glúteo profundo e piriforme. <strong>Peito alto, dobra no quadril</strong> — não arredonda a lombar pra afundar mais. Joelho da frente reclamou no chão? Canela apoiada no banco — mesma coisa, sem peso no joelho e sem arredondar a lombar.',
+  links:[{t:'Pigeon Pose tutorial', u:'https://www.youtube.com/watch?v=1jcQN5byMww'}]},
+
+{ n:23, b:'b4', name:'90/90 com lift-off', img:'img/ex23.jpg', bad:[FIXO],
+  chips:['2× 5–8','cada lado · segura 2–5 s'], eq:null,
+  cue:'Senta <b>alto</b>, levanta o joelho de trás do chão e segura 2–5 s.',
+  steps:[{t:'Lado E · 1/2'},{t:'Lado D · 1/2'},{t:'Lado E · 2/2'},{t:'Lado D · 2/2'}],
+  desc:'Sentado, perna da frente a 90° (girada pra fora), a de trás a 90° (girada pra dentro). Senta <strong>alto</strong>, sem arredondar a lombar. <strong>Levanta ativamente o joelho de trás do chão</strong> e segura 2–5 s. Força no fim de curso da rotação de quadril — é o que faz a amplitude ficar. Rotação interna/externa, o gap mais comum em quem é alto.',
+  links:[{t:'90-90 Rotations', u:'https://www.youtube.com/watch?v=Idty0yMS1Dk'}]},
+
+{ n:24, b:'b4', name:'Posterior unilateral deitado com band', img:'img/ex24.jpg', bad:[FIXO, S30], nucleo:true,
+  chips:['2× 30 s','cada perna'], eq:'a 2ª série entra 1–2 cm além',
+  cue:'Band no pé, <b>joelho esticado</b>, lombar trancada no chão.',
+  steps:[{t:'Perna E · 1/2',s:30},{t:'Perna D · 1/2',s:30},{t:'Perna E · 2/2',s:30},{t:'Perna D · 2/2',s:30}],
+  desc:'Deitado de costas, perna estendida pra cima com a band no peito do pé. Puxa em direção ao peito com o joelho esticado, <strong>lombar trancada no chão</strong>. Encurtamento nomeado pela fisio. 1× 30 s não muda amplitude; 2× 30 s todo dia passa do limiar.',
+  links:[{t:'Hamstring Stretch with a Strap, Supine (Doctor Jo)', u:'https://www.youtube.com/watch?v=Il1L75v6gq0'}]},
+
+{ n:25, b:'b4', name:'Fáscia plantar sentado', img:'img/ex25.jpg', bad:[FIXO], nucleo:true,
+  chips:['10× 10 s','cada pé'], eq:'tornozelo cruzado sobre o joelho',
+  cue:'Segura a base dos dedos e <b>puxa todos os dedos pra trás</b> até a sola tensionar — 10 s, solta, 10 vezes.',
+  steps:[{t:'Pé E · 10× 10 s'},{t:'Pé D · 10× 10 s'}],
+  desc:'Sentado, tornozelo cruzado sobre o joelho oposto. Segura a base dos dedos e puxa TODOS os dedos pra trás até a sola tensionar (dá pra sentir a fáscia com o polegar). 10 s, solta, 10 vezes. Mesmo mecanismo do windlass do bloco 1: lá é de pé e em carga, aqui é sentado e no fim, quente — 2 doses por sessão. Protocolo DiGiovanni 2003, melhor que alongar só a panturrilha.',
+  links:[{t:'Plantar Fascia Stretch | Plantar Fasciitis (Physiotutors)', u:'https://www.youtube.com/watch?v=A6xAC0RGGaQ'}]},
+
+{ n:26, b:'b4', name:'Couch stretch ativo', img:'img/ex26.jpg', bad:[FIXO, S30], nucleo:true,
+  chips:['2× 30 s','cada lado'], eq:'FIXO diário',
+  cue:'<b>Roda a pelve pra trás e aperta o glúteo</b> — relaxa o hip flexor.',
+  steps:[{t:'Lado E · 1/2',s:30},{t:'Lado D · 1/2',s:30},{t:'Lado E · 2/2',s:30},{t:'Lado D · 2/2',s:30}],
+  desc:'Pé de trás apoiado atrás, joelho no chão (acolchoado). <strong>Roda a pelve pra trás e aperta o glúteo</strong> do lado que alonga — relaxa o hip flexor. No fim, empurra o joelho contra o chão 5 s e estende mais o quadril. Alonga hip flexor + reto femoral. Se a rótula incomodar no chão, faz em pé com a perna só estendida.',
+  links:[{t:'Couch Stretch With Glute Squeeze', u:'https://www.youtube.com/watch?v=hVux5YXW1vE'}]},
+
+{ n:27, b:'b4', name:'Peitoral na parede', img:'img/ex27.jpg', bad:[FIXO], nucleo:true,
+  chips:['30 s','cada lado'], eq:null,
+  cue:'Antebraço na parede a 90°, passo à frente e <b>gira o peito pro lado oposto</b>.',
+  steps:[{t:'Lado E',s:30},{t:'Lado D',s:30}],
+  desc:'Antebraço na parede, cotovelo na altura do ombro (90°). Passo à frente com a perna do MESMO lado e gira o peito pro lado oposto até alongar o peitoral. 4–7 h de código encurtam essa cadeia em silêncio — este hold é o contrapeso direto. Se pinicar na frente do ombro, baixa o cotovelo uns graus.',
+  links:[{t:'Wall Pec Stretch — chest & shoulder mobility', u:'https://www.youtube.com/watch?v=7yJ1357Hj5M'}]},
+
+{ n:28, b:'b4', name:'Panturrilha na parede (reto + flexionado)', img:'img/ex28.jpg', bad:[FIXO], nucleo:true,
+  chips:['30 s','2 variações · cada pé'], eq:null,
+  cue:'Joelho <b>reto</b> = gastrocnêmio · <b>flexionado</b> = sóleo + fáscia.',
+  steps:[{t:'Reto · pé E',s:30},{t:'Reto · pé D',s:30},{t:'Flexionado · pé E',s:30},{t:'Flexionado · pé D',s:30}],
+  desc:'Contra a parede: joelho reto = gastrocnêmio. Joelho flexionado = <strong>sóleo + fáscia</strong>. Faz as duas variações. Panturrilha todo dia é a melhor amiga da fascite. Força foi no calf raise do bloco 1; aqui é comprimento.',
+  links:[{t:'Wall Calf Stretch — soleus & gastrocnemius', u:'https://www.youtube.com/watch?v=mtVqe4CR_60'}]},
+
+{ n:29, b:'b4', name:'Pescoço — circuito completo', img:'img/ex29.jpg', bad:[FIXO], nucleo:true,
   chips:['~3 min','11 passos'], eq:null,
   cue:'Movimentos lentos, sem forçar — o timer guia os 11 passos.',
   steps:[
@@ -363,71 +468,8 @@ var DATA = [
     {t:'Flexão (queixo ao peito)',s:20},{t:'Extensão (olhar pro teto)',s:15},
     {t:'Chin tuck · 10× 3 s',s:40},
     {t:'Isometria · frente',s:10},{t:'Isometria · lado E',s:10},{t:'Isometria · lado D',s:10},{t:'Isometria · trás',s:10}],
-  desc:'<strong>Flexão lateral</strong> (orelha ao ombro): 20 s cada lado. <strong>Rotação</strong> (olhar pro lado): 20 s cada lado. <strong>Flexão</strong> (queixo ao peito): 20 s. <strong>Extensão</strong> (olhar pro teto): 15 s. <strong>Chin tuck</strong> (queixo duplo): 10× segurando 3 s. <strong>Isometria</strong>: mão empurra a cabeça (frente, lados, trás) sem mover, 10 s cada.',
-  links:[{t:'Isometric Neck Strengthening Exercises (Dr. Abelson)', u:'https://www.youtube.com/watch?v=0kWF968uFXY'}]},
-
-{ n:17, b:'b3', name:'90/90 com lift-off', img:'img/ex17.jpg', bad:[MODA],
-  chips:['2–3× 5–8','cada lado · segura 2–5 s'], eq:null,
-  cue:'Senta <b>alto</b>, levanta o joelho de trás do chão e segura 2–5 s.',
-  steps:[{t:'Lado E · 1/3'},{t:'Lado D · 1/3'},{t:'Lado E · 2/3'},{t:'Lado D · 2/3'},{t:'Lado E · 3/3 (opcional)'},{t:'Lado D · 3/3 (opcional)'}],
-  desc:'Sentado, perna da frente a 90° (girada pra fora), a de trás a 90° (girada pra dentro). Senta <strong>alto</strong>, sem arredondar a lombar. <strong>Levanta ativamente o joelho de trás do chão</strong> e segura 2–5 s. Força no fim de curso da rotação de quadril — é o que faz a amplitude ficar. Rotação interna/externa, o gap mais comum em quem é alto.',
-  links:[{t:'90-90 Rotations', u:'https://www.youtube.com/watch?v=Idty0yMS1Dk'}]},
-
-{ n:18, b:'b3', name:'Copenhagen plank (short-lever)', img:'img/ex18.jpg', bad:[MODA, TERQUI, ANOTA], soTerQui:true,
-  chips:['3× 10–20 s','cada lado'], eq:'joelho no banco · 3× 20 s short → long-lever',
-  cue:'Joelho de cima no banco, <b>levanta o quadril</b> e segura — corpo alinhado.',
-  steps:[{t:'Lado E · 1/3',s:20},{t:'Lado D · 1/3',s:20},{t:'Lado E · 2/3',s:20},{t:'Lado D · 2/3',s:20},{t:'Lado E · 3/3',s:20},{t:'Lado D · 3/3',s:20}],
-  desc:'Deitado de lado, <strong>JOELHO da perna de cima no banco/cadeira</strong>, levanta o quadril e segura, corpo alinhado. Força de adutor — previne lesão de virilha em corte lateral. Progressão: 3× 20 s short-lever, depois long-lever (pé no banco). Já está de lado: emenda no open book (<a class="xref" href="#ex19">#19</a>).',
-  log:[{k:'cop_e',t:'E',u:'s'},{k:'cop_d',t:'D',u:'s'},{k:'cop_lever',t:'lever',opts:['short','long']}],
-  prog:'Meta: 3× 20 s short-lever em 2 sessões seguidas → long-lever (pé no banco).',
-  links:[{t:'Copenhagen Planks — progressions (E3 Rehab)', u:'https://www.youtube.com/watch?v=YRRnnZsRs9U'}]},
-
-{ n:19, b:'b3', name:'Open book (T-spine)', img:'img/ex19.jpg', bad:[NUC],
-  chips:['6–8','cada lado'], eq:null,
-  cue:'Abre o braço de cima girando <b>só o tronco</b> — quadril parado.',
-  steps:[{t:'Lado E · 6–8 reps'},{t:'Lado D · 6–8 reps'}],
-  desc:'Deitado de lado, joelhos dobrados a 90°, <strong>abre o braço de cima girando só o tronco</strong>, quadril parado. Rotação torácica — trabalha em dupla com o pescoço (<a class="xref" href="#ex16">#16</a>).',
-  links:[{t:'Thoracic Rotation Open Book', u:'https://www.youtube.com/watch?v=peeW19ofFUg'}]},
-
-{ n:20, b:'b3', name:'Tronco — Big 3 (McGill)', img:'img/ex20.jpg', bad:[NUC], nucleo:true,
-  chips:['~4 min','Big 3'], eq:'holds curtos e repetidos — endurance, não força',
-  cue:'Curl-up · prancha lateral · bird dog — holds curtos, <b>lombar neutra</b>.',
-  steps:[
-    {t:'Curl-up · 4–5 reps de 8 s'},
-    {t:'Prancha lateral E · 1/3',s:15},{t:'Prancha lateral D · 1/3',s:15},
-    {t:'Prancha lateral E · 2/3',s:15},{t:'Prancha lateral D · 2/3',s:15},
-    {t:'Prancha lateral E · 3/3',s:15},{t:'Prancha lateral D · 3/3',s:15},
-    {t:'Bird dog · 4–5 cada lado'}],
-  desc:'<strong>Curl-up modificado</strong>: deitado, mãos SOB a lombar (preserva a curva natural), um joelho dobrado. Levanta SÓ cabeça e ombros um dedo do chão, segura 8 s respirando normal, desce. 4–5 reps. NÃO é abdominal — a lombar não flexiona em momento nenhum.<br><strong>Prancha lateral</strong>: antebraço no chão, apoio nos joelhos (progressão: pés), quadril alinhado com o corpo — 3× 10–15 s cada lado.<br><strong>Bird dog</strong>: quatro apoios, estica braço e perna OPOSTOS, lombar neutra (imagina um copo d\'água nas costas), segura 8 s — 4–5 cada lado.<br>Padrão conservador com melhor evidência pra lombar. Se algum doer: corta na hora.',
-  links:[{t:'The McGill Big 3 — 3 best exercises for lower back', u:'https://www.youtube.com/watch?v=FmZwkgg7pqU'}]},
-
-{ n:21, b:'b3', name:'Posterior unilateral com band', img:'img/ex21.jpg', bad:[NUC, FIXO], nucleo:true,
-  chips:['2× 30 s','cada perna'], eq:'FIXO diário · a 2ª série entra 1–2 cm além',
-  cue:'Band no pé, <b>joelho esticado</b>, lombar trancada no chão.',
-  steps:[{t:'Perna E · 1/2',s:30},{t:'Perna D · 1/2',s:30},{t:'Perna E · 2/2',s:30},{t:'Perna D · 2/2',s:30}],
-  desc:'Deitado de costas, perna estendida pra cima com a band no peito do pé. Puxa em direção ao peito com o joelho esticado, <strong>lombar trancada no chão</strong>. A 2ª série entra 1–2 cm além da primeira.',
-  links:[{t:'Hamstring Stretch with a Strap, Supine (Doctor Jo)', u:'https://www.youtube.com/watch?v=Il1L75v6gq0'}]},
-
-{ n:22, b:'b3', name:'Pigeon (glúteos)', img:'img/ex22.jpg', bad:[MODA],
-  chips:['30 s','cada lado'], eq:null,
-  cue:'<b>Peito alto, dobra no quadril</b> — não arredonda a lombar pra afundar mais.',
-  steps:[{t:'Lado E',s:30},{t:'Lado D',s:30}],
-  desc:'Perna da frente dobrada, a de trás estendida. Inclina o tronco sobre a da frente. Glúteo profundo e piriforme. <strong>Peito alto, dobra no quadril</strong> — não arredonda a lombar pra afundar mais. Joelho da frente reclamou no chão? Faz com a canela apoiada no banco — mesma coisa, sem peso no joelho e sem arredondar a lombar.',
-  links:[{t:'Pigeon Pose tutorial', u:'https://www.youtube.com/watch?v=1jcQN5byMww'}]},
-
-{ n:23, b:'b3', name:'Couch stretch ativo', img:'img/ex23.jpg', bad:[NUC, FIXO], nucleo:true,
-  chips:['2× 30 s','cada lado'], eq:'FIXO diário',
-  cue:'<b>Roda a pelve pra trás e aperta o glúteo</b> — relaxa o hip flexor.',
-  steps:[{t:'Lado E · 1/2',s:30},{t:'Lado D · 1/2',s:30},{t:'Lado E · 2/2',s:30},{t:'Lado D · 2/2',s:30}],
-  desc:'Pé de trás apoiado atrás, joelho no chão (acolchoado). <strong>Roda a pelve pra trás e aperta o glúteo</strong> do lado que alonga — relaxa o hip flexor. No fim, empurra o joelho contra o chão 5 s e estende mais o quadril. Alonga hip flexor + reto femoral. Se a rótula incomodar no chão, faz em pé com a perna só estendida. A 2ª série entra 1–2 cm além da primeira.',
-  links:[{t:'Couch Stretch With Glute Squeeze', u:'https://www.youtube.com/watch?v=hVux5YXW1vE'}]},
-
-{ n:24, b:'b3', name:'Peitoral na parede', img:'img/ex24.jpg', bad:[MODA],
-  chips:['30 s','cada lado'], eq:null,
-  cue:'Antebraço na parede a 90°, passo à frente e <b>gira o peito pro lado oposto</b>.',
-  steps:[{t:'Lado E',s:30},{t:'Lado D',s:30}],
-  desc:'Antebraço na parede, cotovelo na altura do ombro (90°). Passo à frente com a perna do MESMO lado e gira o peito pro lado oposto até alongar o peitoral. 4–7 h de código encurtam essa cadeia em silêncio — este hold é o contrapeso direto. Se pinicar na frente do ombro, baixa o cotovelo uns graus. Último card: termina em pé — pronto pro dia.',
-  links:[{t:'Wall Pec Stretch — chest & shoulder mobility', u:'https://www.youtube.com/watch?v=7yJ1357Hj5M'}]}
+  desc:'<strong>Flexão lateral</strong> (orelha ao ombro): 20 s cada lado. <strong>Rotação</strong> (olhar pro lado): 20 s cada lado. <strong>Flexão</strong> (queixo ao peito): 20 s. <strong>Extensão</strong> (olhar pro teto): 15 s. <strong>Chin tuck</strong> (queixo duplo): 10× segurando 3 s. <strong>Isometria</strong>: mão empurra a cabeça (frente, lados, trás) sem mover, 10 s cada. Último card: termina em pé — pronto pro dia.',
+  links:[{t:'Isometric Neck Strengthening Exercises (Dr. Abelson)', u:'https://www.youtube.com/watch?v=0kWF968uFXY'}]}
 ];
 
 (function () {
@@ -513,6 +555,7 @@ var DATA = [
         '<details class="how"><summary>Como fazer · vídeos</summary><div class="how-body">' +
         '<p>' + e.desc + '</p>' + linksHtml + '</div></details>';
       sec.appendChild(art);
+      if (e.tip) { var tip = document.createElement('div'); tip.className = 'tip'; tip.innerHTML = e.tip; sec.appendChild(tip); }
     });
     app.appendChild(sec);
   });
@@ -636,7 +679,7 @@ var DATA = [
   function renderGo(id) {
     var e = ex(id), s = st(id), b = goBtn(id);
     b.classList.remove('running', 'paused');
-    if (!ativo(e)) { b.textContent = (e.soTerQui && !terQui()) ? '— hoje não · só ter e qui' : '— dia corrido · só o núcleo'; return; }
+    if (!ativo(e)) { b.textContent = (e.soTerQui && !terQui()) ? '— hoje não · só ter e qui' : '— pulado no dia corrido'; return; }
     if (s.done) { b.textContent = '✓ feito hoje — refazer'; return; }
     var step = e.steps[Math.min(s.i, e.steps.length - 1)];
     if (run && run.id === id) {
@@ -668,7 +711,7 @@ var DATA = [
       var chip = document.getElementById('chip-' + b.id);
       var base = chip.dataset.base;
       var bd = blocoDone[b.id];
-      chip.textContent = bd.done >= bd.total ? base + ' ✓' : (bd.done > 0 ? base + ' ' + bd.done + '/' + bd.total : base);
+      chip.textContent = (bd.total > 0 && bd.done >= bd.total) ? base + ' ✓' : (bd.done > 0 ? base + ' ' + bd.done + '/' + bd.total : base);
     });
   }
 
@@ -848,10 +891,11 @@ var DATA = [
   // dia corrido: escolha do dia (zera na virada), aplicada com reload (wiring congelado)
   var NUC_N = DATA.filter(function (e) { return e.nucleo; }).length;
   var corridoBtn = document.getElementById('corridoBtn');
+  if (!NUC_N) corridoBtn.parentNode.hidden = true;
   corridoBtn.classList.toggle('on', state.corrido);
   corridoBtn.textContent = state.corrido
-    ? '✓ Dia corrido: só o núcleo (' + NUC_N + ') — tocar pra voltar ao completo'
-    : 'Dia corrido? Só o núcleo (' + NUC_N + ' · ~27 min)';
+    ? '✓ Dia corrido (' + NUC_N + ' cards) — tocar pra voltar ao completo'
+    : 'Dia corrido? (' + NUC_N + ' cards · ~30 min)';
   corridoBtn.addEventListener('click', function () {
     if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
     stopRun();
