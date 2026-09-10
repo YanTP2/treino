@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Basquete A">
+<meta name="theme-color" content="#101014">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Basquete TREINO A — Sexta</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { background:#101014; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:#101014; color:#e8e8ec; max-width:480px; margin:0 auto;
+    padding:0 14px calc(96px + env(safe-area-inset-bottom));
+    font-size:16px; line-height:1.45;
+  }
+  a { color:#fbbf24; }
+
+  .top {
+    position:sticky; top:0; z-index:10; background:rgba(16,16,20,.93);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    margin:0 -14px; padding:calc(10px + env(safe-area-inset-top)) 14px 0;
+    border-bottom:1px solid #26262c;
+  }
+  .top-row { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .top h1 { font-size:16px; font-weight:800; letter-spacing:-.2px; color:#f59e0b; flex:1; min-width:0; line-height:1.2; }
+  .top h1 small { font-weight:600; color:#9d9da6; font-size:12.5px; white-space:nowrap; }
+  .prog-txt { font-size:13px; font-weight:700; color:#8e8e96; font-variant-numeric:tabular-nums; }
+  .chips-nav { display:flex; gap:6px; overflow-x:auto; padding:8px 0 10px; scrollbar-width:none; }
+  .chips-nav::-webkit-scrollbar { display:none; }
+  .chip {
+    flex-shrink:0; font-size:13px; font-weight:700; padding:10px 13px; border-radius:8px;
+    background:#1b1b21; border:1px solid #35353d; color:#9d9da6; white-space:nowrap;
+    text-decoration:none;
+  }
+  .chip.on { background:var(--bc); border-color:var(--bc); color:#101014; }
+  .pbar { height:3px; background:#1e1e24; margin:0 -14px; }
+  .pbar i { display:block; height:100%; width:0%; background:#f59e0b; transition:width .4s; }
+
+  .sub { font-size:12.5px; color:#8e8e96; margin:12px 0 0; text-align:center; }
+
+  details.notas {
+    background:#1b1b21; border:1px solid #35353d; border-radius:10px;
+    padding:0 14px; margin:12px 0 4px;
+  }
+  details.notas summary {
+    list-style:none; cursor:pointer; font-size:13.5px; font-weight:700; color:#e8e8ec;
+    padding:11px 0; display:flex; align-items:center; gap:6px;
+  }
+  details.notas summary::-webkit-details-marker { display:none; }
+  details.notas summary::before { content:"▸"; color:#f59e0b; transition:transform .2s; }
+  details.notas[open] summary::before { transform:rotate(90deg); }
+  details.notas p { font-size:13.5px; color:#aeaeb8; line-height:1.55; padding-bottom:10px; }
+  details.notas p strong { color:#e8e8ec; }
+
+  section.bloco { --acc:#f59e0b; scroll-margin-top:calc(100px + env(safe-area-inset-top)); }
+  .bh {
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin:22px 0 10px; padding:10px 14px; border-radius:8px;
+    background:color-mix(in srgb, var(--acc) 10%, transparent);
+    border-left:3px solid var(--acc);
+    scroll-margin-top:calc(100px + env(safe-area-inset-top));
+  }
+  @supports not (background: color-mix(in srgb, red 10%, transparent)) {
+    .bh { background:#1b1b21; }
+  }
+  .bh h2 { font-size:14.5px; font-weight:800; color:var(--acc); }
+  .bh h2 small { display:block; font-size:12px; font-weight:600; color:#9d9da6; margin-top:1px; }
+
+  .ex {
+    background:#1b1b21; border:1px solid #35353d; border-radius:12px;
+    padding:14px 14px 12px; margin-bottom:12px; transition:opacity .3s, border-color .3s;
+    scroll-margin-top:calc(100px + env(safe-area-inset-top));
+  }
+  .ex.run { border-color:var(--acc); }
+  .ex.is-done { opacity:.5; }
+  .ex.flash { animation:fl .45s 2; }
+  @keyframes fl { 50% { border-color:#4ade80; box-shadow:0 0 0 3px #4ade8033; } }
+
+  .ex-head { display:flex; align-items:flex-start; gap:10px; }
+  .num {
+    min-width:30px; height:28px; padding:0 6px; border-radius:8px; background:var(--acc); color:#101014;
+    font-weight:800; font-size:12.5px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; margin-top:1px; cursor:pointer;
+  }
+  .ex-head h3 { flex:1; font-size:17px; font-weight:750; line-height:1.25; letter-spacing:-.2px; }
+  .bpill {
+    display:inline-block; border:1.5px solid; border-radius:6px; padding:1px 7px;
+    font-size:10.5px; font-weight:800; letter-spacing:.4px; margin-left:6px;
+    vertical-align:2px; white-space:nowrap;
+  }
+  .done-btn {
+    width:44px; height:44px; margin:-8px -8px 0 0; flex-shrink:0; border-radius:10px;
+    border:1.5px solid #35353d; background:transparent;
+    color:#6f6f78; font-size:18px; font-weight:800; cursor:pointer;
+  }
+  .is-done .done-btn { background:#4ade80; border-color:#4ade80; color:#101014; }
+
+  .media { display:flex; gap:12px; margin:10px 0 11px; align-items:flex-start; }
+  .thumb {
+    width:104px; height:78px; object-fit:cover; border-radius:8px;
+    border:1px solid #35353d; flex-shrink:0; cursor:pointer; background:#141419;
+  }
+  .media-right { flex:1; min-width:0; }
+  .dose { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:7px; }
+  .dose span {
+    background:#101014; border:1px solid #35353d; border-radius:6px;
+    padding:4px 9px; font-size:14.5px; font-weight:800; font-variant-numeric:tabular-nums;
+  }
+  .dose span.eq { font-weight:600; color:#9d9da6; font-size:12.5px; align-self:center; border-style:dashed; }
+  .cue { font-size:13.5px; color:#aeaeb8; line-height:1.45; }
+  .cue b { color:#e8e8ec; }
+
+  .go {
+    width:100%; min-height:52px; border-radius:10px; border:1.5px solid var(--acc);
+    background:transparent; color:var(--acc); font-size:16.5px; font-weight:800;
+    font-variant-numeric:tabular-nums; cursor:pointer; transition:background .2s; margin-top:6px;
+  }
+  .go.running { background:var(--acc); color:#101014; font-size:24px; }
+  .go.paused { background:#1e1e24; border-color:#9d9da6; color:#e8e8ec; }
+  .is-done .go { border-color:#4ade80; color:#4ade80; font-size:15px; }
+
+  details.how { margin-top:10px; border-top:1px solid #26262c; padding-top:2px; }
+  details.how summary {
+    list-style:none; cursor:pointer; font-size:13px; font-weight:700; color:#fbbf24;
+    padding:11px 0; display:flex; align-items:center; gap:6px;
+  }
+  details.how summary::-webkit-details-marker { display:none; }
+  details.how summary::before { content:"▸"; transition:transform .2s; }
+  details.how[open] summary::before { transform:rotate(90deg); }
+  .how-body { padding:2px 0 6px; }
+  .how-body p { font-size:14px; color:#aeaeb8; line-height:1.55; margin-bottom:10px; }
+  .how-body p strong { color:#e8e8ec; }
+  .links { background:#101014; border:1px solid #26262c; border-radius:8px; padding:8px 12px; }
+  .links .lh { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#fbbf24; margin-bottom:3px; }
+  .links a { display:block; color:#aeaeb8; text-decoration:none; font-size:13.5px; padding:10px 0; }
+  .links a::before { content:"→ "; color:var(--acc); }
+
+  /* -------- formulário "como foi hoje" -------- */
+  .frm { display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+  .frow { display:flex; align-items:center; gap:8px; }
+  .frow label { flex:1; font-size:13.5px; color:#aeaeb8; }
+  .frow input[type=number], .frow input[type=text] {
+    background:#101014; border:1px solid #35353d; border-radius:8px; color:#e8e8ec;
+    font-size:16px; font-weight:700; padding:10px 8px; text-align:center;
+  }
+  .frow input[type=number] { width:74px; }
+  .frow input[type=text] { flex:1.2; text-align:left; font-weight:600; }
+  .frm textarea {
+    background:#101014; border:1px solid #35353d; border-radius:8px; color:#e8e8ec;
+    font-size:16px; padding:10px; min-height:74px; width:100%; font-family:inherit;
+  }
+  .seg { display:flex; gap:6px; }
+  .seg button {
+    border:1.5px solid #35353d; background:transparent; color:#9d9da6; border-radius:8px;
+    font-size:14px; font-weight:700; padding:10px 16px; cursor:pointer;
+  }
+  .seg button.on { background:#f59e0b; border-color:#f59e0b; color:#101014; }
+
+  .foot { text-align:center; margin-top:26px; font-size:12.5px; color:#8e8e96; line-height:1.7; }
+  .foot-btns { display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:14px; }
+  .foot .reset, .foot .copiar {
+    background:#1e1e24; border:1px solid #35353d; border-radius:10px;
+    font-size:14px; font-weight:700; padding:11px 18px; cursor:pointer; min-height:44px;
+  }
+  .foot .reset { color:#f59e0b; border-color:#4a3a14; }
+  .foot .copiar { color:#aeaeb8; font-size:13px; }
+  .savemsg { font-size:12px; color:#4ade80; min-height:16px; }
+  .savemsg.err { color:#f87171; font-weight:700; }
+  .resumo-box { width:100%; min-height:140px; margin-top:10px; background:#16161b; color:#e8e8ec; border:1px solid #35353d;
+    border-radius:10px; padding:10px; font-size:13px; line-height:1.4; font-family:inherit; }
+  .sub.ref { margin-top:6px; color:#8e8e96; }
+  .fora { background:#3a2a10; color:#fbbf24; font-size:12.5px; line-height:1.4; text-align:center; padding:8px 12px; border-radius:8px; margin:10px 0 0; }
+  .antes { color:#8e8e96; font-size:12px; font-weight:600; white-space:nowrap; }
+
+  /* -------- Treino A: modo, relógio, avisos -------- */
+  [hidden] { display:none !important; }
+  .top-sub { font-size:12px; color:#8e8e96; padding:3px 0 0; font-variant-numeric:tabular-nums; }
+  .banner {
+    display:flex; align-items:center; gap:10px; margin:0 0 8px; padding:9px 12px; border-radius:8px;
+    background:#3a2a10; color:#fbbf24; font-size:13.5px; font-weight:700; line-height:1.35;
+  }
+  .banner button { margin-left:auto; flex-shrink:0; background:transparent; border:1px solid #fbbf24; color:#fbbf24; border-radius:6px; min-width:44px; min-height:36px; font-weight:800; cursor:pointer; }
+  .hdrbox { background:#1b1b21; border:1px solid #35353d; border-radius:10px; padding:10px 12px; margin:12px 0 0; display:flex; flex-direction:column; gap:9px; }
+  .hdrbox .frow label { font-size:13px; }
+  .hdrbox .frow input[type=text] { flex:1.1; }
+  .modo-row { display:flex; align-items:center; gap:10px; }
+  .modo-row label { font-size:13px; color:#9d9da6; font-weight:700; }
+  .modo-row .seg { flex:1; }
+  .modo-row .seg button { flex:1; padding:10px 4px; min-height:44px; }
+  .modo-desc, .dica { font-size:12.5px; color:#8e8e96; line-height:1.4; }
+  .dica b { color:#aeaeb8; }
+
+  /* -------- Treino A: campos de registro -------- */
+  .crow { display:flex; align-items:center; gap:8px; padding:4px 0; }
+  .crow label { font-size:13px; color:#9d9da6; font-weight:700; flex:1; min-width:0; line-height:1.3; }
+  .crow .cin { display:flex; align-items:center; gap:5px; flex-shrink:0; }
+  input.ac, input.tt {
+    background:#101014; border:1px solid #35353d; border-radius:8px; color:#e8e8ec;
+    font-size:16px; font-weight:700; padding:10px 4px; text-align:center; width:58px; min-width:0;
+    font-variant-numeric:tabular-nums;
+  }
+  input.tt { width:50px; color:#9d9da6; font-weight:600; }
+  input.ac::placeholder, input.tt::placeholder { color:#5c5c66; font-weight:600; }
+  .crow input.tx { flex:1.3; min-width:0; background:#101014; border:1px solid #35353d; border-radius:8px; color:#e8e8ec; font-size:16px; font-weight:600; padding:10px 8px; }
+  .crow input.tx::placeholder { color:#5c5c66; }
+  .den, .x { color:#6f6f78; font-size:13px; font-weight:700; flex-shrink:0; }
+  .crow .stot { font-size:14.5px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .seg-row .seg { flex-wrap:wrap; }
+  .seg button { min-height:44px; }
+  .spots { margin:8px 0 4px; border-top:1px solid #26262c; padding-top:6px; }
+  .sph { display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-size:13px; font-weight:800; color:var(--acc); padding:2px 0 4px; }
+  .sph .stot { color:#e8e8ec; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .sprow { display:flex; align-items:center; gap:6px; padding:3px 0; }
+  .sprow .slab { flex:1; font-size:13.5px; font-weight:700; color:#aeaeb8; }
+  .cnota { font-size:13px; color:#aeaeb8; line-height:1.45; padding:6px 0 2px; }
+  .cnota b { color:#e8e8ec; }
+  .trav {
+    display:flex; align-items:center; gap:10px; background:#3a1a1a; border:1px solid #f87171; color:#fca5a5;
+    border-radius:8px; padding:9px 12px; margin:8px 0 4px; font-size:13.5px; font-weight:700; line-height:1.35;
+  }
+  .trav button { margin-left:auto; flex-shrink:0; min-width:44px; min-height:36px; background:transparent; border:1px solid #fca5a5; color:#fca5a5; border-radius:6px; font-weight:800; cursor:pointer; }
+  .ex.extra { border-style:dashed; }
+
+  /* -------- Treino A: histórico do benchmark -------- */
+  .hist { background:#101014; border:1px solid #26262c; border-radius:8px; padding:10px 12px; margin:10px 0 4px; }
+  .hh { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:var(--acc); }
+  .hbig { font-size:34px; font-weight:800; line-height:1.15; font-variant-numeric:tabular-nums; }
+  .hsm { font-size:12.5px; color:#8e8e96; line-height:1.4; }
+  .hnote { font-size:12.5px; color:#aeaeb8; margin-top:6px; border-top:1px solid #26262c; padding-top:6px; line-height:1.4; }
+  .hwarn { font-size:13px; color:#fbbf24; font-weight:700; margin-bottom:6px; line-height:1.35; }
+  details.hlist { margin-top:4px; }
+  details.hlist summary { list-style:none; font-size:12.5px; color:#9d9da6; font-weight:700; cursor:pointer; padding:8px 0; }
+  details.hlist summary::-webkit-details-marker { display:none; }
+  details.hlist summary::before { content:"▸ "; }
+  details.hlist[open] summary::before { content:"▾ "; }
+  .hrow { font-size:12.5px; color:#aeaeb8; padding:3px 0; font-variant-numeric:tabular-nums; line-height:1.4; }
+
+  /* -------- Treino A: descrição completa no "Como fazer" -------- */
+  .desc p { font-size:14px; color:#aeaeb8; line-height:1.55; margin-bottom:10px; }
+  .desc strong { color:#e8e8ec; }
+  .desc ol, .desc ul { padding-left:20px; margin:0 0 10px; font-size:14px; color:#aeaeb8; line-height:1.55; }
+  .desc li { margin-bottom:3px; }
+  .vid-swap { margin-top:8px; font-size:11.5px; color:#6f6f78; line-height:1.5; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-row">
+    <h1>SEX · TREINO A <small>— Shooting + Handle</small></h1>
+    <span class="prog-txt" id="progTxt">0/109 arremessos</span>
+  </div>
+  <div class="top-sub" id="relogio"></div>
+  <nav class="chips-nav" id="chipsNav"></nav>
+  <div class="banner" id="banner" hidden><span id="banTxt"></span><button type="button" id="banOk" aria-label="dispensar aviso">ok</button></div>
+  <div class="pbar"><i id="pbar"></i></div>
+</div>
+
+<p class="sub"><strong>«Hoje eu vim sair daqui melhor arremessador e melhor com a bola.»</strong><br>70 min programados · janela 10h00–11h30 · 109 arremessos + EXTRA opcional</p>
+<p class="sub ref" id="refTxt"></p>
+
+<div class="hdrbox" id="hdrbox">
+  <div class="modo-row"><label>Modo</label><span class="seg" id="modoSeg"><button type="button" data-v="completa">Completa</button><button type="button" data-v="curta">Curta</button><button type="button" data-v="segunda">Segunda</button></span></div>
+  <div class="modo-desc" id="modoDesc"></div>
+  <div class="frow"><label>Ênfase técnica da semana <span class="antes">(revisão de domingo)</span></label><input type="text" id="hdr_enfase"></div>
+  <div class="frow"><label>Feedback do personal <span class="antes">(terça)</span></label><input type="text" id="hdr_feedback"></div>
+  <div class="frow"><label>Joelho de manhã (0–10) <span class="antes">&gt; 3 fecha o EXTRA</span></label><input type="number" inputmode="numeric" min="0" max="10" id="hdr_joelho"></div>
+  <div class="dica">Apertou o tempo na Completa? Corta nesta ordem: <b>3-B → 4 → 2ª volta do 2-B</b>. Benchmark e lances livres nunca saem.</div>
+</div>
+
+<details class="notas">
+  <summary>Notas &amp; regras do treino</summary>
+  <p><strong>Identidade:</strong> «Hoje eu vim sair daqui melhor arremessador e melhor com a bola.» Não tem finalização no aro, não tem poste, não tem defesa, não tem condicionamento por condicionamento — esses têm dias próprios (B ter · C qui · D dom).</p>
+  <p><strong>Volume planejado:</strong> 109 arremessos + o EXTRA opcional. <strong>Tempo programado:</strong> 70 min. <strong>Janela:</strong> 90 min (10h00–11h30).</p>
+  <p><strong>Encaixe da sexta:</strong> 8h30 acordar · ~8h40 matinal DIA A (~50 min) — o ISO do dia (lunge isométrico) é feito ANTES da praça, de propósito: analgesia de 2-8 h no tendão · 9h15 café + Colágeno Essential (dia de tendão) · <strong>10h00 TREINO A — janela dura 10h00–11h30</strong> · 11h30 carb-up (2 bananas + mel) · 11h45 GYM FB2 (agacho profundo 3 s, RDL, step-up, hip thrust, Nordic) · 13h30 almoço · 14h-18h AGES remoto.</p>
+  <p><strong>Consequências:</strong> a janela é fechada por relógio, não por tempo decorrido — às 11h05 o app avisa pra ir pro fechamento; às 11h20 bloqueia o EXTRA. Vem um treino de perna pesado 15 min depois: nada nesta sessão pode ser salto máximo (salto máximo é domingo, contado — aqui: zero). O total de tentativas do dia é <strong>carga de joelho</strong> e vai pro log (nota 06).</p>
+  <p><strong>Perfil:</strong> 1,96 m, ~107 kg. Tendinopatia patelar bilateral (esquerda pior), fáscia plantar. Auto-avaliação: 3PT 1/10, handle 4/10, midrange bem acima do 3. Alvo de linha: <strong>FIBA (6,75 m; 6,60 m nos cantos)</strong> — é a regra que a NBB usa.</p>
+  <p><strong>Modos (o seletor só mostra/esconde cards, nunca apaga dado):</strong> <strong>Completa</strong> — padrão da sexta, ~70 min + extra, tudo · <strong>Curta</strong> — sexta apertada, ~40 min: Bloco 1 reduzido (3 min, movimentos 1, 2 e 5), Bloco 2 só a volta 1, Bloco 5 inteiro (o benchmark permanece); some Bloco 3, Bloco 4 e EXTRA · <strong>Segunda</strong> — card «🔁 Sem Muay», ~45 min: Blocos 1, 2, 3-A e 5-B; some 3-B, 4, o Benchmark e o EXTRA. O benchmark é um por semana, sempre na sexta: rodar na segunda, em condição diferente, quebraria a série — segunda é volume de arremesso, não medição. Se o modo mudar no meio da sessão, o que já foi preenchido continua salvo e volta a aparecer se o modo voltar.</p>
+  <p><strong>Ordem de corte se o tempo apertar dentro da Completa:</strong> Bloco 3-B → Bloco 4 → 2ª volta do Bloco 2-B. <strong>Benchmark e lances livres nunca saem.</strong></p>
+  <p><strong>Avisos por relógio</strong> (11h05 «vá para o fechamento» · 11h20 o EXTRA some · 11h30 «fim da janela») só valem na sexta e fora do modo Segunda. Em qualquer outro dia — teste, modo Segunda — eles ficam desligados e vale só o tempo decorrido da sessão, que aparece no topo.</p>
+  <p><strong>Registro:</strong> acertos / tentativas por posição (o número à direita já vem com o padrão; só muda se o teste ficou incompleto), contadores e ✓ nos cards. O cinza é a última sessão. Tudo salva a cada toque. <strong>Encerrar treino de hoje</strong> guarda os números como referência cinza, grava o benchmark no histórico do protocolo escolhido e o 2-B no histórico de marcas, e zera a tela. <strong>Copiar resumo</strong> gera o texto no formato da nota 06 pra colar no Notes.</p>
+  <p><strong>Errou um toque?</strong> Toca no ✓ do card pra desmarcar; nos cards de sequência, o número do card volta um passo.</p>
+</details>
+
+<details class="notas">
+  <summary>Resumo do treino</summary>
+  <div id="resumoBody"></div>
+</details>
+
+<div id="app"></div>
+
+<div class="foot">
+  <div class="foot-btns">
+    <button class="reset" id="resetBtn" type="button">Encerrar treino de hoje</button>
+    <button class="copiar" id="copiarBtn" type="button">Copiar resumo</button>
+  </div>
+  <div class="savemsg" id="saveMsg"></div>
+  <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
+  <div>SEX · Basquete TREINO A v1 — antes: matinal Dia A · depois: carb-up 11h30 → GYM FB2 11h45</div>
+  <div>Matinal: <a href="../dia-a/">Dia A</a> · GYM: <a href="../gym-fb2/">FB2 sex</a> · <a href="../gym-fb1/">FB1 seg</a> · <a href="../quarta/">Quarta</a> · <a href="../">Completa</a></div>
+  <div class="vid-swap">Vídeos: V6 era uma página do jr.nba.com (não vídeo) → trocado pelo vídeo do mesmo drill no canal Jr. NBA («Stationary Crossover Drill»). V10 não existia → «25 Second Drill (4 Full Court Layups)», Teach Hoops, + «Chris Paul Full Court Dribbling Drill», Pro Training. Todos os 11 links validados via oEmbed em 10/09/2026.</div>
+</div>
+<!-- TODO v2 (fora de escopo, não implementar agora): recepção em hop (hoje só entrada 1-2) · relocação/deslocamento antes da recepção · arremesso sob fadiga controlada · 3ª volta como volume fixo · handle estacionário diário em casa (fora do app). -->
+
+<script>
+// ===================== DADOS =====================
+var BLOCOS = [
+  { id:'b1', cor:'#94a3b8', nav:'1 · Prep',      titulo:'BLOCO 1 — PREPARAÇÃO',       sub:'5 min · 5 movimentos × 1 min · na Curta: 3 min' },
+  { id:'b2', cor:'#f59e0b', nav:'2 · Arremesso', titulo:'BLOCO 2 — ARREMESSO',        sub:'25 min · 58 tentativas · calibração → construção do 3PT' },
+  { id:'b3', cor:'#22d3ee', nav:'3 · Handle',    titulo:'BLOCO 3 — HANDLE FUNCIONAL', sub:'15 min · estacionário → em movimento' },
+  { id:'b4', cor:'#fb7185', nav:'4 · Pull-up',   titulo:'BLOCO 4 — DRIBLE → CHUTE',   sub:'10 min · 16 tentativas · 4 séries de 4' },
+  { id:'b5', cor:'#a78bfa', nav:'5 · Fecho',     titulo:'BLOCO 5 — FECHAMENTO',       sub:'15 min · benchmark 25 + lances livres 10 · nunca saem' },
+  { id:'ex', cor:'#f87171', nav:'Extra',         titulo:'EXTRA — SPRINTS COM BOLA',   sub:'6–8 min · opcional · não conta como falha' },
+  { id:'hj', cor:'#94a3b8', nav:'Hoje',          titulo:'COMO FOI HOJE',              sub:'preenche no fim — entra no resumo e no histórico do benchmark' }
+];
+
+// Card: steps (✓ marcar / timer por timestamp), ui (campos na ordem: go · spots · cnt · txt · seg · nota · trav · bench · calc),
+// modos (onde aparece; ausente = todos), filtraCurta (steps com c:true na Curta), auto (timer encadeia o próximo passo).
+var DATA = [
+{ id:'prep', b:'b1', num:'1', name:'Preparação', img:'img/v_I7rv7wwLa8Q.jpg',
+  chips:['5 min','5 × 1 min'], eq:'Curta: só 1, 2 e 5 (3 min)', filtraCurta:true, auto:true,
+  cue:'Preparar tornozelos, pernas e deslocamentos. <b>Terminar solto</b>, não transformar em condicionamento. Dor num movimento → para aquele movimento.',
+  steps:[
+    { t:'1 · Mobilidade de tornozelo, joelho avançando controlado', s:60, c:true },
+    { t:'2 · Caminhada em agachamento, amplitude confortável', s:60, c:true },
+    { t:'3 · Passadas alternadas, começando lento', s:60 },
+    { t:'4 · Deslocamento leve em galope', s:60 },
+    { t:'5 · Deslocamento com bola, subindo o ritmo gradual', s:60, c:true } ],
+  ui:[ { t:'go' } ],
+  desc:'<p><strong>Objetivo:</strong> preparar tornozelos, pernas e deslocamentos.</p><p><strong>Volume:</strong> uma sequência de 5 movimentos, 1 min cada. Timer de 5 min — o minuto seguinte começa sozinho quando o anterior termina.</p><ol><li>Mobilidade de tornozelo, joelho avançando controlado — 1 min</li><li>Caminhada em agachamento, amplitude confortável — 1 min</li><li>Passadas alternadas, começando lento — 1 min</li><li>Deslocamento leve em galope — 1 min</li><li>Deslocamento com bola, subindo o ritmo gradual — 1 min</li></ol><p><strong>Foco:</strong> terminar solto, não transformar em condicionamento.</p><p><strong>Ajuste:</strong> reduzir amplitude e velocidade quando necessário. Dor num movimento → para aquele movimento.</p><p><strong>No modo Curta:</strong> só os movimentos 1, 2 e 5 (3 min).</p><p><strong>Registro:</strong> o ✓ do card.</p>',
+  links:[ { t:'5 Minute Warmup for Hoopers (By Any Means Basketball)', u:'https://www.youtube.com/watch?v=I7rv7wwLa8Q' } ] },
+
+{ id:'calib', b:'b2', num:'2-A', name:'Calibração', img:'img/v_zFZEqPFnhPA.jpg',
+  chips:['5 min','18 tentativas'], eq:'~1 a 1,5 m do aro · sem % pra bater',
+  cue:'Calibrar a soltura antes de qualquer coisa. Observa <b>um</b> ajuste técnico por série, não cinco.',
+  steps:[ { t:'Só mão direita · 3 de frente + 3 pelo lado E + 3 pelo D · 9' }, { t:'Acrescentando a mão de apoio · os três ângulos · 9' } ],
+  ui:[ { t:'go' },
+       { t:'cnt', lab:'uma mão', ks:[ { k:'calib_1m' } ], den:9 },
+       { t:'cnt', lab:'com apoio', ks:[ { k:'calib_ap' } ], den:9 } ],
+  desc:'<p><strong>Objetivo:</strong> calibrar a soltura antes de qualquer coisa. Sem % pra bater.</p><p><strong>Distância:</strong> ~1 a 1,5 m do aro.</p><p><strong>Organização:</strong> só mão direita — 3 de frente + 3 pelo lado esquerdo + 3 pelo direito (9) · acrescentando a mão de apoio — repetir os três ângulos (9). Total 18.</p><p><strong>Como executar</strong></p><ol><li>Bola na mão de arremesso.</li><li>Primeira série: esquerda fora da bola.</li><li>Segunda série: esquerda entra como apoio lateral.</li><li>Coordena perna e braço, termina equilibrado.</li><li>Observa <strong>um</strong> ajuste técnico por série, não cinco.</li></ol><p><strong>Pontos técnicos:</strong> soltura confortável · mão de apoio estável · movimento repetível.</p><p><strong>Erros comuns:</strong> empurrar com o polegar esquerdo · desequilibrar · precisar de força mesmo de perto.</p><p><strong>Regressão:</strong> chegar mais perto. <strong>Progressão:</strong> afastar discretamente na etapa com apoio, mantendo 18 tentativas.</p>',
+  links:[ { t:'One-Hand Shooting Drill with Allan Houston (Jr. NBA)', u:'https://www.youtube.com/watch?v=zFZEqPFnhPA' },
+          { t:'Form Shooting — 2 Hands, mão de apoio (Jr. NBA)', u:'https://www.youtube.com/watch?v=7OT3vgmBnhA' } ] },
+
+{ id:'cs', b:'b2', num:'2-B', name:'Construção do 3PT (catch-and-shoot)', img:'img/v_ecPyYg53Rw8.jpg',
+  chips:['20 min','2 voltas × 5 posições × 4 = 40'], eq:'~1 m pra dentro da linha FIBA · marca as posições', filtraCurta:true,
+  badge:['BLOCO CENTRAL','#f59e0b'],
+  cue:'Autopasse com giro (<i>spin-out</i>) → recepção → arremesso, <b>sem drible</b>. Ordem fixa: Canto E → Ala E → Topo → Ala D → Canto D (olhando pra cesta).',
+  steps:[ { t:'Volta 1 · 5 posições × 4 · 20 bolas', c:true }, { t:'Volta 2 · 5 posições × 4 · 20 bolas' } ],
+  ui:[ { t:'go' },
+       { t:'spots', g:'cs_v1', lab:'Volta 1 · acertos / tentativas', den:4, m:{ k:'cs_m1', lab:'marcas / distância v1', ph:'ex.: −1 m da linha' } },
+       { t:'spots', g:'cs_v2', lab:'Volta 2 · acertos / tentativas', den:4, modos:['completa','segunda'], m:{ k:'cs_m2', lab:'marcas / distância v2', ph:'igual v1, ou −50 cm' } },
+       { t:'trav' },
+       { t:'nota', h:'<b>Adaptação na sessão:</b> até 5/20 na 1ª volta → aproxima ~50 cm na 2ª · forçando a mecânica → aproxima antes de terminar a volta. <b>Margem convertível (opcional):</b> sobrou tempo no bloco? Roda uma 3ª volta de 5×4. Não é meta — é só pra sobra virar arremesso em vez de tempo parado.' } ],
+  desc:'<p><strong>Este é o bloco central da sessão.</strong> O catch-and-shoot é a forma de construir o chute de três — não é um drill separado do 3PT.</p><p><strong>Exercício:</strong> autopasse com giro (<em>spin-out</em>) → recepção → arremesso, sem drible.</p><p><strong>Volume:</strong> 2 voltas × 5 posições × 4 tentativas = 40. <strong>Ordem fixa:</strong> Canto E → Ala E → Topo → Ala D → Canto D (esquerda/direita olhando para a cesta).</p><p><strong>Como executar</strong></p><ol><li>Começa um pouco atrás da posição.</li><li>Lança a bola com giro pra ela quicar à frente.</li><li>Avança pra receber, pés numa entrada 1-2 confortável.</li><li>Arremessa sem driblar.</li><li>Busca o rebote e volta.</li></ol><p><strong>Distância inicial:</strong> ~1 m para dentro da linha FIBA, ajustando pro alcance confortável. Se já executa de trás da linha sem forçar, trabalha nela. <strong>Marcar as posições</strong> e registrar quanto estão para dentro da linha.</p><p><strong>Pontos técnicos:</strong> mãos e pés preparados na recepção · conectar recepção e subida · equilíbrio e soltura repetível.</p><p><strong>Erros comuns:</strong> autopasse longe demais · passos extras · pausa longa depois de receber · esforço exagerado pra bola chegar.</p><p><strong>Adaptação dentro da própria sessão</strong></p><ul><li>Execução consistente → mantém a distância, mesmo errando algumas.</li><li><strong>Até 5/20 na 1ª volta</strong> → aproxima ~50 cm na 2ª.</li><li>Forçando a mecânica repetidamente → aproxima antes de terminar a volta.</li><li>Distâncias diferentes nas duas voltas → registrar separado (campo de marcas por volta).</li></ul><p><strong>Critério de progressão de distância:</strong> <strong>20/40 ou mais em duas sessões consecutivas</strong>, nas mesmas marcas e sem compensações persistentes → avança ~25 cm, até chegar à linha FIBA. Critério de trabalho desta ficha, não referência universal.</p><p><strong>Regra do travamento:</strong> 6 sessões na mesma marca sem bater o critério → o problema não é distância, é mecânica. O app mostra o aviso <em>«Travado há 6 sessões nesta marca — filma 5 bolas de perfil e leva pro personal da terça»</em>. Só isso. Sem bloquear nada. (Escreve a marca da volta 1 sempre do mesmo jeito, ex.: «−1 m», pro app reconhecer que é a mesma.)</p><p><strong>Margem convertível (opcional):</strong> se sobrar tempo no bloco, roda uma 3ª volta de 5×4. Não é meta — é só pra sobra virar arremesso em vez de tempo parado.</p><p><strong>No modo Curta:</strong> só a volta 1.</p>',
+  links:[ { t:'5 Must-Know Catch & Shoot Drills (Breakthrough Basketball)', u:'https://www.youtube.com/watch?v=ecPyYg53Rw8' } ] },
+
+{ id:'est', b:'b3', num:'3-A', name:'Controle estacionário', img:'img/v_5NGuEN0OHys.jpg',
+  chips:['5 min','2 voltas × 3 estações','40 s + 10 s'], eq:'meta: até 2 perdas por série', modos:['completa','segunda'], auto:true,
+  cue:'Olhar predominantemente <b>levantado</b> · postura confortável · domínio do retorno. Perda = precisou interromper pra buscar a bola.',
+  steps:[
+    { t:'V1 · Pound dribble direita', s:40 }, { t:'troca', s:10 },
+    { t:'V1 · Pound dribble esquerda', s:40 }, { t:'troca', s:10 },
+    { t:'V1 · Crossover pela frente', s:40 }, { t:'troca', s:10 },
+    { t:'V2 · Pound dribble direita', s:40 }, { t:'troca', s:10 },
+    { t:'V2 · Pound dribble esquerda', s:40 }, { t:'troca', s:10 },
+    { t:'V2 · Crossover pela frente', s:40 } ],
+  ui:[ { t:'go' },
+       { t:'cnt', lab:'perdas v1 · D / E / cross', ks:[ { k:'est_v1_1' }, { k:'est_v1_2' }, { k:'est_v1_3' } ], sep:'/' },
+       { t:'cnt', lab:'perdas v2 · D / E / cross', ks:[ { k:'est_v2_1' }, { k:'est_v2_2' }, { k:'est_v2_3' } ], sep:'/' } ],
+  desc:'<p>Progressão deliberada: <strong>estacionário → em movimento</strong>. O estacionário é o alfabeto; sem ele o drible em movimento não tem base.</p><p><strong>Formato:</strong> 2 voltas no circuito. Cada estação: <strong>40 s de execução + 10 s de pausa/troca</strong>. Timer por estação — encadeado: a troca de 10 s e a estação seguinte começam sozinhas.</p><ol><li>Pound dribble direita</li><li>Pound dribble esquerda</li><li>Crossover pela frente</li></ol><p><strong>Pound:</strong> quicar com firmeza ao lado do corpo, controlando o retorno. <strong>Crossover:</strong> transferir a bola de uma mão à outra pela frente.</p><p><strong>Pontos técnicos:</strong> olhar predominantemente levantado · postura confortável · domínio do retorno.</p><p><strong>Métrica:</strong> <strong>perdas por série</strong> — conta quando precisa interromper pra buscar a bola. <strong>Meta inicial:</strong> até 2 perdas por série de 40 s, em ritmo desafiador, sem olhar pra bola o tempo todo.</p><p><strong>Regressão:</strong> diminuir a velocidade. <strong>Progressão:</strong> subir a cadência depois de 2 sessões estáveis, mesmos movimentos.</p>',
+  links:[ { t:'Stationary Pound Dribble Drill (Jr. NBA)', u:'https://www.youtube.com/watch?v=5NGuEN0OHys' },
+          { t:'Stationary Crossover Drill (Jr. NBA)', u:'https://www.youtube.com/watch?v=fuCNf4nmDpM' } ] },
+
+{ id:'ritmo', b:'b3', num:'3-B', name:'Mudança de ritmo', img:'img/v_0Wwv5nDpL6k.jpg',
+  chips:['10 min','12 percursos','6 D · 6 E'], eq:'hesitation → aceleração, mesma mão', modos:['completa'],
+  cue:'Contraste claro entre lento e rápido · acelera o corpo <b>junto</b> com a bola · mão sem apoiar por baixo na hesitação.',
+  steps:[ { t:'Percursos 1–6 · alterna D/E a cada percurso' }, { t:'Pausa breve' }, { t:'Percursos 7–12 · alterna D/E a cada percurso' } ],
+  ui:[ { t:'go' },
+       { t:'cnt', lab:'percursos sem perda · direita', ks:[ { k:'ritmo_d' } ], den:6, arr:false },
+       { t:'cnt', lab:'percursos sem perda · esquerda', ks:[ { k:'ritmo_e' } ], den:6, arr:false } ],
+  desc:'<p><strong>Exercício:</strong> hesitation → aceleração, mantendo a mesma mão.</p><p><strong>Volume:</strong> 12 percursos — <strong>6 com a direita, 6 com a esquerda</strong>, alternando a cada percurso. Pausa breve depois de 6 percursos.</p><p><strong>Uma repetição</strong></p><ol><li>Sai da linha de fundo em direção à meia quadra.</li><li>Dois dribles em ritmo controlado.</li><li>Desacelera brevemente.</li><li>Acelera por 2-3 dribles.</li><li>Repete a mudança de ritmo se tiver espaço.</li><li>Volta caminhando.</li></ol><p><strong>Pontos técnicos:</strong> contraste claro entre lento e rápido · acelerar o corpo junto com a bola · mão sem apoiar por baixo durante a hesitação.</p><p><strong>Erros comuns:</strong> tudo na mesma velocidade · deixar a bola pra trás · virar corrida contínua.</p><p><strong>Meta:</strong> completar com contraste real e controle.</p><p><strong>Regressão:</strong> uma mudança de ritmo por percurso. <strong>Progressão:</strong> mais aceleração mantendo controle; depois, acrescentar o crossover após a hesitação.</p>',
+  links:[ { t:'How to Do a Change-of-Pace Dribble (Jason Curry / Howcast)', u:'https://www.youtube.com/watch?v=0Wwv5nDpL6k' } ] },
+
+{ id:'pull', b:'b4', num:'4', name:'Drible → chute (pull-up)', img:'img/v_Auzwv0cDHIc.jpg',
+  chips:['10 min','4 séries × 4 = 16'], eq:'autopasse → finta curta → UM drible → pull-up', modos:['completa'],
+  cue:'Deslocamento real · controle na parada · equilíbrio pra subir. Criação pra esquerda = drible com a esquerda; <b>o arremesso continua com a mão habitual</b>.',
+  steps:[ { t:'S1 · Direita · 4' }, { t:'S2 · Esquerda · 4' }, { t:'S3 · Direita · 4' }, { t:'S4 · Esquerda · 4' } ],
+  ui:[ { t:'go' },
+       { t:'cnt', lab:'direita', ks:[ { k:'pull_d' } ], den:8 },
+       { t:'cnt', lab:'esquerda', ks:[ { k:'pull_e' } ], den:8 },
+       { t:'cnt', lab:'erros de controle / apoio', ks:[ { k:'pull_err' } ] } ],
+  desc:'<p><strong>Objetivo:</strong> conectar os dois pilares da sessão numa ação só.</p><p><strong>Exercício:</strong> autopasse → finta curta → <strong>um</strong> drible → pull-up. <strong>Volume:</strong> 4 séries de 4 — S1 direita · S2 esquerda · S3 direita · S4 esquerda = 8 por lado = 16.</p><p><strong>Posição inicial:</strong> região central, fora do garrafão, numa distância que permita terminar com arremesso confortável de média.</p><p><strong>Como executar</strong></p><ol><li>Recebe o autopasse e estabelece base equilibrada.</li><li>Finta curta de arremesso.</li><li>Inicia o drible sem levantar o pé de pivô antes de soltar a bola.</li><li>Um drible para o lado escolhido.</li><li>Reúne a bola, controla a parada, arremessa.</li></ol><p>Criação pra esquerda → drible com a esquerda. <strong>O arremesso continua com a mão habitual.</strong></p><p><strong>Pontos técnicos:</strong> deslocamento real · controle na parada · equilíbrio pra subir.</p><p><strong>Erros comuns:</strong> driblar quase parado · precisar de um segundo drible · chegar no chute sem conseguir frear.</p><p><strong>Meta:</strong> cumprir as 16 com a mesma ação e comparar os dois lados.</p><p><strong>Regressão:</strong> menos velocidade, deslocamento mais curto. <strong>Progressão:</strong> mais velocidade depois de completar as 4 séries sem perda de controle nem passos extras. <strong>Mantém um drible.</strong></p>',
+  links:[ { t:'The Shot Fake 1-Dribble Pull-Up Drill (C.J. McCollum / Jr. NBA)', u:'https://www.youtube.com/watch?v=Auzwv0cDHIc' } ] },
+
+{ id:'bench', b:'b5', num:'5-A', name:'Benchmark', img:'img/v_ecPyYg53Rw8.jpg',
+  chips:['~10 min','5 posições × 5 = 25'], eq:'90 s de pausa antes · não reiniciar', modos:['completa','curta'],
+  badge:['1×/SEMANA · SEXTA','#a78bfa'],
+  cue:'Fica no <b>fim de propósito</b>: arremesso de 3 em jogo acontece com perna cansada. Conta <b>todas</b> as bolas, inclusive as de recepção ruim. Pisou na linha (FIBA) = falha.',
+  steps:[ { t:'Pausa obrigatória antes do teste', s:90 }, { t:'25 bolas · CE → AE → TP → AD → CD · autopasse, sem drible' } ],
+  ui:[ { t:'seg', k:'bench_proto', lab:'Protocolo', opts:['FIBA 25','Referência 25'] },
+       { t:'go' },
+       { t:'spots', g:'bench', lab:'acertos / tentativas', den:5 },
+       { t:'seg', k:'bench_flag', lab:'Teste', opts:['completo','incompleto'] },
+       { t:'txt', k:'bench_marcas', lab:'marcas do teste reduzido', ph:'só na Referência 25' },
+       { t:'bench' } ],
+  desc:'<p><strong>Decisão registrada: o benchmark fica no FIM, de propósito.</strong> Arremesso de 3 em jogo acontece com perna cansada; medir fresco mediria uma condição que não existe em quadra. O custo — comparabilidade — é compensado registrando o contexto: duração real da sessão, esforço percebido e blocos incompletos (no «Como foi hoje»), que entram no histórico junto com o resultado.</p><p><strong>Teste:</strong> 5 posições × 5 tentativas = 25.</p><p><strong>Protocolo fixo (o app conduz)</strong></p><ol><li><strong>90 s de pausa</strong> antes de começar — timer dedicado, não pular.</li><li>Mesma cesta e mesmas marcas sempre que possível.</li><li>Ordem: Canto E → Ala E → Topo → Ala D → Canto D.</li><li>5 tentativas por posição, autopasse, sem drible.</li><li>Conta <strong>todas</strong> as bolas arremessadas, inclusive as de recepção ruim.</li><li>No FIBA 25, pisar na linha conta como falha — anota a ocorrência.</li><li><strong>Não reiniciar pra substituir um resultado ruim.</strong></li></ol><p><strong>Dois protocolos separados, nunca misturados no histórico:</strong></p><ul><li><strong>FIBA 25</strong> — na linha oficial.</li><li><strong>Referência 25 — distância reduzida</strong> — 5 marcas mais próximas e <strong>fixas</strong>, usado enquanto a linha FIBA ainda exigir lançamento forçado. Mantém as mesmas marcas nas aplicações seguintes.</li></ul><p>Quando conseguir executar na linha, <strong>inicia o histórico FIBA 25 do zero</strong>. Os dois históricos convivem, separados.</p><p><strong>Se estourar o tempo:</strong> registra <strong>incompleto</strong> com o número real de tentativas (muda o número à direita da barra na posição que ficou pela metade). Não corre pra cumprir cadência artificial.</p><p><strong>Leitura do resultado:</strong> em 25 bolas, <strong>um acerto move 4 pontos percentuais</strong>. Semana solta não significa nada. <strong>A leitura oficial é a média móvel de 4 sessões (100 bolas).</strong></p><p><strong>Um por semana, sempre na sexta.</strong> No modo Segunda ele some: rodar em condição diferente (depois do Muay ou de nada, emendando no FB1) quebraria a série. Segunda é volume de arremesso, não medição.</p>',
+  links:[ { t:'5 Must-Know Catch & Shoot Drills (Breakthrough Basketball) — mesmo vídeo do 2-B: demonstra o movimento; a organização em 25 é protocolo desta ficha', u:'https://www.youtube.com/watch?v=ecPyYg53Rw8' } ] },
+
+{ id:'ll', b:'b5', num:'5-B', name:'Lances livres', img:'img/v_lnuZNZPDvaY.jpg',
+  chips:['5 min','2 × 5 = 10'], eq:'~30 s entre as séries',
+  cue:'Mesma preparação antes de cada bola: dribles habituais, respiração, ponto de atenção. <b>Termina em 10</b>, independente dos acertos.',
+  steps:[ { t:'1ª série · 5 lances' }, { t:'pausa entre as séries', s:30 }, { t:'2ª série · 5 lances' } ],
+  ui:[ { t:'go' },
+       { t:'cnt', lab:'1ª série', ks:[ { k:'ll_1' } ], den:5 },
+       { t:'cnt', lab:'2ª série', ks:[ { k:'ll_2' } ], den:5 },
+       { t:'calc', id:'llTot', lab:'total' } ],
+  desc:'<p><strong>Volume:</strong> 2 séries de 5, ~30 s entre elas.</p><ul><li>Mesma preparação antes de cada bola.</li><li>Dribles habituais, respiração, ponto de atenção.</li><li>Busca o rebote e volta.</li><li>Termina em 10, independente dos acertos.</li></ul><p><strong>Meta:</strong> executar a rotina nas 10 e acompanhar o aproveitamento.</p><p><strong>Progressão:</strong> superar a média recente mantendo a mesma rotina e o mesmo volume.</p><p><strong>Lances livres nunca saem</strong> — nem no corte de tempo, nem na Curta, nem na Segunda.</p>',
+  links:[ { t:'Fundamentals Of The Free Throw (Megan Griffith / Jr. NBA)', u:'https://www.youtube.com/watch?v=lnuZNZPDvaY' } ] },
+
+{ id:'sprint', b:'ex', num:'EX', name:'Sprints explosivos com bola', img:'img/v_FMr6okonZWA.jpg',
+  chips:['6–8 min','6 subidas','70 → 85 → 95%'], eq:'descanso completo 60–90 s entre subidas', modos:['completa'], extra:true,
+  badge:['EXTRA · OPCIONAL','#f87171'],
+  cue:'Velocidade com bola em rampa, <b>sem salto máximo</b> (salto máximo é domingo, contado). Fim de cada subida: parada e arremesso curto <b>ou</b> bandeja em ritmo controlado.',
+  steps:[ { t:'2 subidas a ~70% · descanso completo 60–90 s' }, { t:'2 subidas a ~85% · descanso completo 60–90 s' }, { t:'2 subidas a ~95% · descanso completo 60–90 s' } ],
+  ui:[ { t:'nota', h:'<b>Portões (o app esconde o card se um falhar):</b> joelho de manhã ≤ 3 (regra das 24 h) · relógio ≤ 11h20 na sexta — 11h30 é carb-up, 11h45 o FB2. <b>Terceiro portão, manual:</b> teve atlética na quinta 22h30 → pula o extra.' },
+       { t:'go' },
+       { t:'cnt', lab:'subidas', ks:[ { k:'sprint_n' } ], den:6, arr:false },
+       { t:'seg', k:'sprint_nao', opts:['não fiz hoje'], toggle:true } ],
+  desc:'<p><strong>Card EXTRA.</strong> Não faz parte do volume planejado. Se tiver energia, faz. Se não, deixa e não conta como falha.</p><p><strong>Justificativa:</strong> contra-ataque é situação real de jogo e vale treinar.</p><p><strong>Objetivo:</strong> velocidade com bola em rampa de intensidade, sem salto máximo.</p><p><strong>Volume:</strong> 6 subidas de quadra com bola, em rampa: 2 a ~70% → 2 a ~85% → 2 a ~95%. Descanso completo entre subidas (60-90 s).</p><p><strong>Fim de cada subida:</strong> parada e arremesso curto <strong>ou</strong> bandeja em ritmo controlado. <strong>Nunca bandeja com salto máximo</strong> — salto máximo é domingo, contado.</p><p><strong>Dois portões (o app esconde o card se qualquer um falhar):</strong></p><ol><li><strong>Joelho da manhã ≤ 3</strong> (regra das 24 h — o campo no topo da tela).</li><li><strong>Relógio ≤ 11h20.</strong> Depois disso o card some: às 11h30 tem carb-up e às 11h45 o FB2.</li></ol><p><strong>Terceiro portão manual (aviso, sem lógica):</strong> se teve atlética na quinta 22h30, pula o extra.</p><p><strong>Vídeos:</strong> o primeiro mostra subidas de quadra inteira com bola terminando em bandeja (aqui: ritmo controlado, sem salto máximo, e com descanso completo entre subidas — não é o formato de condicionamento do vídeo); o segundo é controle de bola em velocidade na quadra inteira.</p>',
+  links:[ { t:'25 Second Drill — 4 Full Court Layups (Teach Hoops)', u:'https://www.youtube.com/watch?v=FMr6okonZWA' },
+          { t:'Chris Paul Full Court Dribbling Drill (Pro Training Basketball)', u:'https://www.youtube.com/watch?v=ZSXcxOYDfgk' } ] }
+];
+
+var FORM = [
+  { id:'esforco',     t:'Esforço percebido (0–10)',                          k:'num' },
+  { id:'duracao',     t:'Duração real (min) — em branco, o app calcula',      k:'num' },
+  { id:'incompletos', t:'Blocos incompletos — em branco, o app lista os cards sem ✓', k:'txt' },
+  { id:'dor',         t:'Dor/desconforto',                                    k:'txt' },
+  { id:'ajuste',      t:'Ajuste que funcionou',                               k:'txt' },
+  { id:'dificuldade', t:'Dificuldade principal',                              k:'txt' },
+  { id:'proxima',     t:'Ênfase pra próxima',                                 k:'txt' }
+];
+
+// ===================== APP =====================
+(function () {
+  var KEY = 'basquete_sexta_a_v1';
+  var SPOTS = [['ce','Canto E'],['ae','Ala E'],['tp','Topo'],['ad','Ala D'],['cd','Canto D']];
+  var MODOS = { completa:'Completa', curta:'Curta', segunda:'Segunda' };
+  var MODO_DESC = {
+    completa:'padrão da sexta · ~70 min + extra · tudo',
+    curta:'sexta apertada · ~40 min · Bloco 1 em 3 min, Bloco 2 só volta 1, Bloco 5 inteiro (benchmark fica) · sem 3, 4 e EXTRA',
+    segunda:'card «🔁 Sem Muay» · ~45 min · Blocos 1, 2, 3-A e 5-B · sem 3-B, 4, benchmark (é 1×/semana, sempre na sexta) e EXTRA · avisos por relógio desligados'
+  };
+  function rotuloModo(m) { return MODOS[m] || 'Completa'; }
+  var app = document.getElementById('app');
+  var byId = {};
+  DATA.forEach(function (e) { byId[e.id] = e; });
+
+  // ---------- estado ----------
+  function hoje() {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+  var DIA_CARREGADO = hoje();
+  var DIA_SEMANA = new Date().getDay();  // congelado no load (a virada de dia recarrega a página)
+  function modoPadrao() { return DIA_SEMANA === 1 ? 'segunda' : 'completa'; }
+  function estadoVazio() { return { d: hoje(), vals: {}, steps: {}, modo: modoPadrao(), t0: null, t1: null, av: {}, travOk: false }; }
+  var state = estadoVazio();
+  var ant = { d: null, vals: {} };
+  var bench = { fiba: [], ref: [], sem: [] };  // histórico do benchmark, uma série por protocolo — nunca misturadas ('sem' = sem protocolo, fora da média)
+  var h2b = [];                       // últimas sessões do 2-B (marca da volta 1 + totais) pro aviso de travamento
+  // arquivar: os valores digitados viram a referência cinza. É a ÚNICA função de promoção —
+  // usada na virada de dia (load) e no botão Encerrar. Campos vazios são ignorados; sem nenhum
+  // valor real não mexe em nada (nem na data). Merge: campo não preenchido herda a referência anterior.
+  function arquivar(vals, d) {
+    var limpo = {}, n = 0;
+    Object.keys(vals || {}).forEach(function (k) {
+      var v = vals[k];
+      if (v != null && String(v).trim() !== '') { limpo[k] = v; n++; }
+    });
+    if (!n || !d) return false;
+    // vals = referência mesclada (campo em branco herda); ult = só os valores desta sessão (pro Copiar resumo)
+    // mesma data = continuação da sessão (ex.: questionário preenchido depois de Encerrar): ult acumula
+    var mesmoDia = ant && ant.d === d;
+    ant = { d: d, vals: Object.assign({}, (ant && ant.vals) || {}, limpo), ult: mesmoDia ? Object.assign({}, ant.ult || {}, limpo) : limpo };
+    return true;
+  }
+  // ---------- histórico próprio (benchmark por protocolo + marcas do 2-B) ----------
+  function temValor(v) { return v != null && String(v).trim() !== ''; }
+  function tentativas(vals, k, den) { var t = vals[k + '_t']; return temValor(t) && +t > 0 ? +t : den; }
+  // soma acertos/tentativas de um grupo de 5 posições; só conta posição com acertos preenchidos
+  function spotSoma(vals, g, den) {
+    var ac = 0, at = 0, n = 0;
+    SPOTS.forEach(function (sp) {
+      var k = g + '_' + sp[0];
+      if (temValor(vals[k])) { var t = tentativas(vals, k, den); ac += Math.max(0, Math.min(+vals[k] || 0, t)); at += t; n++; }
+    });
+    return { ac: ac, at: at, n: n };
+  }
+  function normMarca(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+  function protoKey(vals) {
+    if (vals.bench_proto === 'Referência 25') return 'ref';
+    if (vals.bench_proto === 'FIBA 25') return 'fiba';
+    return null;
+  }
+  function protoUltimo() {
+    var a = bench.fiba[bench.fiba.length - 1], b = bench.ref[bench.ref.length - 1];
+    if (!a && !b) return null;
+    if (!a) return 'ref';
+    if (!b) return 'fiba';
+    return a.d >= b.d ? 'fiba' : 'ref';
+  }
+  function nomeProto(k) { return k === 'ref' ? 'Referência 25' : (k === 'sem' ? 'Sem protocolo (fora da média)' : 'FIBA 25'); }
+  function marcaEfetiva(vals) {
+    if (temValor(vals.cs_m1)) return String(vals.cs_m1).trim();
+    var u = h2b[h2b.length - 1];
+    return u && u.m1 ? u.m1 : '';
+  }
+  function entrada2b(vals, d) {
+    var v1 = spotSoma(vals, 'cs_v1', 4), v2 = spotSoma(vals, 'cs_v2', 4);
+    if (!v1.n && !v2.n) return null;
+    return { d: d, a1: v1.ac, t1: v1.at, a2: v2.ac, t2: v2.at, m1: marcaEfetiva(vals), m2: String(vals.cs_m2 || '').trim() };
+  }
+  function entradaBench(vals, d, modo) {
+    var s = spotSoma(vals, 'bench', 5);
+    if (!s.n) return null;
+    var flag = vals.bench_flag === 'incompleto' || vals.bench_flag === 'completo' ? vals.bench_flag : (s.n === 5 && s.at === 25 ? 'completo' : 'incompleto');
+    return { d: d, modo: modo,
+      spots: SPOTS.map(function (sp) { var k = 'bench_' + sp[0]; if (!temValor(vals[k])) return null; var t = tentativas(vals, k, 5); return [Math.max(0, Math.min(+vals[k] || 0, t)), t]; }),
+      ac: s.ac, at: s.at, pct: Math.round(s.ac / s.at * 100), flag: flag,
+      dur: temValor(vals.hj_duracao) ? +vals.hj_duracao : null,
+      esf: temValor(vals.hj_esforco) ? +vals.hj_esforco : null,
+      inc: String(vals.hj_incompletos || '').trim(),
+      marcas: String(vals.bench_marcas || '').trim() };
+  }
+  // média móvel das últimas 4 entradas (100 bolas): soma de acertos / soma de tentativas
+  function mm4(lista) {
+    var u = lista.slice(-4), ac = 0, at = 0;
+    u.forEach(function (x) { ac += x.ac; at += x.at; });
+    return at ? { pct: Math.round(ac / at * 100), n: u.length, ac: ac, at: at } : null;
+  }
+  function registrarHist(vals, d, modo) {
+    var e2 = entrada2b(vals, d);
+    if (e2) {
+      h2b = h2b.filter(function (x) { return x.d !== d; });
+      h2b.push(e2);
+      if (h2b.length > 10) h2b = h2b.slice(-10);
+    }
+    var eb = entradaBench(vals, d, modo);
+    if (eb) {
+      var pk = protoKey(vals) || 'sem';  // sem protocolo (virada de dia sem Encerrar) = série própria, nunca entra na média
+      var lista = bench[pk].filter(function (x) { return x.d !== d; });
+      lista.push(eb);
+      if (lista.length > 16) lista = lista.slice(-16);
+      var m = pk === 'sem' ? null : mm4(lista);
+      eb.mm4 = m ? m.pct : null;
+      bench[pk] = lista;
+    }
+  }
+  // cards visíveis naquele modo (e com aquele joelho) que ficaram sem ✓ — sugestão de "blocos incompletos"
+  function incompletosDe(p) {
+    return DATA.filter(function (e) {
+      return e.id !== 'sprint' && visivelEm(e, p.modo || 'completa', p.vals || {}, true) && !(((p.steps || {})[e.id] || {}).done);
+    }).map(function (e) { return e.num; });
+  }
+  // a sessão teve treino de verdade? (algum card tocado ou campo de card preenchido — cabeçalho e questionário não contam)
+  function sessaoTeveTreino(p) {
+    var st = p.steps || {}, vals = p.vals || {};
+    return Object.keys(st).some(function (k) { return st[k] && (st[k].done || st[k].i > 0); }) ||
+      Object.keys(vals).some(function (k) { return !/^(hdr_|hj_)/.test(k) && temValor(vals[k]); });
+  }
+  // fecha uma sessão (virada de dia ou botão Encerrar): completa duração/incompletos, arquiva e registra histórico.
+  // Só questionário preenchido depois do Encerrar (mesmo dia) NÃO recalcula incompletos/duração: o ult acumula o que já foi arquivado.
+  function fecharSessao(p) {
+    var vals = Object.assign({}, p.vals || {});
+    if (!sessaoTeveTreino(p)) {
+      // dia sem treino (só cabeçalho e/ou questionário): cabeçalho vira referência cinza, questionário entra na ÚLTIMA sessão real.
+      // Nunca vira "sessão" — senão a etiqueta e o Copiar resumo apontariam pra um dia vazio.
+      var hdr = {}, hj = {};
+      Object.keys(vals).forEach(function (k) {
+        if (!temValor(vals[k])) return;
+        if (k.indexOf('hdr_') === 0) hdr[k] = vals[k]; else if (k.indexOf('hj_') === 0) hj[k] = vals[k];
+      });
+      ant.vals = Object.assign({}, ant.vals || {}, hdr, hj);
+      if (ant.d && ant.ult && Object.keys(hj).length) {
+        ant.ult = Object.assign({}, ant.ult, hj);
+        registrarHist(ant.ult, ant.d, ant.modo || 'completa');
+      }
+      return false;
+    }
+    var cont = ant.d === p.d ? (ant.ult || {}) : null;  // mesmo dia = continuação da sessão já arquivada
+    if (!temValor(vals.hj_duracao) && !(cont && temValor(cont.hj_duracao)) && p.t0 && p.t1) vals.hj_duracao = Math.max(1, Math.round((p.t1 - p.t0) / 60000));
+    if (!temValor(vals.hj_incompletos) && !(cont && temValor(cont.hj_incompletos))) { var inc = incompletosDe(p); vals.hj_incompletos = inc.length ? inc.join(', ') : 'nenhum'; }
+    if (!arquivar(vals, p.d)) return false;
+    ant.modo = (cont && ant.modo) || p.modo || 'completa';
+    registrarHist(ant.ult || {}, p.d, ant.modo);
+    return true;
+  }
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && p.ex) throw 0; // formato de outro app — ignora
+      if (p && p.bench && p.bench.fiba && p.bench.ref) { bench = p.bench; if (!bench.sem) bench.sem = []; }
+      if (p && p.h2b) h2b = p.h2b;
+      if (p && p.d === hoje()) {
+        state = { d: p.d, vals: p.vals || {}, steps: p.steps || {}, modo: MODOS[p.modo] ? p.modo : modoPadrao(), t0: p.t0 || null, t1: p.t1 || null, av: p.av || {}, travOk: !!p.travOk };
+        ant = p.ant || ant;
+      } else if (p) {
+        // novo dia: sessão anterior vira referência + histórico; estado zera
+        ant = p.ant || ant;
+        fecharSessao(p);
+      }
+    }
+  } catch (e) {}
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+
+  function stSteps(id) {
+    if (!state.steps[id]) state.steps[id] = { i: 0, done: false };
+    return state.steps[id];
+  }
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({ d: state.d, vals: state.vals, steps: state.steps, modo: state.modo, t0: state.t0, t1: state.t1, av: state.av, travOk: state.travOk, ant: ant, bench: bench, h2b: h2b }));
+      var d = new Date();
+      msg._fixo = '';  // salvou de novo = erro resolvido
+      msg('salvo às ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2));
+      return true;
+    } catch (e) { msg('NÃO SALVOU — confira Ajustes › Safari › "Bloquear todos os cookies"', true); return false; }
+  }
+  function msg(t, fixo) {
+    var el = document.getElementById('saveMsg');
+    if (fixo) msg._fixo = t;  // aviso fixo (NÃO SALVOU) volta depois das mensagens passageiras
+    el.textContent = t;
+    el.classList.toggle('err', !!fixo);
+    clearTimeout(msg._t);
+    if (t && !fixo) msg._t = setTimeout(function () { el.textContent = msg._fixo || ''; el.classList.toggle('err', !!msg._fixo); }, 2500);
+  }
+  // etiqueta "última sessão: seg 01/09" — monta a data por partes (new Date('AAAA-MM-DD') cairia em UTC e mostraria o dia anterior)
+  function fmtRef(d) {
+    var p = String(d || '').split('-');
+    if (p.length !== 3) return String(d || '');
+    var dt = new Date(+p[0], +p[1] - 1, +p[2]);
+    return ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'][dt.getDay()] + ' ' + p[2] + '/' + p[1];
+  }
+  function renderRef() {
+    var el = document.getElementById('refTxt');
+    if (el) el.textContent = ant.d ? 'última sessão: ' + fmtRef(ant.d) + (ant.modo ? ' · ' + rotuloModo(ant.modo) : '') : 'sem referência ainda';
+  }
+  renderRef();
+  // aviso: aberto fora do ícone (Safari, link de outro app, Mac) = outra memória, nada fica no app da tela de início
+  (function () {
+    var standalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    var publicado = /github\.io$/.test(location.hostname);
+    if (standalone || !publicado) return;
+    var w = document.createElement('div');
+    w.className = 'fora';
+    w.textContent = 'Aberto fora do ícone — o que você digitar aqui não fica salvo no app da tela de início.';
+    var top = document.querySelector('.top');
+    top.parentNode.insertBefore(w, top.nextSibling);
+  })();
+
+  // ---------- som / wake lock ----------
+  function ensureAudio() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      beep.ctx = beep.ctx || new AC();
+      if (beep.ctx.state === 'suspended') beep.ctx.resume();
+      if (!ensureAudio.unmuted) {
+        ensureAudio.unmuted = true;
+        var un = document.createElement('audio');
+        un.setAttribute('playsinline', '');
+        un.src = 'data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YZABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+        var pr = un.play();
+        if (pr && pr.catch) pr.catch(function () {});
+      }
+    } catch (e) {}
+  }
+  function beep(times, freq, gain) {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      beep.ctx = beep.ctx || new AC();
+      var t0 = beep.ctx.currentTime;
+      for (var k = 0; k < times; k++) {
+        var o = beep.ctx.createOscillator(), g = beep.ctx.createGain();
+        o.frequency.value = freq || 880; o.connect(g); g.connect(beep.ctx.destination);
+        g.gain.setValueAtTime(gain || 0.15, t0 + k * 0.25);
+        g.gain.exponentialRampToValueAtTime(0.001, t0 + k * 0.25 + 0.18);
+        o.start(t0 + k * 0.25); o.stop(t0 + k * 0.25 + 0.2);
+      }
+    } catch (e) {}
+    if (navigator.vibrate) { try { navigator.vibrate(times === 1 ? 150 : [150, 100, 150]); } catch (e) {} }
+  }
+  function tick() { beep(1, 660, 0.07); }
+
+  var wl = null, wlWanted = false, wlPending = false;
+  function wakeOn() {
+    if (!('wakeLock' in navigator)) return;
+    wlWanted = true;
+    if (wl || wlPending) return;
+    wlPending = true;
+    navigator.wakeLock.request('screen').then(function (l) {
+      wlPending = false;
+      if (!wlWanted) { try { l.release(); } catch (e) {} return; }
+      // o SO solta o lock sozinho ao esconder a página: limpa wl pra permitir readquirir
+      l.addEventListener('release', function () { if (wl === l) wl = null; });
+      wl = l;
+    }).catch(function () { wlPending = false; });
+  }
+  function wakeOff() {
+    wlWanted = false;
+    if (wl) { try { wl.release(); } catch (e) {} wl = null; }
+  }
+
+  // ---------- render ----------
+  var nav = document.getElementById('chipsNav');
+  BLOCOS.forEach(function (b) {
+    var a = document.createElement('a');
+    a.className = 'chip'; a.id = 'chip-' + b.id; a.href = '#' + b.id;
+    a.style.setProperty('--bc', b.cor);
+    a.dataset.base = b.nav;
+    a.textContent = b.nav;
+    nav.appendChild(a);
+  });
+
+  function esc(v) {
+    return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function antVal(fid, fallback) {
+    return (ant.vals && ant.vals[fid] != null && ant.vals[fid] !== '') ? String(ant.vals[fid]) : fallback;
+  }
+  function valAtual(k) { return state.vals[k] != null ? esc(state.vals[k]) : ''; }
+  function numInput(k, cls, ph, fixo) {
+    return '<input class="' + cls + '" id="' + k + '" type="number" inputmode="numeric" min="0" placeholder="' + esc(fixo ? ph : antVal(k, ph)) + '" value="' + valAtual(k) + '">';
+  }
+  function txtInput(k, ph) {
+    return '<input class="tx" id="' + k + '" type="text" placeholder="' + esc(antVal(k, ph || '')) + '" value="' + valAtual(k) + '">';
+  }
+  function segHtml(u) {
+    var v = state.vals[u.k] != null ? String(state.vals[u.k]) : '';
+    var antes = antVal(u.k, '');
+    return '<div class="crow seg-row">' + (u.lab ? '<label>' + u.lab + (antes && !u.toggle ? ' <span class="antes">antes: ' + esc(antes) + '</span>' : '') + '</label>' : '') +
+      '<span class="seg" id="' + u.k + '"' + (u.toggle ? ' data-toggle="1"' : '') + '>' +
+      u.opts.map(function (o) { return '<button type="button" data-v="' + esc(o) + '"' + (v === o ? ' class="on"' : '') + '>' + esc(o) + '</button>'; }).join('') + '</span></div>';
+  }
+  function cntHtml(u) {
+    return '<div class="crow"><label>' + u.lab + '</label><span class="cin">' + u.ks.map(function (kk, i) {
+      return (i ? '<span class="x">' + (u.sep || '·') + '</span>' : '') + numInput(kk.k, 'ac', kk.ph || '–');
+    }).join('') + (u.den ? '<span class="den">/ ' + u.den + '</span>' : '') + '</span></div>';
+  }
+  // grade de 5 posições: acertos / tentativas (tentativas já vem com o padrão; só muda se ficou incompleto)
+  function spotsHtml(u) {
+    var h = '<div class="spots" data-g="' + u.g + '" data-den="' + u.den + '"' + (u.modos ? ' data-modos="' + u.modos.join(' ') + '"' : '') + '>';
+    h += '<div class="sph"><span>' + u.lab + '</span><span class="stot">–/' + (u.den * 5) + '</span></div>';
+    SPOTS.forEach(function (sp) {
+      var k = u.g + '_' + sp[0];
+      h += '<div class="sprow"><span class="slab">' + sp[1] + '</span>' + numInput(k, 'ac', '–') + '<span class="x">/</span>' + numInput(k + '_t', 'tt', String(u.den), true) + '</div>';
+    });
+    if (u.m) h += '<div class="crow"><label>' + u.m.lab + '</label>' + txtInput(u.m.k, u.m.ph) + '</div>';
+    return h + '</div>';
+  }
+  function uiHtml(e) {
+    return (e.ui || []).map(function (u) {
+      if (u.t === 'go') return e.steps ? '<button class="go" type="button"></button>' : '';
+      if (u.t === 'spots') return spotsHtml(u);
+      if (u.t === 'cnt') return cntHtml(u);
+      if (u.t === 'txt') return '<div class="crow"><label>' + u.lab + '</label>' + txtInput(u.k, u.ph) + '</div>';
+      if (u.t === 'seg') return segHtml(u);
+      if (u.t === 'nota') return '<p class="cnota">' + u.h + '</p>';
+      if (u.t === 'calc') return '<div class="crow"><label>' + u.lab + '</label><span class="stot" id="' + u.id + '">–</span></div>';
+      if (u.t === 'trav') return '<div class="trav" id="trav" hidden><span id="travTxt">Travado há 6 sessões nesta marca — filma 5 bolas de perfil e leva pro personal da terça.</span><button type="button" id="travOk">ok</button></div><p class="cnota" id="csUlt" hidden></p>';
+      if (u.t === 'bench') return '<div class="hist" id="benchHist"></div>';
+      return '';
+    }).join('');
+  }
+  BLOCOS.forEach(function (b) {
+    if (b.id === 'hj') return;
+    var sec = document.createElement('section');
+    sec.className = 'bloco'; sec.id = b.id;
+    sec.style.setProperty('--acc', b.cor);
+    var head = document.createElement('div');
+    head.className = 'bh';
+    head.innerHTML = '<h2>' + b.titulo + '<small id="bsub-' + b.id + '">' + b.sub + '</small></h2>';
+    sec.appendChild(head);
+    DATA.filter(function (e) { return e.b === b.id; }).forEach(function (e) {
+      var art = document.createElement('article');
+      art.className = 'ex' + (e.extra ? ' extra' : ''); art.id = e.id;
+      var badge = e.badge ? '<span class="bpill" style="color:' + e.badge[1] + ';border-color:' + e.badge[1] + '">' + e.badge[0] + '</span>' : '';
+      var chips = e.chips.map(function (c) { return '<span>' + c + '</span>'; }).join('');
+      if (e.eq) chips += '<span class="eq">' + e.eq + '</span>';
+      var media = e.img
+        ? '<div class="media"><img class="thumb" src="' + e.img + '" alt="' + e.name.replace(/"/g, '&quot;') + '" loading="lazy" width="104" height="78">' +
+          '<div class="media-right"><div class="dose">' + chips + '</div><p class="cue">' + e.cue + '</p></div></div>'
+        : '<div class="media"><div class="media-right"><div class="dose">' + chips + '</div><p class="cue">' + e.cue + '</p></div></div>';
+      var linksHtml = '';
+      if (e.links.length) {
+        linksHtml = '<div class="links"><div class="lh">Vídeos</div>' +
+          e.links.map(function (l) { return '<a href="' + l.u + '" target="_blank" rel="noopener">' + l.t + '</a>'; }).join('') + '</div>';
+      }
+      art.innerHTML =
+        '<div class="ex-head"><span class="num">' + e.num + '</span><h3>' + e.name + badge + '</h3>' +
+        '<button class="done-btn" type="button" aria-label="marcar exercício feito" aria-pressed="false">✓</button></div>' +
+        media + uiHtml(e) +
+        '<details class="how"><summary>Como fazer · vídeo</summary><div class="how-body">' +
+        '<div class="desc">' + e.desc + '</div>' + linksHtml + '</div></details>';
+      sec.appendChild(art);
+    });
+    app.appendChild(sec);
+  });
+
+  // formulário "como foi hoje"
+  (function () {
+    var b = BLOCOS[BLOCOS.length - 1];
+    var sec = document.createElement('section');
+    sec.className = 'bloco'; sec.id = 'hj';
+    sec.style.setProperty('--acc', b.cor);
+    var inner = FORM.map(function (f) {
+      var fid = 'hj_' + f.id;
+      var v = state.vals[fid] != null ? esc(state.vals[fid]) : '';
+      if (f.k === 'num') return '<div class="frow"><label>' + f.t + '</label><input type="number" inputmode="numeric" id="' + fid + '" placeholder="' + esc(antVal(fid, '–')) + '" value="' + v + '"></div>';
+      if (f.k === 'txt') return '<div class="frow"><label>' + f.t + '</label><input type="text" id="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '" value="' + v + '"></div>';
+      if (f.k === 'area') return '<div><label style="font-size:13.5px;color:#aeaeb8">' + f.t + '</label><textarea id="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '">' + v + '</textarea></div>';
+      var antes = antVal(fid, '');
+      return '<div class="frow"><label>' + f.t + (antes ? ' <span class="antes">antes: ' + esc(antes) + '</span>' : '') + '</label><span class="seg" id="' + fid + '">' +
+        '<button type="button" data-v="sim"' + (v === 'sim' ? ' class="on"' : '') + '>sim</button>' +
+        '<button type="button" data-v="não"' + (v === 'não' ? ' class="on"' : '') + '>não</button></span></div>';
+    }).join('');
+    sec.innerHTML = '<div class="bh"><h2>' + b.titulo + '<small>' + b.sub + '</small></h2></div>' +
+      '<article class="ex" id="exhj"><div class="frm">' + inner + '</div></article>';
+    app.appendChild(sec);
+  })();
+
+  // resumo
+  var rb = document.getElementById('resumoBody');
+  BLOCOS.forEach(function (b) {
+    if (b.id === 'hj') return;
+    var exs = DATA.filter(function (e) { return e.b === b.id; });
+    var p = document.createElement('p');
+    p.innerHTML = '<strong style="color:' + b.cor + '">' + b.titulo + '</strong><br>' +
+      exs.map(function (e) { return '<a href="#' + e.id + '" style="color:#aeaeb8;text-decoration:none">' + e.num + ' ' + e.name.split(' (')[0] + '</a>'; }).join(' · ');
+    rb.appendChild(p);
+  });
+
+  // ---------- motores ----------
+  var run = null;      // timer de passos (aquecimento / Rio)
+  function fmt(s) { return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+  function card(id) { return document.getElementById(id); }
+  function goBtn(id) { return card(id).querySelector('.go'); }
+
+  function stopRun() {
+    if (run) {
+      var old = run.id;
+      clearInterval(run.tick);
+      card(old).classList.remove('run');
+      run = null;
+      wakeOff();
+      renderGo(old);
+    }
+  }
+
+  function exDone(id) { return stSteps(id).done; }
+  // passos ativos do card: na Curta, cards com filtraCurta só usam os passos marcados c:true
+  function stepsDe(e) {
+    if (e.filtraCurta && state.modo === 'curta') return e.steps.filter(function (st) { return st.c; });
+    return e.steps;
+  }
+
+  function renderGo(id) {
+    var e = byId[id];
+    if (!e.steps) return;
+    var s = stSteps(id), b = goBtn(id);
+    b.classList.remove('running', 'paused');
+    if (s.done) { b.textContent = '✓ feito — refazer sequência'; return; }
+    var steps = stepsDe(e), step = steps[Math.min(s.i, steps.length - 1)];
+    if (run && run.id === id) {
+      var rem = run.remaining != null ? run.remaining : Math.max(0, Math.ceil((run.end - Date.now()) / 1000));
+      b.textContent = (run.remaining != null ? '▶ retomar · ' : '⏸ ') + fmt(rem) + ' · ' + step.t;
+      b.classList.toggle('running', run.remaining == null);
+      b.classList.toggle('paused', run.remaining != null);
+      return;
+    }
+    if (step.s) b.textContent = '▶ ' + step.t + ' — ' + fmt(step.s);
+    else b.textContent = '✓ marcar · ' + step.t;
+  }
+
+  function renderCard(id) {
+    var done = exDone(id);
+    card(id).classList.toggle('is-done', done);
+    var db = card(id).querySelector('.done-btn');
+    db.setAttribute('aria-pressed', done ? 'true' : 'false');
+  }
+
+  // arremessos = carga de joelho: soma das tentativas dos campos preenchidos (2-A, 2-B, 4, 5-A, 5-B) nos cards visíveis
+  function contarArremessos(vals, modo, ignorarRelogio) {
+    var reg = 0, plan = 0;
+    DATA.forEach(function (e) {
+      if (!visivelEm(e, modo, vals, ignorarRelogio)) return;
+      (e.ui || []).forEach(function (u) {
+        if (u.t === 'cnt' && u.den && u.arr !== false) {
+          u.ks.forEach(function (kk) { plan += u.den; if (temValor(vals[kk.k])) reg += u.den; });
+        } else if (u.t === 'spots') {
+          if (u.modos && u.modos.indexOf(modo) < 0) return;
+          plan += u.den * 5;
+          var s = spotSoma(vals, u.g, u.den);
+          reg += s.at;
+        }
+      });
+    });
+    return { reg: reg, plan: plan };
+  }
+  function progress() {
+    var c = contarArremessos(state.vals, state.modo);
+    document.getElementById('progTxt').textContent = c.reg + '/' + c.plan + ' arremessos';
+    document.getElementById('pbar').style.width = (c.plan ? Math.min(100, c.reg / c.plan * 100) : 0) + '%';
+    BLOCOS.forEach(function (b) {
+      var chip = document.getElementById('chip-' + b.id);
+      var base = chip.dataset.base;
+      var exs = DATA.filter(function (e) { return e.b === b.id && visivel(e); });
+      if (b.id === 'hj') { chip.textContent = base; return; }
+      chip.hidden = !exs.length && !(b.id === 'ex' && state.modo === 'completa');
+      if (!exs.length) { chip.textContent = base; return; }
+      var done = exs.filter(function (e) { return exDone(e.id); }).length;
+      chip.textContent = done >= exs.length ? base + ' ✓' : (done > 0 ? base + ' ' + done + '/' + exs.length : base);
+    });
+    atualizarTotais();
+  }
+
+  function advance(fromId) {
+    var start = 0;
+    if (fromId) {
+      for (var j = 0; j < DATA.length; j++) if (DATA[j].id === fromId) { start = j + 1; break; }
+    }
+    var next = null;
+    for (var k = 0; k < DATA.length; k++) {
+      var e = DATA[(start + k) % DATA.length];
+      if (!exDone(e.id) && visivel(e)) { next = e.id; break; }
+    }
+    if (next) setTimeout(function () {
+      card(next).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 700);
+  }
+
+  function flash(id) {
+    var el = card(id);
+    el.classList.add('flash');
+    setTimeout(function () { el.classList.remove('flash'); }, 1000);
+  }
+
+  // passos (✓ marcar / timer por timestamp; auto = encadeia o próximo passo cronometrado)
+  function completeStep(id, isTimer) {
+    var e = byId[id], s = stSteps(id);
+    marcarAtividade();
+    s.i++;
+    var steps = stepsDe(e);
+    var last = s.i >= steps.length;
+    if (isTimer) beep(last ? 2 : 1); else tick();
+    flash(id);
+    if (last) {
+      s.done = true;
+      renderCard(id);
+      progress();
+      save();
+      renderGo(id);
+      advance(id);
+    } else {
+      renderGo(id); save();
+      if (isTimer && e.auto && steps[s.i].s) startTimer(id, steps[s.i].s);
+    }
+  }
+  function startTimer(id, secs) {
+    stopRun();
+    marcarAtividade();
+    run = { id: id, end: Date.now() + secs * 1000, remaining: null };
+    card(id).classList.add('run');
+    wakeOn();
+    run.tick = setInterval(function () {
+      if (!run || run.remaining != null) return;
+      if (Date.now() >= run.end) { stopRun(); completeStep(id, true); return; }
+      renderGo(id);
+    }, 250);
+    renderGo(id);
+  }
+  function onGo(id) {
+    ensureAudio();
+    var e = byId[id], s = stSteps(id);
+    if (s.done) {
+      s.done = false; s.i = 0;
+      renderCard(id); renderGo(id); progress(); save();
+      return;
+    }
+    if (run && run.id === id) {
+      if (run.remaining == null) {
+        run.remaining = Math.max(1, Math.ceil((run.end - Date.now()) / 1000));
+        wakeOff();
+      } else { run.end = Date.now() + run.remaining * 1000; run.remaining = null; wakeOn(); }
+      renderGo(id);
+      return;
+    }
+    var steps = stepsDe(e), step = steps[Math.min(s.i, steps.length - 1)];
+    if (step.s) startTimer(id, step.s);
+    else completeStep(id, false);
+  }
+
+  // ---------- modo · relógio · portões ----------
+  function marcarAtividade() { var n = Date.now(); if (!state.t0) state.t0 = n; state.t1 = n; }
+  function agoraMin() { var d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
+  function hhmm(d) { return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+  // avisos por relógio só na sexta e fora do modo Segunda; em qualquer outro dia vale só o tempo decorrido
+  function relogioAtivoEm(modo) { return DIA_SEMANA === 5 && modo !== 'segunda'; }
+  function relogioAtivo() { return relogioAtivoEm(state.modo); }
+  function sessaoMin() { return state.t0 ? Math.round((Date.now() - state.t0) / 60000) : 0; }
+  function duracaoReal() { return state.t0 && state.t1 ? Math.max(1, Math.round((state.t1 - state.t0) / 60000)) : null; }
+  function visivelEm(e, modo, vals, ignorarRelogio) {
+    if (e.modos && e.modos.indexOf(modo) < 0) return false;
+    if (e.id === 'sprint') {
+      var j = vals.hdr_joelho;
+      if (temValor(j) && +j > 3) return false;
+      if (!ignorarRelogio && relogioAtivoEm(modo) && agoraMin() >= 11 * 60 + 20) return false;
+    }
+    return true;
+  }
+  function visivel(e) { return visivelEm(e, state.modo, state.vals); }
+  function motivoExtra() {
+    var j = state.vals.hdr_joelho;
+    if (temValor(j) && +j > 3) return 'fechado hoje: joelho de manhã ' + j + ' > 3 (regra das 24 h)';
+    if (relogioAtivo() && agoraMin() >= 11 * 60 + 20) return 'fechado: passou das 11h20 — carb-up 11h30, FB2 11h45';
+    return null;
+  }
+  var modoAplicado = null;
+  function aplicarModo() {
+    var trocou = modoAplicado !== null && modoAplicado !== state.modo, mudou = false;
+    modoAplicado = state.modo;
+    document.querySelectorAll('#modoSeg button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === state.modo); });
+    document.getElementById('modoDesc').textContent = MODO_DESC[state.modo];
+    DATA.forEach(function (e) {
+      var vis = visivel(e), el = card(e.id);
+      // card que some, ou cuja lista de passos muda com o modo, não pode ficar com timer rodando
+      if (run && run.id === e.id && (!vis || (trocou && e.filtraCurta))) stopRun();
+      el.hidden = !vis;
+      el.querySelectorAll('[data-modos]').forEach(function (x) { x.hidden = x.dataset.modos.split(' ').indexOf(state.modo) < 0; });
+      if (e.steps) {
+        var s = stSteps(e.id), n = stepsDe(e).length;
+        if (!s.done && s.i >= n) { s.done = true; renderCard(e.id); mudou = true; }
+        renderGo(e.id);
+      }
+    });
+    if (mudou) save();
+    BLOCOS.forEach(function (b) {
+      if (b.id === 'hj') return;
+      var sec = document.getElementById(b.id);
+      var algum = DATA.some(function (e) { return e.b === b.id && visivel(e); });
+      var extraFechado = b.id === 'ex' && !algum && state.modo === 'completa';
+      sec.hidden = !algum && !extraFechado;
+      var sub = document.getElementById('bsub-' + b.id);
+      if (b.id === 'ex') sub.textContent = extraFechado ? (motivoExtra() || b.sub) : b.sub;
+    });
+  }
+  function aplicarTudo() { aplicarModo(); progress(); }
+  function aplicarRelogio() {
+    var txt = state.t0 ? 'sessão ' + sessaoMin() + ' min' : 'sessão não iniciada';
+    if (relogioAtivo()) txt = '⏰ ' + hhmm(new Date()) + ' · limite 11h30 · ' + txt;
+    else txt = '⏱ ' + txt + (DIA_SEMANA === 5 ? ' · modo Segunda: sem avisos por relógio' : ' · fora da sexta: sem avisos por relógio');
+    document.getElementById('relogio').textContent = txt;
+    var ban = document.getElementById('banner'), m = agoraMin(), qual = null;
+    if (relogioAtivo()) {
+      if (m >= 11 * 60 + 30 && m < 13 * 60 + 30) qual = 'b';
+      else if (m >= 11 * 60 + 5 && m < 11 * 60 + 30) qual = 'a';
+    }
+    if (qual && !state.av[qual]) {
+      ban.dataset.q = qual;
+      document.getElementById('banTxt').textContent = qual === 'a' ? 'Vá para o fechamento. Registre o que ficou incompleto.' : 'Fim da janela. Carb-up e FB2.';
+      ban.hidden = false;
+    } else ban.hidden = true;
+    // portão das 11h20: o card EXTRA some sem precisar de toque
+    if (card('sprint').hidden === visivel(byId.sprint)) aplicarTudo();
+  }
+
+  // ---------- totais, histórico do benchmark e aviso de travamento ----------
+  function atualizarTotais() {
+    document.querySelectorAll('.spots').forEach(function (g) {
+      var den = +g.dataset.den, s = spotSoma(state.vals, g.dataset.g, den);
+      g.querySelector('.stot').textContent = s.n ? s.ac + '/' + s.at + ' · ' + Math.round(s.ac / s.at * 100) + '%' : '–/' + (den * 5);
+    });
+    var llt = document.getElementById('llTot');
+    if (llt) {
+      var a = state.vals.ll_1, b = state.vals.ll_2, n = (temValor(a) ? 5 : 0) + (temValor(b) ? 5 : 0);
+      llt.textContent = n ? ((+a || 0) + (+b || 0)) + '/' + n : '–/10';
+    }
+    var dur = document.getElementById('hj_duracao');
+    if (dur) dur.placeholder = duracaoReal() ? duracaoReal() + ' (auto)' : antVal('hj_duracao', '–');
+    var inc = document.getElementById('hj_incompletos');
+    if (inc) { var li = sessaoTeveTreino(state) ? incompletosDe(state) : null; inc.placeholder = li ? (li.length ? li.join(', ') + ' (auto)' : 'nenhum') : antVal('hj_incompletos', ''); }
+    renderBench();
+    renderTrav();
+  }
+  function renderBench() {
+    var box = document.getElementById('benchHist');
+    if (!box) return;
+    var escolhido = protoKey(state.vals);
+    var pk = escolhido || protoUltimo() || 'fiba';
+    var hojeE = entradaBench(state.vals, state.d, state.modo);
+    // com valores vivos de hoje, a entrada já arquivada de hoje sai (senão contaria em dobro); sem eles, fica
+    var lista = hojeE ? bench[pk].filter(function (x) { return x.d !== state.d; }) : bench[pk];
+    var m = mm4(hojeE ? lista.concat([hojeE]) : lista);
+    var h = '';
+    if (!escolhido && hojeE) h += '<div class="hwarn">Escolhe o protocolo (FIBA 25 ou Referência 25) — os dois históricos são separados e nunca se misturam.' + (protoUltimo() ? ' Último usado: ' + nomeProto(protoUltimo()) + '.' : '') + '</div>';
+    h += '<div class="hh">Média móvel · 4 sessões (100 bolas) · ' + nomeProto(pk) + (escolhido ? '' : ' (último usado)') + '</div>';
+    h += '<div class="hbig">' + (m ? m.pct + '%' : '–') + '</div>';
+    h += '<div class="hsm">' + (m ? m.ac + '/' + m.at + ' em ' + m.n + (m.n === 1 ? ' sessão' : ' sessões') + (hojeE ? ', incluindo hoje' : '') : 'sem sessão registrada neste protocolo') +
+      (hojeE ? ' · hoje: ' + hojeE.ac + '/' + hojeE.at + ' (' + hojeE.pct + '%) · ' + hojeE.flag : (lista.length ? ' · última: ' + fmtRef(lista[lista.length - 1].d) + ' ' + lista[lista.length - 1].ac + '/' + lista[lista.length - 1].at + ' (' + lista[lista.length - 1].pct + '%)' : '')) + '</div>';
+    h += '<div class="hnote">Em 25 bolas, 1 acerto = 4 pontos percentuais. Leia a média de 4, não a semana.</div>';
+    ['fiba', 'ref', 'sem'].forEach(function (k) {
+      var L = bench[k];
+      if (!L.length) return;
+      h += '<details class="hlist"><summary>' + nomeProto(k) + ' · ' + L.length + (L.length === 1 ? ' sessão' : ' sessões') + '</summary>' +
+        L.slice().reverse().map(function (x) {
+          return '<div class="hrow">' + fmtRef(x.d) + ' · ' + x.ac + '/' + x.at + ' (' + x.pct + '%) · ' + x.flag +
+            (x.dur ? ' · ' + x.dur + ' min' : '') + (x.esf != null ? ' · esforço ' + x.esf : '') + (x.inc ? ' · incompletos: ' + esc(x.inc) : '') +
+            (x.marcas ? ' · marcas: ' + esc(x.marcas) : '') + (x.mm4 != null ? ' · mm4 ' + x.mm4 + '%' : '') + '</div>';
+        }).join('') + '</details>';
+    });
+    var abertos = [].map.call(box.querySelectorAll('details'), function (x) { return x.open; });
+    box.innerHTML = h;
+    [].forEach.call(box.querySelectorAll('details'), function (x, i) { if (abertos[i]) x.open = true; });
+  }
+  // travado: 6 últimas sessões do 2-B na mesma marca (volta 1) sem 20/40 em duas consecutivas
+  function travado() {
+    if (h2b.length < 6) return false;
+    var u = h2b.slice(-6), m = normMarca(u[0].m1);
+    if (!m) return false;
+    for (var i = 1; i < 6; i++) if (normMarca(u[i].m1) !== m) return false;
+    // "20/40" = metade; uma sessão Curta (só volta 1, 20 bolas) bate com 10/20
+    var bateu = function (x) { var t = x.t1 + x.t2; return t > 0 && (x.a1 + x.a2) / t >= 0.5; };
+    for (var j = 1; j < 6; j++) if (bateu(u[j - 1]) && bateu(u[j])) return false;
+    return true;
+  }
+  function renderTrav() {
+    var box = document.getElementById('trav'), ult = document.getElementById('csUlt');
+    if (!box) return;
+    box.hidden = !(travado() && !state.travOk);
+    var L = h2b.slice(-6).reverse();
+    ult.hidden = !L.length;
+    ult.innerHTML = L.length ? '<b>Últimas sessões (v1+v2):</b> ' + L.map(function (x) {
+      return (x.a1 + x.a2) + '/' + (x.t1 + x.t2) + (x.m1 ? ' (' + esc(x.m1) + ')' : '');
+    }).join(' · ') + ' · critério: 20/40 em duas seguidas → avança ~25 cm' : '';
+  }
+
+  // ---------- ligar tudo ----------
+  DATA.forEach(function (e) {
+    var id = e.id;
+    if (e.steps) {
+      goBtn(id).addEventListener('click', function () { onGo(id); });
+      renderGo(id);
+      // número volta um passo
+      card(id).querySelector('.num').addEventListener('click', function () {
+        var s = stSteps(id);
+        if (s.done || s.i <= 0) return;
+        if (run && run.id === id) stopRun();
+        s.i--;
+        tick();
+        renderGo(id);
+        save();
+      });
+    }
+    card(id).querySelector('.done-btn').addEventListener('click', function () {
+      ensureAudio();
+      var done = exDone(id);
+      if (run && run.id === id) stopRun();
+      var s2 = stSteps(id);
+      s2.done = !done; if (done) s2.i = 0;
+      marcarAtividade();
+      renderGo(id);
+      renderCard(id);
+      progress();
+      save();
+    });
+    var thumb = card(id).querySelector('.thumb');
+    var det = card(id).querySelector('details.how');
+    if (thumb) thumb.addEventListener('click', function () { det.open = !det.open; });
+    det.querySelectorAll('.how-body a').forEach(function (a) {
+      a.addEventListener('click', function () { setTimeout(function () { det.open = false; }, 250); });
+    });
+    renderCard(id);
+  });
+
+  // campos do topo: valor de hoje + cinza da última sessão
+  ['hdr_enfase', 'hdr_feedback', 'hdr_joelho'].forEach(function (k) {
+    var el = document.getElementById(k);
+    el.placeholder = antVal(k, k === 'hdr_joelho' ? '0–10' : '');
+    if (state.vals[k] != null) el.value = state.vals[k];
+  });
+  // inputs (cards, topo, formulário) salvam no toque; campo apagado remove a chave
+  document.querySelectorAll('#app input, #app textarea, #hdrbox input').forEach(function (inp) {
+    inp.addEventListener('input', function () {
+      if (inp.value === '') delete state.vals[inp.id];
+      else state.vals[inp.id] = inp.value;
+      if (inp.closest('#app') && !inp.closest('#hj')) marcarAtividade();
+      save();
+      if (inp.id === 'hdr_joelho') aplicarTudo(); else progress();
+    });
+  });
+  document.querySelectorAll('.seg').forEach(function (seg) {
+    if (seg.id === 'modoSeg') return;
+    seg.querySelectorAll('button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var v = btn.dataset.v;
+        if (seg.dataset.toggle && state.vals[seg.id] === v) delete state.vals[seg.id];
+        else state.vals[seg.id] = v;
+        seg.querySelectorAll('button').forEach(function (b2) { b2.classList.toggle('on', state.vals[seg.id] === b2.dataset.v); });
+        if (seg.closest('#app') && !seg.closest('#hj')) marcarAtividade();
+        save();
+        progress();
+      });
+    });
+  });
+  // seletor de modo: só mostra/esconde — nada é apagado
+  document.querySelectorAll('#modoSeg button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (state.modo === btn.dataset.v) return;
+      state.modo = btn.dataset.v;
+      save();
+      aplicarTudo();
+      aplicarRelogio();
+    });
+  });
+  document.getElementById('banOk').addEventListener('click', function () {
+    var q = document.getElementById('banner').dataset.q;
+    if (q) state.av[q] = true;
+    save();
+    aplicarRelogio();
+  });
+  var travOkBtn = document.getElementById('travOk');
+  if (travOkBtn) travOkBtn.addEventListener('click', function () { state.travOk = true; save(); renderTrav(); });
+
+  aplicarTudo();
+  aplicarRelogio();
+  setInterval(aplicarRelogio, 15000);
+
+  // retomar onde parou
+  var started = DATA.some(function (e) { return exDone(e.id) || stSteps(e.id).i > 0; }) ||
+    Object.keys(state.vals).some(function (k) { return k.indexOf('hdr_') !== 0 && temValor(state.vals[k]); });
+  var allDone = DATA.every(function (e) { return !visivel(e) || exDone(e.id); });
+  if (started && !allDone) advance();
+
+  // encerrar treino de hoje: arquiva (referência cinza) + histórico (benchmark por protocolo, marcas do 2-B) + zera + recarrega
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }  // o dia já virou: a virada arquiva sozinha
+    if (spotSoma(state.vals, 'bench', 5).n && !protoKey(state.vals)) {
+      alert('Benchmark preenchido sem protocolo — escolhe FIBA 25 ou Referência 25 no card 5-A antes de encerrar. Os dois históricos não se misturam.');
+      card('bench').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    var c = contarArremessos(state.vals, state.modo);
+    if (!confirm('Encerrar o treino de hoje (' + c.reg + '/' + c.plan + ' arremessos · ' + rotuloModo(state.modo) + ')?\n\nOs números viram a referência cinza do próximo treino, o benchmark e o 2-B entram no histórico, e as marcações voltam a zero.')) return;
+    stopRun();
+    fecharSessao(state);
+    state = estadoVazio();
+    if (!save()) alert('NÃO SALVOU — confira Ajustes › Safari › "Bloquear todos os cookies". O treino de hoje continua aberto.');
+    location.reload();
+  });
+
+  // copiar resumo: texto da sessão (hoje, ou a última arquivada) no formato da nota 06, pra colar no Notes
+  function resumoTexto() {
+    var hojeTreino = sessaoTeveTreino(state);
+    var hjHoje = {};
+    Object.keys(state.vals).forEach(function (k) { if (k.indexOf('hj_') === 0 && temValor(state.vals[k])) hjHoje[k] = state.vals[k]; });
+    var usaHoje, vals, d, modo;
+    if (hojeTreino) { usaHoje = true; vals = state.vals; d = state.d; modo = state.modo; }
+    else if (ant.d && ant.ult) { usaHoje = false; vals = Object.assign({}, ant.ult, hjHoje); d = ant.d; modo = ant.modo || 'completa'; }  // sem treino hoje: última sessão real + questionário digitado hoje
+    else return null;  // referência antiga (sem ult) não vira resumo: seria mistura de sessões
+    var v = function (k) { return temValor(vals[k]) ? String(vals[k]).trim() : '–'; };
+    var sp = function (g, den) {
+      return SPOTS.map(function (s) {
+        var k = g + '_' + s[0], ok = temValor(vals[k]);
+        return s[0].toUpperCase() + ' ' + (ok ? vals[k] : '–') + '/' + (ok ? tentativas(vals, k, den) : den);
+      }).join(' ');
+    };
+    var soma = function (s, den) { return s.n ? s.ac + '/' + s.at : '–/' + (den * 5); };
+    var c = contarArremessos(vals, modo, true);
+    var p = String(d).split('-');
+    var dur = temValor(vals.hj_duracao) ? vals.hj_duracao : (hojeTreino && duracaoReal() ? duracaoReal() : '–');
+    var inc = temValor(vals.hj_incompletos) ? vals.hj_incompletos : (hojeTreino ? (incompletosDe(state).join(', ') || 'nenhum') : '–');
+    var s1 = spotSoma(vals, 'cs_v1', 4), s2 = spotSoma(vals, 'cs_v2', 4), sb = spotSoma(vals, 'bench', 5);
+    var pk = protoKey(vals) || (usaHoje ? (protoUltimo() || 'fiba') : 'sem');
+    var mm = null;
+    if (usaHoje) {
+      var hE = entradaBench(vals, d, modo), L = hE ? bench[pk].filter(function (x) { return x.d !== d; }) : bench[pk];
+      mm = mm4(hE ? L.concat([hE]) : L);
+    } else {
+      var x = bench[pk].filter(function (y) { return y.d === d; })[0];
+      if (x && x.mm4 != null) mm = { pct: x.mm4 };
+    }
+    var flag = vals.bench_flag || (sb.n ? (sb.n === 5 && sb.at === 25 ? 'completo' : 'incompleto') : '–');
+    var L2 = [];
+    L2.push('SEX — TREINO A · ' + fmtRef(d) + (p.length === 3 ? '/' + p[0] : '') + ' · ' + rotuloModo(modo) + ' · ' + dur + ' min · esforço ' + v('hj_esforco') + '/10');
+    L2.push('Joelho manhã: ' + v('hdr_joelho') + '/10');
+    L2.push('Ênfase da semana: ' + v('hdr_enfase'));
+    L2.push('Feedback do personal: ' + v('hdr_feedback'));
+    L2.push('');
+    L2.push('Arremessos totais: ' + c.reg + '        (entra como carga de joelho no log)');
+    L2.push('Calibração:  1 mão ' + v('calib_1m') + '/9 · apoio ' + v('calib_ap') + '/9');
+    L2.push('Construção:  v1 ' + soma(s1, 4) + ' [' + (marcaEfetiva(vals) || '–') + '] · v2 ' + soma(s2, 4) + ' [' + v('cs_m2') + ']');
+    L2.push('             ' + sp('cs_v1', 4) + '  (v1)');
+    L2.push('             ' + sp('cs_v2', 4) + '  (v2)');
+    L2.push('Handle est.: perdas v1 ' + [v('est_v1_1'), v('est_v1_2'), v('est_v1_3')].join('/') + ' · v2 ' + [v('est_v2_1'), v('est_v2_2'), v('est_v2_3')].join('/'));
+    L2.push('Ritmo:       D ' + v('ritmo_d') + '/6 · E ' + v('ritmo_e') + '/6');
+    L2.push('Pull-up:     D ' + v('pull_d') + '/8 · E ' + v('pull_e') + '/8 · erros ' + v('pull_err'));
+    L2.push('BENCHMARK [' + (temValor(vals.bench_proto) ? vals.bench_proto : (sb.n ? 'protocolo?' : '–')) + '] — ' + flag + (temValor(vals.bench_marcas) ? ' · marcas: ' + vals.bench_marcas : ''));
+    L2.push('             ' + sp('bench', 5) + ' = ' + soma(sb, 5) + (sb.n ? ' (' + Math.round(sb.ac / sb.at * 100) + '%)' : ''));
+    L2.push('             média móvel 4 sessões: ' + (mm ? mm.pct + '%' : '–'));
+    var a = vals.ll_1, b = vals.ll_2, n = (temValor(a) ? 5 : 0) + (temValor(b) ? 5 : 0);
+    L2.push('Lances livres: ' + (n ? ((+a || 0) + (+b || 0)) + '/' + n : '–/10') + ' (' + v('ll_1') + ' + ' + v('ll_2') + ')');
+    L2.push('EXTRA sprints: ' + (temValor(vals.sprint_nao) ? 'não fiz' : (temValor(vals.sprint_n) ? vals.sprint_n + '/6' : '–')));
+    L2.push('Blocos incompletos: ' + inc);
+    L2.push('Dor/desconforto: ' + v('hj_dor'));
+    L2.push('Ajuste que funcionou: ' + v('hj_ajuste'));
+    L2.push('Dificuldade principal: ' + v('hj_dificuldade'));
+    L2.push('Ênfase pra próxima: ' + v('hj_proxima'));
+    return { txt: L2.join('\n'), hoje: usaHoje, d: d };
+  }
+  function copiarTexto(txt, cb) {
+    var fallback = function () {
+      var ta = document.createElement('textarea');
+      ta.value = txt; ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.top = '-1000px';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { ta.setSelectionRange(0, txt.length); } catch (e) {}
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      cb(ok);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { cb(true); }, fallback);
+    } else fallback();
+  }
+  document.getElementById('copiarBtn').addEventListener('click', function () {
+    var box = document.getElementById('resumoBox');
+    var r = resumoTexto();
+    if (!r) { msg('nada pra copiar ainda'); return; }
+    copiarTexto(r.txt, function (ok) {
+      if (ok) { box.hidden = true; msg('resumo copiado (' + (r.hoje ? 'hoje' : fmtRef(r.d)) + ') — cola no Notes'); }
+      else { box.value = r.txt; box.hidden = false; box.focus(); box.select(); msg('não consegui copiar — segura no texto e escolhe Selecionar tudo'); }
+    });
+  });
+
+  // virada de dia + volta do background (visibilitychange + pageshow re-hidratam)
+  function onVisible() {
+    if (hoje() !== DIA_CARREGADO) {
+      if (!run) location.reload();  // com timer ativo, deixa terminar
+      return;
+    }
+    if (run && run.remaining == null) {
+      if (Date.now() >= run.end) { var rid = run.id; stopRun(); completeStep(rid, true); }
+      else { renderGo(run.id); wakeOn(); }
+    }
+    aplicarRelogio();
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) onVisible(); });
+  window.addEventListener('pageshow', function (ev) { if (ev.persisted) onVisible(); });
+  // watchdog: run PAUSADO conta como inativo — um pause esquecido não segura a virada
+  setInterval(function () {
+    var runAtivo = run && run.remaining == null;
+    if (hoje() !== DIA_CARREGADO && !runAtivo) location.reload();
+  }, 30000);
+
+  // scroll-spy
+  var secs = BLOCOS.map(function (b) { return document.getElementById(b.id); });
+  var topEl = document.querySelector('.top');
+  function spy() {
+    var lim = topEl.offsetHeight + 24;
+    var cur = null;
+    for (var i = 0; i < secs.length; i++) {
+      if (!secs[i].hidden && secs[i].getBoundingClientRect().top <= lim) cur = BLOCOS[i].id;
+    }
+    BLOCOS.forEach(function (b) {
+      var chip = document.getElementById('chip-' + b.id);
+      var on = b.id === cur;
+      chip.classList.toggle('on', on);
+      if (on) {
+        var L = chip.offsetLeft - 10, R = chip.offsetLeft + chip.offsetWidth + 10;
+        if (L < nav.scrollLeft) nav.scrollLeft = L;
+        else if (R > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = R - nav.clientWidth;
+      }
+    });
+  }
+  var spyT = null;
+  window.addEventListener('scroll', function () {
+    if (spyT) return;
+    spyT = setTimeout(function () { spyT = null; spy(); }, 120);
+  }, { passive: true });
+  spy();
+})();
+</script>
+</body>
+</html>
