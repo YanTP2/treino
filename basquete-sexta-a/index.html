@@ -6,47 +6,47 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Basquete A">
-<meta name="theme-color" content="#101014">
+<meta name="theme-color" content="#0e0c14">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <title>Basquete TREINO A — Sexta</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html { background:#101014; }
+  html { background:#0e0c14; }
   body {
     font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-    background:#101014; color:#e8e8ec; max-width:480px; margin:0 auto;
+    background:#0e0c14; color:#e8e8ec; max-width:480px; margin:0 auto;
     padding:0 14px calc(96px + env(safe-area-inset-bottom));
     font-size:16px; line-height:1.45;
   }
-  a { color:#fbbf24; }
+  a { color:#ffb08a; }
 
   .top {
     position:sticky; top:0; z-index:10; background:rgba(16,16,20,.93);
     -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
     margin:0 -14px; padding:calc(10px + env(safe-area-inset-top)) 14px 0;
-    border-bottom:1px solid #26262c;
+    border-bottom:1px solid #241f2f;
   }
   .top-row { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
-  .top h1 { font-size:16px; font-weight:800; letter-spacing:-.2px; color:#f59e0b; flex:1; min-width:0; line-height:1.2; }
+  .top h1 { font-size:16px; font-weight:800; letter-spacing:-.2px; color:#ff7a45; flex:1; min-width:0; line-height:1.2; }
   .top h1 small { font-weight:600; color:#9d9da6; font-size:12.5px; white-space:nowrap; }
   .prog-txt { font-size:13px; font-weight:700; color:#8e8e96; font-variant-numeric:tabular-nums; }
   .chips-nav { display:flex; gap:6px; overflow-x:auto; padding:8px 0 10px; scrollbar-width:none; }
   .chips-nav::-webkit-scrollbar { display:none; }
   .chip {
     flex-shrink:0; font-size:13px; font-weight:700; padding:10px 13px; border-radius:8px;
-    background:#1b1b21; border:1px solid #35353d; color:#9d9da6; white-space:nowrap;
+    background:#1a1622; border:1px solid #2e2839; color:#9d9da6; white-space:nowrap;
     text-decoration:none;
   }
-  .chip.on { background:var(--bc); border-color:var(--bc); color:#101014; }
-  .pbar { height:3px; background:#1e1e24; margin:0 -14px; }
-  .pbar i { display:block; height:100%; width:0%; background:#f59e0b; transition:width .4s; }
+  .chip.on { background:var(--bc); border-color:var(--bc); color:#0e0c14; }
+  .pbar { height:3px; background:#211c2b; margin:0 -14px; }
+  .pbar i { display:block; height:100%; width:0%; background:#ff7a45; transition:width .4s; }
 
   .sub { font-size:12.5px; color:#8e8e96; margin:12px 0 0; text-align:center; }
 
   details.notas {
-    background:#1b1b21; border:1px solid #35353d; border-radius:10px;
+    background:#1a1622; border:1px solid #2e2839; border-radius:10px;
     padding:0 14px; margin:12px 0 4px;
   }
   details.notas summary {
@@ -54,12 +54,12 @@
     padding:11px 0; display:flex; align-items:center; gap:6px;
   }
   details.notas summary::-webkit-details-marker { display:none; }
-  details.notas summary::before { content:"▸"; color:#f59e0b; transition:transform .2s; }
+  details.notas summary::before { content:"▸"; color:#ff7a45; transition:transform .2s; }
   details.notas[open] summary::before { transform:rotate(90deg); }
   details.notas p { font-size:13.5px; color:#aeaeb8; line-height:1.55; padding-bottom:10px; }
   details.notas p strong { color:#e8e8ec; }
 
-  section.bloco { --acc:#f59e0b; scroll-margin-top:calc(100px + env(safe-area-inset-top)); }
+  section.bloco { --acc:#ff7a45; scroll-margin-top:calc(100px + env(safe-area-inset-top)); }
   .bh {
     display:flex; align-items:center; justify-content:space-between; gap:10px;
     margin:22px 0 10px; padding:10px 14px; border-radius:8px;
@@ -68,13 +68,13 @@
     scroll-margin-top:calc(100px + env(safe-area-inset-top));
   }
   @supports not (background: color-mix(in srgb, red 10%, transparent)) {
-    .bh { background:#1b1b21; }
+    .bh { background:#1a1622; }
   }
   .bh h2 { font-size:14.5px; font-weight:800; color:var(--acc); }
   .bh h2 small { display:block; font-size:12px; font-weight:600; color:#9d9da6; margin-top:1px; }
 
   .ex {
-    background:#1b1b21; border:1px solid #35353d; border-radius:12px;
+    background:#1a1622; border:1px solid #2e2839; border-radius:12px;
     padding:14px 14px 12px; margin-bottom:12px; transition:opacity .3s, border-color .3s;
     scroll-margin-top:calc(100px + env(safe-area-inset-top));
   }
@@ -85,7 +85,7 @@
 
   .ex-head { display:flex; align-items:flex-start; gap:10px; }
   .num {
-    min-width:30px; height:28px; padding:0 6px; border-radius:8px; background:var(--acc); color:#101014;
+    min-width:30px; height:28px; padding:0 6px; border-radius:8px; background:var(--acc); color:#0e0c14;
     font-weight:800; font-size:12.5px; display:flex; align-items:center; justify-content:center;
     flex-shrink:0; margin-top:1px; cursor:pointer;
   }
@@ -97,20 +97,20 @@
   }
   .done-btn {
     width:44px; height:44px; margin:-8px -8px 0 0; flex-shrink:0; border-radius:10px;
-    border:1.5px solid #35353d; background:transparent;
+    border:1.5px solid #2e2839; background:transparent;
     color:#6f6f78; font-size:18px; font-weight:800; cursor:pointer;
   }
-  .is-done .done-btn { background:#4ade80; border-color:#4ade80; color:#101014; }
+  .is-done .done-btn { background:#4ade80; border-color:#4ade80; color:#0e0c14; }
 
   .media { display:flex; gap:12px; margin:10px 0 11px; align-items:flex-start; }
   .thumb {
     width:104px; height:78px; object-fit:cover; border-radius:8px;
-    border:1px solid #35353d; flex-shrink:0; cursor:pointer; background:#141419;
+    border:1px solid #2e2839; flex-shrink:0; cursor:pointer; background:#13101a;
   }
   .media-right { flex:1; min-width:0; }
   .dose { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:7px; }
   .dose span {
-    background:#101014; border:1px solid #35353d; border-radius:6px;
+    background:#0e0c14; border:1px solid #2e2839; border-radius:6px;
     padding:4px 9px; font-size:14.5px; font-weight:800; font-variant-numeric:tabular-nums;
   }
   .dose span.eq { font-weight:600; color:#9d9da6; font-size:12.5px; align-self:center; border-style:dashed; }
@@ -122,13 +122,13 @@
     background:transparent; color:var(--acc); font-size:16.5px; font-weight:800;
     font-variant-numeric:tabular-nums; cursor:pointer; transition:background .2s; margin-top:6px;
   }
-  .go.running { background:var(--acc); color:#101014; font-size:24px; }
-  .go.paused { background:#1e1e24; border-color:#9d9da6; color:#e8e8ec; }
+  .go.running { background:var(--acc); color:#0e0c14; font-size:24px; }
+  .go.paused { background:#211c2b; border-color:#9d9da6; color:#e8e8ec; }
   .is-done .go { border-color:#4ade80; color:#4ade80; font-size:15px; }
 
-  details.how { margin-top:10px; border-top:1px solid #26262c; padding-top:2px; }
+  details.how { margin-top:10px; border-top:1px solid #241f2f; padding-top:2px; }
   details.how summary {
-    list-style:none; cursor:pointer; font-size:13px; font-weight:700; color:#fbbf24;
+    list-style:none; cursor:pointer; font-size:13px; font-weight:700; color:#ffb08a;
     padding:11px 0; display:flex; align-items:center; gap:6px;
   }
   details.how summary::-webkit-details-marker { display:none; }
@@ -137,8 +137,8 @@
   .how-body { padding:2px 0 6px; }
   .how-body p { font-size:14px; color:#aeaeb8; line-height:1.55; margin-bottom:10px; }
   .how-body p strong { color:#e8e8ec; }
-  .links { background:#101014; border:1px solid #26262c; border-radius:8px; padding:8px 12px; }
-  .links .lh { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#fbbf24; margin-bottom:3px; }
+  .links { background:#0e0c14; border:1px solid #241f2f; border-radius:8px; padding:8px 12px; }
+  .links .lh { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#ffb08a; margin-bottom:3px; }
   .links a { display:block; color:#aeaeb8; text-decoration:none; font-size:13.5px; padding:10px 0; }
   .links a::before { content:"→ "; color:var(--acc); }
 
@@ -147,36 +147,36 @@
   .frow { display:flex; align-items:center; gap:8px; }
   .frow label { flex:1; font-size:13.5px; color:#aeaeb8; }
   .frow input[type=number], .frow input[type=text] {
-    background:#101014; border:1px solid #35353d; border-radius:8px; color:#e8e8ec;
+    background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec;
     font-size:16px; font-weight:700; padding:10px 8px; text-align:center;
   }
   .frow input[type=number] { width:74px; }
   .frow input[type=text] { flex:1.2; text-align:left; font-weight:600; }
   .frm textarea {
-    background:#101014; border:1px solid #35353d; border-radius:8px; color:#e8e8ec;
+    background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec;
     font-size:16px; padding:10px; min-height:74px; width:100%; font-family:inherit;
   }
   .seg { display:flex; gap:6px; }
   .seg button {
-    border:1.5px solid #35353d; background:transparent; color:#9d9da6; border-radius:8px;
+    border:1.5px solid #2e2839; background:transparent; color:#9d9da6; border-radius:8px;
     font-size:14px; font-weight:700; padding:10px 16px; cursor:pointer;
   }
-  .seg button.on { background:#f59e0b; border-color:#f59e0b; color:#101014; }
+  .seg button.on { background:#ff7a45; border-color:#ff7a45; color:#0e0c14; }
 
   .foot { text-align:center; margin-top:26px; font-size:12.5px; color:#8e8e96; line-height:1.7; }
   .foot-btns { display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:14px; }
   .foot .reset, .foot .copiar {
-    background:#1e1e24; border:1px solid #35353d; border-radius:10px;
+    background:#211c2b; border:1px solid #2e2839; border-radius:10px;
     font-size:14px; font-weight:700; padding:11px 18px; cursor:pointer; min-height:44px;
   }
-  .foot .reset { color:#f59e0b; border-color:#4a3a14; }
+  .foot .reset { color:#ff7a45; border-color:#4a2f1f; }
   .foot .copiar { color:#aeaeb8; font-size:13px; }
   .savemsg { font-size:12px; color:#4ade80; min-height:16px; }
   .savemsg.err { color:#f87171; font-weight:700; }
-  .resumo-box { width:100%; min-height:140px; margin-top:10px; background:#16161b; color:#e8e8ec; border:1px solid #35353d;
+  .resumo-box { width:100%; min-height:140px; margin-top:10px; background:#151220; color:#e8e8ec; border:1px solid #2e2839;
     border-radius:10px; padding:10px; font-size:13px; line-height:1.4; font-family:inherit; }
   .sub.ref { margin-top:6px; color:#8e8e96; }
-  .fora { background:#3a2a10; color:#fbbf24; font-size:12.5px; line-height:1.4; text-align:center; padding:8px 12px; border-radius:8px; margin:10px 0 0; }
+  .fora { background:#3a2416; color:#ffb08a; font-size:12.5px; line-height:1.4; text-align:center; padding:8px 12px; border-radius:8px; margin:10px 0 0; }
   .antes { color:#8e8e96; font-size:12px; font-weight:600; white-space:nowrap; }
 
   /* -------- Treino A: modo, relógio, avisos -------- */
@@ -184,12 +184,14 @@
   .top-sub { font-size:12px; color:#8e8e96; padding:3px 0 0; font-variant-numeric:tabular-nums; }
   .banner {
     display:flex; align-items:center; gap:10px; margin:0 0 8px; padding:9px 12px; border-radius:8px;
-    background:#3a2a10; color:#fbbf24; font-size:13.5px; font-weight:700; line-height:1.35;
+    background:#3a2416; color:#ffb08a; font-size:13.5px; font-weight:700; line-height:1.35;
   }
-  .banner button { margin-left:auto; flex-shrink:0; background:transparent; border:1px solid #fbbf24; color:#fbbf24; border-radius:6px; min-width:44px; min-height:36px; font-weight:800; cursor:pointer; }
-  .hdrbox { background:#1b1b21; border:1px solid #35353d; border-radius:10px; padding:10px 12px; margin:12px 0 0; display:flex; flex-direction:column; gap:9px; }
+  .banner button { margin-left:auto; flex-shrink:0; background:transparent; border:1px solid #ffb08a; color:#ffb08a; border-radius:6px; min-width:44px; min-height:36px; font-weight:800; cursor:pointer; }
+  .hdrbox { background:#1a1622; border:1px solid #2e2839; border-radius:10px; padding:10px 12px; margin:12px 0 0; display:flex; flex-direction:column; gap:9px; }
   .hdrbox .frow label { font-size:13px; }
-  .hdrbox .frow input[type=text] { flex:1.1; }
+  .hdrbox .frow input { min-width:0; }
+  .hdrbox .frow.col { flex-direction:column; align-items:stretch; gap:5px; }
+  .hdrbox .frow.col input[type=text] { width:100%; flex:none; text-align:left; }
   .modo-row { display:flex; align-items:center; gap:10px; }
   .modo-row label { font-size:13px; color:#9d9da6; font-weight:700; }
   .modo-row .seg { flex:1; }
@@ -202,19 +204,19 @@
   .crow label { font-size:13px; color:#9d9da6; font-weight:700; flex:1; min-width:0; line-height:1.3; }
   .crow .cin { display:flex; align-items:center; gap:5px; flex-shrink:0; }
   input.ac, input.tt {
-    background:#101014; border:1px solid #35353d; border-radius:8px; color:#e8e8ec;
+    background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec;
     font-size:16px; font-weight:700; padding:10px 4px; text-align:center; width:58px; min-width:0;
     font-variant-numeric:tabular-nums;
   }
   input.tt { width:50px; color:#9d9da6; font-weight:600; }
   input.ac::placeholder, input.tt::placeholder { color:#5c5c66; font-weight:600; }
-  .crow input.tx { flex:1.3; min-width:0; background:#101014; border:1px solid #35353d; border-radius:8px; color:#e8e8ec; font-size:16px; font-weight:600; padding:10px 8px; }
+  .crow input.tx { flex:1.3; min-width:0; background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec; font-size:16px; font-weight:600; padding:10px 8px; }
   .crow input.tx::placeholder { color:#5c5c66; }
   .den, .x { color:#6f6f78; font-size:13px; font-weight:700; flex-shrink:0; }
   .crow .stot { font-size:14.5px; font-weight:800; font-variant-numeric:tabular-nums; }
   .seg-row .seg { flex-wrap:wrap; }
   .seg button { min-height:44px; }
-  .spots { margin:8px 0 4px; border-top:1px solid #26262c; padding-top:6px; }
+  .spots { margin:8px 0 4px; border-top:1px solid #241f2f; padding-top:6px; }
   .sph { display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-size:13px; font-weight:800; color:var(--acc); padding:2px 0 4px; }
   .sph .stot { color:#e8e8ec; font-variant-numeric:tabular-nums; white-space:nowrap; }
   .sprow { display:flex; align-items:center; gap:6px; padding:3px 0; }
@@ -229,12 +231,12 @@
   .ex.extra { border-style:dashed; }
 
   /* -------- Treino A: histórico do benchmark -------- */
-  .hist { background:#101014; border:1px solid #26262c; border-radius:8px; padding:10px 12px; margin:10px 0 4px; }
+  .hist { background:#0e0c14; border:1px solid #241f2f; border-radius:8px; padding:10px 12px; margin:10px 0 4px; }
   .hh { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:var(--acc); }
   .hbig { font-size:34px; font-weight:800; line-height:1.15; font-variant-numeric:tabular-nums; }
   .hsm { font-size:12.5px; color:#8e8e96; line-height:1.4; }
-  .hnote { font-size:12.5px; color:#aeaeb8; margin-top:6px; border-top:1px solid #26262c; padding-top:6px; line-height:1.4; }
-  .hwarn { font-size:13px; color:#fbbf24; font-weight:700; margin-bottom:6px; line-height:1.35; }
+  .hnote { font-size:12.5px; color:#aeaeb8; margin-top:6px; border-top:1px solid #241f2f; padding-top:6px; line-height:1.4; }
+  .hwarn { font-size:13px; color:#ffb08a; font-weight:700; margin-bottom:6px; line-height:1.35; }
   details.hlist { margin-top:4px; }
   details.hlist summary { list-style:none; font-size:12.5px; color:#9d9da6; font-weight:700; cursor:pointer; padding:8px 0; }
   details.hlist summary::-webkit-details-marker { display:none; }
@@ -248,13 +250,19 @@
   .desc ol, .desc ul { padding-left:20px; margin:0 0 10px; font-size:14px; color:#aeaeb8; line-height:1.55; }
   .desc li { margin-bottom:3px; }
   .vid-swap { margin-top:8px; font-size:11.5px; color:#6f6f78; line-height:1.5; }
+
+  /* -------- tema basquete (paleta trocada no gerador: fundo índigo, laranja de bola) -------- */
+  .top h1 { text-shadow:0 0 18px rgba(255,122,69,.35); }
+  .pbar { background:#241f2f; }
+  .pbar i { background:linear-gradient(90deg,#ff7a45,#c084fc); }
+  .top { border-bottom-color:#3a2f4a; }
 </style>
 </head>
 <body>
 
 <div class="top">
   <div class="top-row">
-    <h1>SEX · TREINO A <small>— Shooting + Handle</small></h1>
+    <h1>🏀 SEX · TREINO A <small>— Shooting + Handle</small></h1>
     <span class="prog-txt" id="progTxt">0/109 arremessos</span>
   </div>
   <div class="top-sub" id="relogio"></div>
@@ -269,8 +277,8 @@
 <div class="hdrbox" id="hdrbox">
   <div class="modo-row"><label>Modo</label><span class="seg" id="modoSeg"><button type="button" data-v="completa">Completa</button><button type="button" data-v="curta">Curta</button><button type="button" data-v="segunda">Segunda</button></span></div>
   <div class="modo-desc" id="modoDesc"></div>
-  <div class="frow"><label>Ênfase técnica da semana <span class="antes">(revisão de domingo)</span></label><input type="text" id="hdr_enfase"></div>
-  <div class="frow"><label>Feedback do personal <span class="antes">(terça)</span></label><input type="text" id="hdr_feedback"></div>
+  <div class="frow col"><label>Ênfase técnica da semana <span class="antes">(revisão de domingo)</span></label><input type="text" id="hdr_enfase"></div>
+  <div class="frow col"><label>Feedback do personal <span class="antes">(terça)</span></label><input type="text" id="hdr_feedback"></div>
   <div class="frow"><label>Joelho de manhã (0–10) <span class="antes">&gt; 3 fecha o EXTRA</span></label><input type="number" inputmode="numeric" min="0" max="10" id="hdr_joelho"></div>
   <div class="dica">Apertou o tempo na Completa? Corta nesta ordem: <b>3-B → 4 → 2ª volta do 2-B</b>. Benchmark e lances livres nunca saem.</div>
 </div>
@@ -312,13 +320,13 @@
 <script>
 // ===================== DADOS =====================
 var BLOCOS = [
-  { id:'b1', cor:'#94a3b8', nav:'1 · Prep',      titulo:'BLOCO 1 — PREPARAÇÃO',       sub:'5 min · 5 movimentos × 1 min · na Curta: 3 min' },
-  { id:'b2', cor:'#f59e0b', nav:'2 · Arremesso', titulo:'BLOCO 2 — ARREMESSO',        sub:'25 min · 58 tentativas · calibração → construção do 3PT' },
-  { id:'b3', cor:'#22d3ee', nav:'3 · Handle',    titulo:'BLOCO 3 — HANDLE FUNCIONAL', sub:'15 min · estacionário → em movimento' },
+  { id:'b1', cor:'#9aa3c7', nav:'1 · Prep',      titulo:'BLOCO 1 — PREPARAÇÃO',       sub:'5 min · 5 movimentos × 1 min · na Curta: 3 min' },
+  { id:'b2', cor:'#ff7a45', nav:'2 · Arremesso', titulo:'BLOCO 2 — ARREMESSO',        sub:'25 min · 58 tentativas · calibração → construção do 3PT' },
+  { id:'b3', cor:'#38bdf8', nav:'3 · Handle',    titulo:'BLOCO 3 — HANDLE FUNCIONAL', sub:'15 min · estacionário → em movimento' },
   { id:'b4', cor:'#fb7185', nav:'4 · Pull-up',   titulo:'BLOCO 4 — DRIBLE → CHUTE',   sub:'10 min · 16 tentativas · 4 séries de 4' },
-  { id:'b5', cor:'#a78bfa', nav:'5 · Fecho',     titulo:'BLOCO 5 — FECHAMENTO',       sub:'15 min · benchmark 25 + lances livres 10 · nunca saem' },
+  { id:'b5', cor:'#c084fc', nav:'5 · Fecho',     titulo:'BLOCO 5 — FECHAMENTO',       sub:'15 min · benchmark 25 + lances livres 10 · nunca saem' },
   { id:'ex', cor:'#f87171', nav:'Extra',         titulo:'EXTRA — SPRINTS COM BOLA',   sub:'6–8 min · opcional · não conta como falha' },
-  { id:'hj', cor:'#94a3b8', nav:'Hoje',          titulo:'COMO FOI HOJE',              sub:'preenche no fim — entra no resumo e no histórico do benchmark' }
+  { id:'hj', cor:'#9aa3c7', nav:'Hoje',          titulo:'COMO FOI HOJE',              sub:'preenche no fim — entra no resumo e no histórico do benchmark' }
 ];
 
 // Card: steps (✓ marcar / timer por timestamp), ui (campos na ordem: go · spots · cnt · txt · seg · nota · trav · bench · calc),
@@ -350,7 +358,7 @@ var DATA = [
 
 { id:'cs', b:'b2', num:'2-B', name:'Construção do 3PT (catch-and-shoot)', img:'img/v_ecPyYg53Rw8.jpg',
   chips:['20 min','2 voltas × 5 posições × 4 = 40'], eq:'~1 m pra dentro da linha FIBA · marca as posições', filtraCurta:true,
-  badge:['BLOCO CENTRAL','#f59e0b'],
+  badge:['BLOCO CENTRAL','#ff7a45'],
   cue:'Autopasse com giro (<i>spin-out</i>) → recepção → arremesso, <b>sem drible</b>. Ordem fixa: Canto E → Ala E → Topo → Ala D → Canto D (olhando pra cesta).',
   steps:[ { t:'Volta 1 · 5 posições × 4 · 20 bolas', c:true }, { t:'Volta 2 · 5 posições × 4 · 20 bolas' } ],
   ui:[ { t:'go' },
@@ -401,7 +409,7 @@ var DATA = [
 
 { id:'bench', b:'b5', num:'5-A', name:'Benchmark', img:'img/v_ecPyYg53Rw8.jpg',
   chips:['~10 min','5 posições × 5 = 25'], eq:'90 s de pausa antes · não reiniciar', modos:['completa','curta'],
-  badge:['1×/SEMANA · SEXTA','#a78bfa'],
+  badge:['1×/SEMANA · SEXTA','#c084fc'],
   cue:'Fica no <b>fim de propósito</b>: arremesso de 3 em jogo acontece com perna cansada. Conta <b>todas</b> as bolas, inclusive as de recepção ruim. Pisou na linha (FIBA) = falha.',
   steps:[ { t:'Pausa obrigatória antes do teste', s:90 }, { t:'25 bolas · CE → AE → TP → AD → CD · autopasse, sem drible' } ],
   ui:[ { t:'seg', k:'bench_proto', lab:'Protocolo', opts:['FIBA 25','Referência 25'] },
