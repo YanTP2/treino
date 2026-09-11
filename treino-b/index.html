@@ -262,8 +262,16 @@
   .top h1 small { white-space:normal; }
   .crow label .antes, .crow.col label .antes { white-space:normal; }
   .pbar i { width:100%; background:linear-gradient(90deg,#ef4444,#ff7a45); }
-  .seg.telas { display:flex; gap:6px; padding:8px 0 10px; }
-  .seg.telas button { flex:1; min-height:44px; padding:10px 4px; font-size:13.5px; }
+  #tela-pauta { --acc:#ef4444; } #tela-registro { --acc:#ff7a45; } #tela-hist { --acc:#c084fc; }
+  .chips-nav { display:flex; }
+  .seg.telas { display:flex; gap:6px; padding:8px 0 10px; flex:1; width:100%; }
+  .seg.telas button { flex:1; min-height:50px; padding:7px 4px; font-size:14px; line-height:1.15; }
+  .seg.telas button small { display:block; font-size:11px; font-weight:600; opacity:.75; margin-top:2px; }
+  .seg.stack { flex-direction:column; align-items:stretch; width:100%; }
+  .seg.stack button { width:100%; min-height:44px; text-align:left; padding:10px 14px; }
+  .seg.stack button::before { content:'○ '; opacity:.7; }
+  .seg.stack button.on::before { content:'● '; opacity:1; }
+  .top-sub { padding-bottom:2px; }
   .seg.telas button.on { background:#ff7a45; border-color:#ff7a45; }
   .crow.col { flex-direction:column; align-items:stretch; gap:5px; }
   .crow.col label { flex:none; }
@@ -275,6 +283,7 @@
   .frase b { color:#ff7a45; }
   .btn { min-height:44px; border-radius:10px; border:1.5px solid #ff7a45; background:transparent; color:#ff7a45; font-size:15px; font-weight:800; padding:10px 14px; cursor:pointer; width:100%; margin-top:6px; }
   .btn.sec { border-color:#2e2839; color:#aeaeb8; font-weight:700; }
+  #btnSugestao { text-align:left; font-weight:600; line-height:1.35; white-space:normal; }
   .lemb { padding-left:18px; font-size:14.5px; line-height:1.55; color:#e8e8ec; }
   .lemb li { margin-bottom:6px; }
   .pergunta { font-size:18px; font-weight:800; color:#ff7a45; text-align:center; padding:8px 0 10px; line-height:1.3; }
@@ -303,7 +312,7 @@
     <span class="prog-txt" id="saltosTxt">saltos 0 · ref. 10–15</span>
   </div>
   <div class="top-sub" id="sessaoTxt"></div>
-  <nav class="chips-nav"><span class="seg telas" id="telaSeg"><button type="button" data-v="pauta">PAUTA · antes</button><button type="button" data-v="registro">REGISTRO · depois</button><button type="button" data-v="hist">HISTÓRICO</button></span></nav>
+  <nav class="chips-nav"><span class="seg telas" id="telaSeg"><button type="button" data-v="pauta">PAUTA<small>antes</small></button><button type="button" data-v="registro">REGISTRO<small>depois</small></button><button type="button" data-v="hist">HISTÓRICO<small>sessões</small></button></span></nav>
   <div class="pbar"><i></i></div>
 </div>
 
@@ -321,7 +330,7 @@
   <p><strong>3.3 · Sem bloco de controle de joelho.</strong> Joelho antes/durante/depois/manhã seguinte é log semanal; em dois lugares, um fica em branco. Sobrevive um único campo, <strong>Joelho antes (0-10)</strong>, que é gatilho: joelho sensível → Spanish squat 3×45 s no aquecimento (elástico na mochila). Sem links clínicos: a fisio acompanha semanalmente e liberou tudo; o freio do sistema é a regra das 24 h e o log.</p>
   <p><strong>3.4 · Intensidade:</strong> quinta (C) é leve — padrão motor, sem esforço máximo, sem tentar pular. Terça (B) é onde vivem a intensidade, o contato e o salto.</p>
   <p><strong>4 · A terça salta.</strong> É a única sessão da semana com defensor humano, e finalização contestada só existe ali. Se a quarta precisar pegar mais leve, o portão das 24 h de quarta faz esse trabalho. Três condições: (1) <strong>salto de terça é salto CONTADO</strong> — campo obrigatório "Finalizações com salto"; (2) <strong>finalização com salto ≠ salto máximo</strong>: bandeja contestada saindo de gather é submáxima, tentativa de enterrada não é — teto de referência ~10-15 finalizações com salto, zero tentativa de salto máximo (salto máximo continua sendo domingo, contado lá); (3) <strong>a regra que protege:</strong> sem contato no ar, sem interferir na área de aterrissagem — o risco não é a decolagem, é aterrissar desequilibrado com alguém no caminho. Combinação com o personal, não carga.</p>
-  <p><strong>Registro:</strong> tudo salva a cada toque. O cinza é a última sessão. <strong>Nova semana</strong> arquiva a sessão no histórico e limpa os campos, mantendo a ênfase e o par pra edição. <strong>Exportar</strong> copia o texto no formato da nota 06.</p>
+  <p><strong>Registro:</strong> tudo salva a cada toque. O cinza é a última sessão. A sessão do dia começa no primeiro campo do joelho ou do REGISTRO (ênfase, par e vídeo podem ser editados antes sem abrir sessão). <strong>Nova semana</strong> arquiva a sessão no histórico e limpa os campos, mantendo a ênfase e o par pra edição. <strong>Exportar</strong> copia o texto no formato da nota 06.</p>
 </details>
 
 <section id="tela-pauta"></section>
@@ -436,7 +445,7 @@ var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
   }
   function renderRef() {
     document.getElementById('refTxt').textContent = ant.d ? 'última sessão: ' + fmtRef(ant.d) : 'sem referência ainda';
-    document.getElementById('sessaoTxt').textContent = state.d ? 'sessão de ' + fmtRef(state.d) : 'sessão ainda não iniciada — preencher a PAUTA não inicia; joelho e registro sim';
+    document.getElementById('sessaoTxt').textContent = state.d ? 'sessão de ' + fmtRef(state.d) : 'sessão ainda não iniciada';
   }
   renderRef();
   // aviso: aberto fora do ícone (Safari, link de outro app, Mac) = outra memória, nada fica no app da tela de início
@@ -491,11 +500,12 @@ var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
     sec.innerHTML =
       bh('#ef4444', 'PAUTA', 'ler antes de sair de casa · 2 minutos') +
       card('p1', 'P1', 'Ênfase da semana',
-        txt('p1_enfase', 'Ênfase <span class="antes">(vem da revisão de domingo)</span>', ENFASE_SUGERIDA) +
-        nota('Escolhe uma dificuldade do último jogo ou uma pendência técnica. Mantém uma ênfase principal durante a sessão inteira.' + (v('p1_enfase') ? '' : ' <b>Sugestão inicial:</b> «' + ENFASE_SUGERIDA + '»'))) +
+        txt('p1_enfase', 'Ênfase <span class="antes">(vem da revisão de domingo)</span>', 'ex.: finalizar com equilíbrio') +
+        nota('Escolhe uma dificuldade do último jogo ou uma pendência técnica. Mantém uma ênfase principal durante a sessão inteira.') +
+        (v('p1_enfase') ? '' : '<button class="btn sec" id="btnSugestao" type="button">Sugestão inicial: «' + ENFASE_SUGERIDA + '»</button>')) +
       card('p2', 'P2', 'Par de movimentos',
         txt('p2_acao', 'Ação principal') + txt('p2_alt', 'Alternativa') +
-        '<div class="crow seg-row"><label>Origem do par</label><span class="seg" id="p2_origem">' + ORIGENS.map(function (o) { return '<button type="button" data-v="' + o + '"' + (origem === o ? ' class="on"' : '') + '>' + o + '</button>'; }).join('') + '</span></div>' +
+        '<div class="crow col"><label>Origem do par</label><span class="seg stack" id="p2_origem">' + ORIGENS.map(function (o) { return '<button type="button" data-v="' + o + '"' + (origem === o ? ' class="on"' : '') + '>' + o + '</button>'; }).join('') + '</span></div>' +
         lista +
         txt('p2_url', 'Vídeo do C <span class="antes">(cola a URL até o app do C existir)</span>', 'https://…') +
         '<button class="btn" id="btnVideo" type="button">▶ Rever o movimento</button>' +
@@ -516,6 +526,8 @@ var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
       var x = ps[+sel.value]; if (!x) return;
       state.vals.p2_acao = x.acao; state.vals.p2_alt = x.alt; save(); renderPauta();
     });
+    var bs = document.getElementById('btnSugestao');
+    if (bs) bs.addEventListener('click', function () { state.vals.p1_enfase = ENFASE_SUGERIDA; save(); renderPauta(); });
     document.getElementById('btnVideo').addEventListener('click', function () {
       var u = v('p2_url');
       if (!/^https?:\/\//i.test(u)) { alert('Cola a URL do vídeo do C no campo acima.'); return; }
