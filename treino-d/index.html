@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Basquete D">
+<meta name="theme-color" content="#0e0c14">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Basquete TREINO D — Domingo</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { background:#0e0c14; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:#0e0c14; color:#e8e8ec; max-width:480px; margin:0 auto;
+    padding:0 14px calc(96px + env(safe-area-inset-bottom));
+    font-size:16px; line-height:1.45;
+  }
+  a { color:#ffb08a; }
+
+  .top {
+    position:sticky; top:0; z-index:10; background:rgba(16,16,20,.93);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    margin:0 -14px; padding:calc(10px + env(safe-area-inset-top)) 14px 0;
+    border-bottom:1px solid #241f2f;
+  }
+  .top-row { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .top h1 { font-size:16px; font-weight:800; letter-spacing:-.2px; color:#ff7a45; flex:1; min-width:0; line-height:1.2; }
+  .top h1 small { font-weight:600; color:#9d9da6; font-size:12.5px; white-space:nowrap; }
+  .prog-txt { font-size:13px; font-weight:700; color:#8e8e96; font-variant-numeric:tabular-nums; }
+  .chips-nav { display:flex; gap:6px; overflow-x:auto; padding:8px 0 10px; scrollbar-width:none; }
+  .chips-nav::-webkit-scrollbar { display:none; }
+  .chip {
+    flex-shrink:0; font-size:13px; font-weight:700; padding:10px 13px; border-radius:8px;
+    background:#1a1622; border:1px solid #2e2839; color:#9d9da6; white-space:nowrap;
+    text-decoration:none;
+  }
+  .chip.on { background:var(--bc); border-color:var(--bc); color:#0e0c14; }
+  .pbar { height:3px; background:#211c2b; margin:0 -14px; }
+  .pbar i { display:block; height:100%; width:0%; background:#ff7a45; transition:width .4s; }
+
+  .sub { font-size:12.5px; color:#8e8e96; margin:12px 0 0; text-align:center; }
+
+  details.notas {
+    background:#1a1622; border:1px solid #2e2839; border-radius:10px;
+    padding:0 14px; margin:12px 0 4px;
+  }
+  details.notas summary {
+    list-style:none; cursor:pointer; font-size:13.5px; font-weight:700; color:#e8e8ec;
+    padding:11px 0; display:flex; align-items:center; gap:6px;
+  }
+  details.notas summary::-webkit-details-marker { display:none; }
+  details.notas summary::before { content:"▸"; color:#ff7a45; transition:transform .2s; }
+  details.notas[open] summary::before { transform:rotate(90deg); }
+  details.notas p { font-size:13.5px; color:#aeaeb8; line-height:1.55; padding-bottom:10px; }
+  details.notas p strong { color:#e8e8ec; }
+
+  section.bloco { --acc:#ff7a45; scroll-margin-top:calc(100px + env(safe-area-inset-top)); }
+  .bh {
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin:22px 0 10px; padding:10px 14px; border-radius:8px;
+    background:color-mix(in srgb, var(--acc) 10%, transparent);
+    border-left:3px solid var(--acc);
+    scroll-margin-top:calc(100px + env(safe-area-inset-top));
+  }
+  @supports not (background: color-mix(in srgb, red 10%, transparent)) {
+    .bh { background:#1a1622; }
+  }
+  .bh h2 { font-size:14.5px; font-weight:800; color:var(--acc); }
+  .bh h2 small { display:block; font-size:12px; font-weight:600; color:#9d9da6; margin-top:1px; }
+
+  .ex {
+    background:#1a1622; border:1px solid #2e2839; border-radius:12px;
+    padding:14px 14px 12px; margin-bottom:12px; transition:opacity .3s, border-color .3s;
+    scroll-margin-top:calc(100px + env(safe-area-inset-top));
+  }
+  .ex.run { border-color:var(--acc); }
+  .ex.is-done { opacity:.5; }
+  .ex.flash { animation:fl .45s 2; }
+  @keyframes fl { 50% { border-color:#4ade80; box-shadow:0 0 0 3px #4ade8033; } }
+
+  .ex-head { display:flex; align-items:flex-start; gap:10px; }
+  .num {
+    min-width:30px; height:28px; padding:0 6px; border-radius:8px; background:var(--acc); color:#0e0c14;
+    font-weight:800; font-size:12.5px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; margin-top:1px; cursor:pointer;
+  }
+  .ex-head h3 { flex:1; font-size:17px; font-weight:750; line-height:1.25; letter-spacing:-.2px; }
+  .bpill {
+    display:inline-block; border:1.5px solid; border-radius:6px; padding:1px 7px;
+    font-size:10.5px; font-weight:800; letter-spacing:.4px; margin-left:6px;
+    vertical-align:2px; white-space:nowrap;
+  }
+  .done-btn {
+    width:44px; height:44px; margin:-8px -8px 0 0; flex-shrink:0; border-radius:10px;
+    border:1.5px solid #2e2839; background:transparent;
+    color:#6f6f78; font-size:18px; font-weight:800; cursor:pointer;
+  }
+  .is-done .done-btn { background:#4ade80; border-color:#4ade80; color:#0e0c14; }
+
+  .media { display:flex; gap:12px; margin:10px 0 11px; align-items:flex-start; }
+  .thumb {
+    width:104px; height:78px; object-fit:cover; border-radius:8px;
+    border:1px solid #2e2839; flex-shrink:0; cursor:pointer; background:#13101a;
+  }
+  .media-right { flex:1; min-width:0; }
+  .dose { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:7px; }
+  .dose span {
+    background:#0e0c14; border:1px solid #2e2839; border-radius:6px;
+    padding:4px 9px; font-size:14.5px; font-weight:800; font-variant-numeric:tabular-nums;
+  }
+  .dose span.eq { font-weight:600; color:#9d9da6; font-size:12.5px; align-self:center; border-style:dashed; }
+  .cue { font-size:13.5px; color:#aeaeb8; line-height:1.45; }
+  .cue b { color:#e8e8ec; }
+
+  .go {
+    width:100%; min-height:52px; border-radius:10px; border:1.5px solid var(--acc);
+    background:transparent; color:var(--acc); font-size:16.5px; font-weight:800;
+    font-variant-numeric:tabular-nums; cursor:pointer; transition:background .2s; margin-top:6px;
+  }
+  .go.running { background:var(--acc); color:#0e0c14; font-size:24px; }
+  .go.paused { background:#211c2b; border-color:#9d9da6; color:#e8e8ec; }
+  .is-done .go { border-color:#4ade80; color:#4ade80; font-size:15px; }
+
+  details.how { margin-top:10px; border-top:1px solid #241f2f; padding-top:2px; }
+  details.how summary {
+    list-style:none; cursor:pointer; font-size:13px; font-weight:700; color:#ffb08a;
+    padding:11px 0; display:flex; align-items:center; gap:6px;
+  }
+  details.how summary::-webkit-details-marker { display:none; }
+  details.how summary::before { content:"▸"; transition:transform .2s; }
+  details.how[open] summary::before { transform:rotate(90deg); }
+  .how-body { padding:2px 0 6px; }
+  .how-body p { font-size:14px; color:#aeaeb8; line-height:1.55; margin-bottom:10px; }
+  .how-body p strong { color:#e8e8ec; }
+  .links { background:#0e0c14; border:1px solid #241f2f; border-radius:8px; padding:8px 12px; }
+  .links .lh { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#ffb08a; margin-bottom:3px; }
+  .links a { display:block; color:#aeaeb8; text-decoration:none; font-size:13.5px; padding:10px 0; }
+  .links a::before { content:"→ "; color:var(--acc); }
+
+  /* -------- formulário "como foi hoje" -------- */
+  .frm { display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+  .frow { display:flex; align-items:center; gap:8px; }
+  .frow label { flex:1; font-size:13.5px; color:#aeaeb8; }
+  .frow input[type=number], .frow input[type=text] {
+    background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec;
+    font-size:16px; font-weight:700; padding:10px 8px; text-align:center;
+  }
+  .frow input[type=number] { width:74px; }
+  .frow input[type=text] { flex:1.2; text-align:left; font-weight:600; }
+  .frm textarea {
+    background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec;
+    font-size:16px; padding:10px; min-height:74px; width:100%; font-family:inherit;
+  }
+  .seg { display:flex; gap:6px; }
+  .seg button {
+    border:1.5px solid #2e2839; background:transparent; color:#9d9da6; border-radius:8px;
+    font-size:14px; font-weight:700; padding:10px 16px; cursor:pointer;
+  }
+  .seg button.on { background:#ff7a45; border-color:#ff7a45; color:#0e0c14; }
+
+  .foot { text-align:center; margin-top:26px; font-size:12.5px; color:#8e8e96; line-height:1.7; }
+  .foot-btns { display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:14px; }
+  .foot .reset, .foot .copiar {
+    background:#211c2b; border:1px solid #2e2839; border-radius:10px;
+    font-size:14px; font-weight:700; padding:11px 18px; cursor:pointer; min-height:44px;
+  }
+  .foot .reset { color:#ff7a45; border-color:#4a2f1f; }
+  .foot .copiar { color:#aeaeb8; font-size:13px; }
+  .savemsg { font-size:12px; color:#4ade80; min-height:16px; }
+  .savemsg.err { color:#f87171; font-weight:700; }
+  .resumo-box { width:100%; min-height:140px; margin-top:10px; background:#151220; color:#e8e8ec; border:1px solid #2e2839;
+    border-radius:10px; padding:10px; font-size:13px; line-height:1.4; font-family:inherit; }
+  .sub.ref { margin-top:6px; color:#8e8e96; }
+  .fora { background:#3a2416; color:#ffb08a; font-size:12.5px; line-height:1.4; text-align:center; padding:8px 12px; border-radius:8px; margin:10px 0 0; }
+  .antes { color:#8e8e96; font-size:12px; font-weight:600; white-space:nowrap; }
+
+  /* -------- Treino A: modo, relógio, avisos -------- */
+  [hidden] { display:none !important; }
+  .top-sub { font-size:12px; color:#8e8e96; padding:3px 0 0; font-variant-numeric:tabular-nums; }
+  .banner {
+    display:flex; align-items:center; gap:10px; margin:0 0 8px; padding:9px 12px; border-radius:8px;
+    background:#3a2416; color:#ffb08a; font-size:13.5px; font-weight:700; line-height:1.35;
+  }
+  .banner button { margin-left:auto; flex-shrink:0; background:transparent; border:1px solid #ffb08a; color:#ffb08a; border-radius:6px; min-width:44px; min-height:36px; font-weight:800; cursor:pointer; }
+  .hdrbox { background:#1a1622; border:1px solid #2e2839; border-radius:10px; padding:10px 12px; margin:12px 0 0; display:flex; flex-direction:column; gap:9px; }
+  .hdrbox .frow label { font-size:13px; }
+  .hdrbox .frow input { min-width:0; }
+  .hdrbox .frow.col { flex-direction:column; align-items:stretch; gap:5px; }
+  .hdrbox .frow.col input[type=text] { width:100%; flex:none; text-align:left; }
+  .modo-row { display:flex; align-items:center; gap:10px; }
+  .modo-row label { font-size:13px; color:#9d9da6; font-weight:700; }
+  .modo-row .seg { flex:1; }
+  .modo-row .seg button { flex:1; padding:10px 4px; min-height:44px; }
+  .modo-desc, .dica { font-size:12.5px; color:#8e8e96; line-height:1.4; }
+  .dica b { color:#aeaeb8; }
+
+  /* -------- Treino A: campos de registro -------- */
+  .crow { display:flex; align-items:center; gap:8px; padding:4px 0; }
+  .crow label { font-size:13px; color:#9d9da6; font-weight:700; flex:1; min-width:0; line-height:1.3; }
+  .crow .cin { display:flex; align-items:center; gap:5px; flex-shrink:0; }
+  input.ac, input.tt {
+    background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec;
+    font-size:16px; font-weight:700; padding:10px 4px; text-align:center; width:58px; min-width:0;
+    font-variant-numeric:tabular-nums;
+  }
+  input.tt { width:50px; color:#9d9da6; font-weight:600; }
+  input.ac::placeholder, input.tt::placeholder { color:#5c5c66; font-weight:600; }
+  .crow input.tx { flex:1.3; min-width:0; background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec; font-size:16px; font-weight:600; padding:10px 8px; }
+  .crow input.tx::placeholder { color:#5c5c66; }
+  .den, .x { color:#6f6f78; font-size:13px; font-weight:700; flex-shrink:0; }
+  .crow .stot { font-size:14.5px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .seg-row .seg { flex-wrap:wrap; }
+  .seg button { min-height:44px; }
+  .spots { margin:8px 0 4px; border-top:1px solid #241f2f; padding-top:6px; }
+  .sph { display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-size:13px; font-weight:800; color:var(--acc); padding:2px 0 4px; }
+  .sph .stot { color:#e8e8ec; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .sprow { display:flex; align-items:center; gap:6px; padding:3px 0; }
+  .sprow .slab { flex:1; font-size:13.5px; font-weight:700; color:#aeaeb8; }
+  .cnota { font-size:13px; color:#aeaeb8; line-height:1.45; padding:6px 0 2px; }
+  .cnota b { color:#e8e8ec; }
+  .trav {
+    display:flex; align-items:center; gap:10px; background:#3a1a1a; border:1px solid #f87171; color:#fca5a5;
+    border-radius:8px; padding:9px 12px; margin:8px 0 4px; font-size:13.5px; font-weight:700; line-height:1.35;
+  }
+  .trav button { margin-left:auto; flex-shrink:0; min-width:44px; min-height:36px; background:transparent; border:1px solid #fca5a5; color:#fca5a5; border-radius:6px; font-weight:800; cursor:pointer; }
+  .ex.extra { border-style:dashed; }
+
+  /* -------- Treino A: histórico do benchmark -------- */
+  .hist { background:#0e0c14; border:1px solid #241f2f; border-radius:8px; padding:10px 12px; margin:10px 0 4px; }
+  .hh { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:var(--acc); }
+  .hbig { font-size:34px; font-weight:800; line-height:1.15; font-variant-numeric:tabular-nums; }
+  .hsm { font-size:12.5px; color:#8e8e96; line-height:1.4; }
+  .hnote { font-size:12.5px; color:#aeaeb8; margin-top:6px; border-top:1px solid #241f2f; padding-top:6px; line-height:1.4; }
+  .hwarn { font-size:13px; color:#ffb08a; font-weight:700; margin-bottom:6px; line-height:1.35; }
+  details.hlist { margin-top:4px; }
+  details.hlist summary { list-style:none; font-size:12.5px; color:#9d9da6; font-weight:700; cursor:pointer; padding:8px 0; }
+  details.hlist summary::-webkit-details-marker { display:none; }
+  details.hlist summary::before { content:"▸ "; }
+  details.hlist[open] summary::before { content:"▾ "; }
+  .hrow { font-size:12.5px; color:#aeaeb8; padding:3px 0; font-variant-numeric:tabular-nums; line-height:1.4; }
+
+  /* -------- Treino A: descrição completa no "Como fazer" -------- */
+  .desc p { font-size:14px; color:#aeaeb8; line-height:1.55; margin-bottom:10px; }
+  .desc strong { color:#e8e8ec; }
+  .desc ol, .desc ul { padding-left:20px; margin:0 0 10px; font-size:14px; color:#aeaeb8; line-height:1.55; }
+  .desc li { margin-bottom:3px; }
+  .vid-swap { margin-top:8px; font-size:11.5px; color:#6f6f78; line-height:1.5; }
+
+  /* -------- tema basquete (paleta trocada no gerador: fundo índigo, laranja de bola) -------- */
+  .top h1 { text-shadow:0 0 18px rgba(255,122,69,.35); }
+  .pbar { background:#241f2f; }
+  .pbar i { background:linear-gradient(90deg,#ff7a45,#c084fc); }
+  .top { border-bottom-color:#3a2f4a; }
+
+  /* -------- Treino D: identidade (listra magenta→dourado), telas, timers, contadores -------- */
+  .top h1 { text-shadow:0 0 18px rgba(232,121,249,.35); }
+  .top h1 small { white-space:normal; }
+  .pbar i { width:100%; background:linear-gradient(90deg,#e879f9,#fbbf24); }
+  .fixo { font-size:12px; color:#aeaeb8; line-height:1.4; padding:4px 0 2px; white-space:pre-line; overflow-wrap:anywhere; cursor:pointer; }
+  .fixo b { color:#e8e8ec; }
+  .fixo::before { content:"▴ "; color:#e879f9; }
+  .fixo.clamp::before { content:"▾ "; }
+  .fixo.clamp { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .fixo:not(.clamp) { max-height:40vh; overflow:auto; }
+  .banner button { min-height:44px; }
+  input::placeholder, textarea::placeholder { color:#7d7d8a; }
+  .ctr .cmax, .x, .den { color:#8e8e96; }
+  button.chip { font-family:inherit; cursor:pointer; }
+  .banner { background:#2a0f2a; color:#f0abfc; }
+  .banner button { border-color:#f0abfc; color:#f0abfc; }
+  .crow label .antes, .crow.col label .antes { white-space:normal; }
+  .crow.col { flex-direction:column; align-items:stretch; gap:5px; }
+  .crow.col label { flex:none; }
+  .crow.col input.tx, .crow.col textarea { width:100%; flex:none; }
+  .crow textarea { background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec; font-size:16px; padding:10px; min-height:72px; font-family:inherit; line-height:1.4; }
+  .crow input[type=date] { background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec; font-size:16px; padding:9px 8px; min-height:44px; }
+  .crow .cin input.ac { width:52px; }
+  .ex.tcard { padding:10px 12px; }
+  .trow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .tbtns { flex-basis:100%; display:flex; gap:8px; }
+  .tbtns button { flex:1; }
+  .tnum { font-size:28px; font-weight:800; font-variant-numeric:tabular-nums; color:var(--acc); min-width:78px; }
+  .talvo { font-size:13px; color:#8e8e96; font-weight:700; flex:1; }
+  .tbtn, .tdone { min-height:44px; padding:8px 12px; border-radius:10px; border:1.5px solid var(--acc); background:transparent; color:var(--acc); font-size:14px; font-weight:800; cursor:pointer; }
+  .tdone { border-color:#2e2839; color:#aeaeb8; }
+  .tcard.run { border-color:var(--acc); box-shadow:0 0 0 1px var(--acc) inset; }
+  .tcard.run .tbtn { background:var(--acc); color:#0e0c14; }
+  .tcard.is-done { border-color:#4ade80; }
+  .tcard.is-done .tnum { color:#4ade80; }
+  .tcard.is-done .tdone { border-color:#4ade80; color:#4ade80; }
+  .tbtn:disabled { opacity:.45; }
+  .tcard .obj { font-size:13.5px; color:#aeaeb8; line-height:1.45; margin-top:8px; }
+  .tcard .obj b { color:#e8e8ec; }
+  .ctr { display:flex; align-items:center; gap:4px; }
+  .ctr .clab { font-size:11.5px; font-weight:700; color:#8e8e96; text-transform:uppercase; letter-spacing:.4px; margin-right:2px; }
+  .ctr button { width:44px; height:44px; border-radius:10px; border:1.5px solid #2e2839; background:#0e0c14; color:#e8e8ec; font-size:22px; font-weight:800; cursor:pointer; line-height:1; }
+  .ctr button.cp { border-color:var(--acc); color:var(--acc); }
+  .ctr .cv { min-width: 34px; text-align:center; font-size:20px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .ctr .cmax { font-size:12px; color:#6f6f78; font-weight:700; }
+  .ctr.one { border-top:1px solid #241f2f; padding:8px 0 4px; }
+  .ctr.one .clab { font-size:13.5px; text-transform:none; letter-spacing:0; color:#e8e8ec; flex:1; }
+  .ctr.one .clab small { color:#8e8e96; font-weight:600; }
+  .prow { border-top:1px solid #241f2f; padding:8px 0 6px; }
+  .plab { font-size:13.5px; font-weight:700; color:#e8e8ec; margin-bottom:6px; line-height:1.3; }
+  .plab small { font-weight:600; color:#8e8e96; }
+  .aviso { background:#2a0f2a; color:#f0abfc; border:1px solid #6b2a6b; border-radius:8px; padding:10px 12px; margin:8px 0 4px; font-size:14px; font-weight:700; line-height:1.4; }
+  .atencao { background:#3a2416; color:#ffb08a; border:1px solid #7a4a2a; border-radius:8px; padding:9px 12px; margin:8px 0 4px; font-size:14px; font-weight:700; line-height:1.4; }
+  .atencao b { color:#ffd0b8; }
+  .links a { white-space:normal; line-height:1.35; }
+  .seg.stack { flex-direction:column; align-items:stretch; }
+  .seg.stack button { text-align:left; min-height:44px; line-height:1.3; }
+  .seg.stack button::before { content:"○ "; color:#8e8e96; }
+  .seg.stack button.on::before { content:"● "; color:#0e0c14; }
+  .seg.row { flex-wrap:wrap; }
+  .seg.row button { flex:1; min-height:44px; padding:10px 8px; }
+  .seg button.on { background:#e879f9; border-color:#e879f9; }
+  .saida { border:1.5px solid #e879f9; border-radius:10px; padding:10px 12px; margin-top:8px; }
+  .saida label { color:#f0abfc !important; font-size:14px !important; }
+  .saida .seg.stack button.on { background:#e879f9; border-color:#e879f9; }
+  section.destaque > .bh { box-shadow:0 0 0 2px #e879f9; animation:pulsa 1.4s ease-in-out infinite; }
+  @keyframes pulsa { 0%,100% { box-shadow:0 0 0 2px #e879f9; } 50% { box-shadow:0 0 0 5px rgba(232,121,249,.35); } }
+  .btn { min-height:44px; border-radius:10px; border:1.5px solid #e879f9; background:transparent; color:#e879f9; font-size:15px; font-weight:800; padding:10px 14px; cursor:pointer; width:100%; margin-top:6px; }
+  .anterior { background:#1a1622; border:1px dashed #2e2839; border-radius:10px; padding:10px 12px; margin:0 0 12px; }
+  .anterior .t { font-size:13px; color:#8e8e96; font-weight:700; margin-bottom:6px; }
+  .guia { font-size:13.5px; color:#aeaeb8; line-height:1.55; padding:4px 0 6px; overflow-wrap:anywhere; }
+  .guia b { color:#e8e8ec; }
+  .vazio { font-size:13.5px; color:#8e8e96; padding:6px 0; line-height:1.45; }
+  .vazio b { color:#e8e8ec; }
+  table.prev { width:100%; border-collapse:collapse; font-size:13px; margin:6px 0 10px; }
+  table.prev td, table.prev th { padding:5px 4px; border-bottom:1px solid #241f2f; color:#aeaeb8; text-align:left; }
+  table.prev th { color:#9d9da6; font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+  table.prev td:last-child, table.prev th:last-child { text-align:right; white-space:nowrap; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-row">
+    <h1>🏀 DOM · TREINO D <small>— Criação + Enterrada</small></h1>
+    <span class="prog-txt" id="sessaoTxt">⏱ 00:00</span>
+  </div>
+  <div class="fixo clamp" id="fixo"></div>
+  <nav class="chips-nav" id="telaSeg"><button type="button" class="chip" data-v="treino" style="--bc:#e879f9">TREINO</button><button type="button" class="chip" data-v="registro" style="--bc:#fbbf24">REGISTRO</button></nav>
+  <div class="banner" id="banner" hidden><span id="banTxt"></span><button type="button" id="banOk" aria-label="dispensar aviso">ok</button></div>
+  <div class="pbar"><i></i></div>
+</div>
+
+<p class="sub"><strong>Criação com bola + consistência na enterrada.</strong><br>72 min programados · janela de 90 · <strong>9 saltos máximos contados</strong> (orçamento do dia: 10–15) · 44 paradas com salto · 84 arremessos · 24 bandejas</p>
+<p class="sub ref" id="refTxt"></p>
+
+<details class="notas">
+  <summary>Notas &amp; regras do treino</summary>
+  <p><strong>O que é:</strong> domingo, 72 minutos programados, janela de 90. Criação com bola + consistência na enterrada. <strong>Tu já enterra</strong> — o que falta é consistência: o bloco 2 é sobre taxa de acerto, não sobre conseguir a primeira.</p>
+  <p><strong>Onde o domingo entra na semana:</strong> DOMINGO (D / jogo) → <strong>ÊNFASE DA SEMANA</strong> → TERÇA (B) e SEXTA (A); e → fechar o log semanal. O domingo <strong>produz</strong> a ênfase, não consome: ela é saída do registro final, nunca campo de abertura.</p>
+  <p><strong>Orçamento de salto: 10–15 saltos máximos, contados.</strong> É orçamento <strong>do dia</strong>, não do treino — se teve jogo, o jogo já gastou. O app conta no cabeçalho: 3 aproximações + até 6 tentativas de enterrada = 9. Paradas com salto = 44 (32 do bloco 3 + 12 do 4B): não são salto máximo, mas são carga excêntrica — foi por isso que o bloco 3 caiu de 48 pra 32 reps. Arremessos totais = 84 · bandejas = 24.</p>
+  <p><strong>Bloco 0 (porta de entrada):</strong> joelho de manhã + <strong>a regra das 24h disparou?</strong> Se sim, o domingo é o primeiro corte da semana (dom &gt; sex &gt; saltos de quarta; Bloco C nunca) — hoje não roda, e o app só oferece registrar a sessão como não realizada. Isso não é filtro clínico novo: é a regra das 24h que já governa o sistema. Depois, o <strong>modo do dia</strong> reconfigura os blocos: NORMAL (6 tentativas, 72 min) · PRÉ-JOGO (bloco 2 pulado — o salto de hoje é o jogo; bloco 3 pela metade; 4 e 5 leves) · PÓS-JOGO (teto de 2–3 tentativas; resto conforme sobrar).</p>
+  <p><strong>Regra do volume:</strong> volume é referência, não dívida. Acabou o tempo do bloco, registra e avança. O app nunca bloqueia avanço por volume incompleto.</p>
+  <p><strong>Tempo:</strong> timer por bloco e timer geral da sessão, ambos por timestamp (sobrevivem à tela bloqueada). <strong>Aos 75 min</strong> de sessão o bloco 5 é destacado — vai pro arremesso mesmo com repetição pendente. <strong>Aos 90 min</strong>, aviso de encerrar. <strong>Nunca aviso por relógio</strong>: o horário do domingo é variável, só o tempo decorrido vale (diferente do Treino A, de propósito). Não encurtar o descanso da enterrada pra recuperar atraso — se o bloco 2 estourar, o que encolhe é o bloco 3. Nenhum som, nenhuma vibração: aviso é visual.</p>
+  <p><strong>Enterrada — critério de progressão:</strong> nunca «4 de 6». Na altura máxima, 2–3 de 10 é o normal. O critério é conversão estável ou subindo na <strong>média móvel de 3 sessões</strong>, com a causa do erro registrada. A média nasce ao arquivar («Nova semana»); sessões pré-jogo e não realizadas ficam fora dela.</p>
+  <p><strong>Registro:</strong> tudo salva a cada toque; os contadores da tela TREINO e o consolidado do REGISTRO são o mesmo dado. <strong>Exportar</strong> copia no formato do /quarta e exige as duas saídas do domingo: ÊNFASE DA SEMANA e o log semanal fechado. <strong>Nova semana</strong> arquiva a sessão como referência cinza, guarda a enterrada no histórico e abre a próxima; «como acordou na segunda» continua editável na segunda de manhã.</p>
+  <p><strong>Fora, de propósito:</strong> rampa de 2 semanas submáximo no handle (decisão do Yan — não reintroduzir) · revisão de 3 perguntas no domingo · drill de aro rebaixado (Rivera 3:53–5:45, a Praça tem aro fixo) · campo «correção trazida do personal» (o personal é terça e a saída dele vai pro C) · aviso por relógio.</p>
+</details>
+
+<section id="tela-treino"></section>
+<section id="tela-registro" hidden></section>
+
+<div class="foot">
+  <div class="foot-btns">
+    <button class="reset" id="resetBtn" type="button">Nova semana — arquivar e abrir a próxima</button>
+    <button class="copiar" id="copiarBtn" type="button">Exportar (copiar resumo)</button>
+  </div>
+  <div class="savemsg" id="saveMsg"></div>
+  <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
+  <div>DOM · Basquete TREINO D v1 — o domingo produz a ênfase da semana · o benchmark é sexta</div>
+  <div>Basquete: <a href="../treino-b/">Treino B (ter)</a> · <a href="../treino-c/">Treino C (qui)</a> · <a href="../basquete-sexta-a/">Treino A (sex)</a> · Matinal: <a href="../dia-b/">Dia B</a> · <a href="../">Completa</a></div>
+  <div class="vid-swap">12 vídeos validados via oEmbed em 13/09/2026. Trechos indicados nos links (t=) abrem no ponto certo.</div>
+</div>
+<!-- Fora de escopo, de propósito (não implementar): rampa de 2 semanas submáximo no handle · revisão de 3 perguntas · drill de aro rebaixado · campo "correção trazida do personal" · aviso por relógio. -->
+
+<script>
+// ===================== DADOS =====================
+var BLOCOS = [
+  { id:'b1', cor:'#38bdf8', titulo:'BLOCO 1 — PREPARAÇÃO COM BOLA', sub:'10 min · 8 bandejas + 3 aproximações', alvo:10,
+    obj:'Preparar o corpo e chegar na enterrada com a aproximação já organizada.' },
+  { id:'b2', cor:'#e879f9', titulo:'BLOCO 2 — CONSISTÊNCIA NA ENTERRADA', sub:'12 min · até 6 tentativas', alvo:12,
+    obj:'Subir a taxa de conversão de uma enterrada que tu já executa, e identificar <b>onde</b> ela falha.' },
+  { id:'b3', cor:'#c084fc', titulo:'BLOCO 3 — CRIAÇÃO COM MUDANÇA DE RITMO', sub:'20 min · 32 reps, todas terminam em arremesso', alvo:20,
+    obj:'Duas ações conectadas, deslocamento pros dois lados — <b>e todas terminam em arremesso de média</b>.' },
+  { id:'b4', cor:'#fb7185', titulo:'BLOCO 4 — MOVIMENTO → SOLUÇÃO', sub:'15 min · 16 bandejas + 12 pull-ups', alvo:15,
+    obj:'O mesmo movimento, agora com <b>desfecho variável</b> — bandeja ou pull-up, decidido pelo espaço. O 3 tem desfecho fixo (sempre média); o 4 tem escolha. Bloqueada → menos bloqueada, a progressão da regra 3.5 do sistema.' },
+  { id:'b5', cor:'#ff7a45', titulo:'BLOCO 5 — CATCH-AND-SHOOT + LANCE LIVRE', sub:'15 min · 30 + 10 arremessos', alvo:15,
+    obj:'Manter exposição ao arremesso, que é a prioridade declarada. <b>Não é benchmark</b> — o benchmark é sexta, um por semana.' }
+];
+var MODOS = [['normal', 'NORMAL — sem jogo hoje · bloco 2 com 6 tentativas · 72 min'], ['pre', 'PRÉ-JOGO — o treino é o aquecimento · bloco 2 pulado · bloco 3 pela metade · 4 e 5 leves'], ['pos', 'PÓS-JOGO — teto de 2–3 tentativas de enterrada · resto conforme sobrar']];
+var NOME_MODO = { normal: 'NORMAL', pre: 'PRÉ-JOGO', pos: 'PÓS-JOGO' };
+var SPOTS = [['ce', 'Canto esquerdo', 'canto E'], ['ae', 'Ala esquerda', 'ala E'], ['tp', 'Topo', 'topo'], ['ad', 'Ala direita', 'ala D'], ['cd', 'Canto direito', 'canto D']];
+var CAUSAS = ['mão de lado', 'aproximação', 'recolhida', 'conclusão', 'outro'];
+
+// ===================== APP =====================
+(function () {
+  var KEY = 'treino-d-v1';
+  function hoje() {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+  var state = { vals: {}, blocos: {}, t0: null, av: {}, tela: 'treino', hist: [] };
+  var ant = { d: null, vals: {} };
+  var ultimoSalvo = null;
+  function arquivar(vals, d) {
+    var limpo = {}, n = 0;
+    Object.keys(vals || {}).forEach(function (k) {
+      var v = vals[k];
+      if (v != null && String(v).trim() !== '') { limpo[k] = v; n++; }
+    });
+    if (!n || !d) return false;
+    // vals = referência mesclada (campo em branco herda); ult = só os valores desta sessão (pro Copiar resumo)
+    // mesma data = continuação da sessão (ex.: questionário preenchido depois de Encerrar): ult acumula
+    var mesmoDia = ant && ant.d === d;
+    ant = { d: d, vals: Object.assign({}, (ant && ant.vals) || {}, limpo), ult: mesmoDia ? Object.assign({}, ant.ult || {}, limpo) : limpo };
+    return true;
+  }
+  function temValor(v) { return v != null && String(v).trim() !== ''; }
+  function msg(t, fixo) {
+    var el = document.getElementById('saveMsg');
+    if (fixo) msg._fixo = t;  // aviso fixo (NÃO SALVOU) volta depois das mensagens passageiras
+    el.textContent = t;
+    el.classList.toggle('err', !!fixo);
+    clearTimeout(msg._t);
+    if (t && !fixo) msg._t = setTimeout(function () { el.textContent = msg._fixo || ''; el.classList.toggle('err', !!msg._fixo); }, 2500);
+  }
+  function fmtRef(d) {
+    var p = String(d || '').split('-');
+    if (p.length !== 3) return String(d || '');
+    var dt = new Date(+p[0], +p[1] - 1, +p[2]);
+    return ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'][dt.getDay()] + ' ' + p[2] + '/' + p[1];
+  }
+  function esc(v) {
+    return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function copiarTexto(txt, cb) {
+    var fallback = function () {
+      var ta = document.createElement('textarea');
+      ta.value = txt; ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.top = '-1000px';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { ta.setSelectionRange(0, txt.length); } catch (e) {}
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      cb(ok);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { cb(true); }, fallback);
+    } else fallback();
+  }
+
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && p.vals) {
+        state = { vals: p.vals || {}, blocos: p.blocos || {}, t0: p.t0 || null, av: p.av || {}, tela: p.tela === 'registro' ? 'registro' : 'treino', hist: p.hist || [] };
+        ant = p.ant || ant;
+        ultimoSalvo = raw;
+      }
+    }
+  } catch (e) {}
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+
+  function save() {
+    try {
+      var txt = JSON.stringify({ vals: state.vals, blocos: state.blocos, t0: state.t0, av: state.av, tela: state.tela, hist: state.hist, ant: ant });
+      localStorage.setItem(KEY, txt);
+      ultimoSalvo = txt;
+      var d = new Date();
+      msg._fixo = '';
+      msg('salvo às ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2));
+      return true;
+    } catch (e) { msg('NÃO SALVOU — confira Ajustes › Safari › "Bloquear todos os cookies"', true); return false; }
+  }
+  // aviso: aberto fora do ícone (Safari, link de outro app, Mac) = outra memória, nada fica no app da tela de início
+  (function () {
+    var standalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    var publicado = /github\.io$/.test(location.hostname);
+    if (standalone || !publicado) return;
+    var w = document.createElement('div');
+    w.className = 'fora';
+    w.textContent = 'Aberto fora do ícone — o que você digitar aqui não fica salvo no app da tela de início.';
+    var top = document.querySelector('.top');
+    top.parentNode.insertBefore(w, top.nextSibling);
+  })();
+
+  // ---------- estado da sessão ----------
+  function n(k) { return +state.vals[k] || 0; }
+  function v(k) { return temValor(state.vals[k]) ? String(state.vals[k]).trim() : ''; }
+  function setVal(k, val) { if (val === '' || val == null) delete state.vals[k]; else state.vals[k] = val; }
+  var NAO_INICIA = ['data', 'acordou_seg'];  // campos que não abrem uma sessão (data default e o campo "da segunda de manhã")
+  function sessaoAtiva() {
+    return !!state.t0 || Object.keys(state.vals).some(function (k) { return NAO_INICIA.indexOf(k) < 0 && temValor(state.vals[k]); });
+  }
+  function marcarSessao() { if (!temValor(state.vals.data)) state.vals.data = hoje(); }
+  function dataSessao() { return temValor(state.vals.data) ? state.vals.data : hoje(); }
+  function histDe(d) { var r = null; (state.hist || []).forEach(function (e) { if (e.d === d) r = e; }); return r; }
+  // modo do dia reconfigura os blocos: tent = teto de tentativas de enterrada (0 = bloco pulado), lado3 = reps limpas por lado no bloco 3
+  function cfg() {
+    var m = v('modo');
+    return { m: m, tent: m === 'pre' ? 0 : (m === 'pos' ? 3 : 6), lado3: m === 'pre' ? 4 : 8, min3: m === 'pre' ? 10 : 20, leve: m === 'pre' };
+  }
+  function nomeModo(m) { return NOME_MODO[m || v('modo')] || '–'; }
+  function renderRef() {
+    var he = ant.d ? histDe(ant.d) : null;
+    document.getElementById('refTxt').textContent = ant.d ? 'última sessão: ' + fmtRef(ant.d) + (he && he.nr ? ' · não realizada (regra das 24h)' : '') : 'sem referência ainda';
+  }
+  function saltos() { var c = cfg(); return { n: n('aprox') + (c.tent ? Math.min(n('d_tent'), c.tent) : 0), max: 3 + c.tent }; }
+  function renderFixo() {
+    var el = document.getElementById('fixo'), s = saltos(), j = v('joelho_antes'), corr = v('correcao');
+    el.innerHTML = '<b>Saltos máx.</b> ' + s.n + '/' + s.max + ' (ref. 10–15 no dia) · <b>Joelho</b> ' + (j ? esc(j) : '–') + ' · <b>Modo</b> ' + nomeModo() +
+      (v('regra24') === 'sim' ? ' · <b>regra das 24h disparou</b>' : '') + ' · <b>Correção</b> ' + (corr ? esc(corr) : '–');
+  }
+  document.getElementById('fixo').addEventListener('click', function () { this.classList.toggle('clamp'); });
+
+  // ---------- timers (por timestamp, contagem crescente) ----------
+  function bl(id) { if (!state.blocos[id]) state.blocos[id] = { t0: null, acc: 0, done: false }; return state.blocos[id]; }
+  function msBloco(id) { var b = bl(id); return (b.acc || 0) + (b.t0 ? Date.now() - b.t0 : 0); }
+  function fmtMS(ms) { var s = Math.max(0, Math.floor(ms / 1000)); return ('0' + Math.floor(s / 60)).slice(-2) + ':' + ('0' + (s % 60)).slice(-2); }
+  function pausar(id) { var b = bl(id); if (b.t0) { b.acc = (b.acc || 0) + (Date.now() - b.t0); b.t0 = null; } }
+  function pausarTudo() { BLOCOS.forEach(function (o) { pausar(o.id); }); }
+  function alvoDe(b) { return b.id === 'b3' ? cfg().min3 : b.alvo; }
+  function toggleBloco(id) {
+    var b = bl(id);
+    if (b.done) return;
+    if (b.t0) pausar(id);
+    else {
+      pausarTudo();  // um bloco por vez
+      b.t0 = Date.now(); if (!state.t0) state.t0 = Date.now(); marcarSessao();
+    }
+    save(); renderTimers();
+  }
+  function concluirBloco(id) {
+    var b = bl(id);
+    if (b.done) { b.done = false; delete state.vals['dur_' + id]; }
+    else {
+      pausar(id);
+      b.done = true;
+      if (b.acc) state.vals['dur_' + id] = Math.max(1, Math.round(b.acc / 60000)); else delete state.vals['dur_' + id];
+      marcarSessao();
+    }
+    save(); renderTimers(); refreshInput('dur_' + id);
+  }
+  function somaDur() { var s = 0; BLOCOS.forEach(function (b) { s += bl(b.id).done ? n('dur_' + b.id) : Math.round(msBloco(b.id) / 60000); }); return s; }
+  function renderTimers() {
+    BLOCOS.forEach(function (b) {
+      var st = bl(b.id), card = document.getElementById('tb_' + b.id);
+      if (!card) return;
+      document.getElementById('tv_' + b.id).textContent = st.done ? (n('dur_' + b.id) ? n('dur_' + b.id) + ' min' : 'feito') : fmtMS(msBloco(b.id));
+      card.classList.toggle('run', !!st.t0);
+      card.classList.toggle('is-done', !!st.done);
+      var btn = document.getElementById('tbtn_' + b.id);
+      btn.textContent = st.t0 ? '⏸ Pausar' : (st.acc ? '▶ Retomar' : '▶ Iniciar');
+      btn.disabled = !!st.done;
+      document.getElementById('tdone_' + b.id).textContent = st.done ? '↺ Reabrir' : '✓ Concluir bloco';
+    });
+    var el = state.t0 ? Date.now() - state.t0 : 0;
+    document.getElementById('sessaoTxt').textContent = state.t0 ? '⏱ ' + fmtMS(el) : '⏱ 00:00';
+    var min = el / 60000, ban = document.getElementById('banner'), qual = null;
+    var b5 = document.getElementById('b5');
+    if (state.t0 && min >= 90) qual = 'b'; else if (state.t0 && min >= 75) qual = 'a';
+    if (b5) b5.classList.toggle('destaque', !!state.t0 && min >= 75 && !bl('b5').done);
+    if (qual && !state.av[qual]) {
+      ban.dataset.q = qual;
+      document.getElementById('banTxt').textContent = qual === 'a' ? '75 min de sessão — vai pro arremesso (bloco 5), mesmo com repetição pendente.' : '90 min de sessão — hora de encerrar.';
+      ban.hidden = false;
+    } else ban.hidden = true;
+    var dur = document.getElementById('in_duracao');
+    if (dur) dur.placeholder = state.t0 ? String(somaDur()) : '–';
+  }
+  document.getElementById('banOk').addEventListener('click', function () {
+    var q = document.getElementById('banner').dataset.q; if (q) state.av[q] = true; save(); renderTimers();
+  });
+
+  // ---------- média móvel de 3 (histórico das sessões arquivadas com tentativas; pré-jogo e não realizadas ficam fora) ----------
+  function mm3() {
+    var hs = (state.hist || []).filter(function (e) { return !e.nr && +e.tent > 0; }).slice(-3);
+    if (!hs.length) return null;
+    var soma = 0; hs.forEach(function (e) { soma += Math.min(+e.conv || 0, +e.tent) / +e.tent; });
+    return { pct: Math.round(soma / hs.length * 100), n: hs.length, parts: hs.map(function (e) { return (+e.conv || 0) + '/' + e.tent; }) };
+  }
+  function mm3Txt() {
+    var m = mm3(), t = n('d_tent'), c = Math.min(n('d_conv'), t);
+    var hj = t ? c + '/' + t + ' (' + Math.round(c / t * 100) + ' %)' : '–';
+    return '<b>Média móvel de 3 sessões:</b> ' + (m ? m.pct + ' % <span class="antes">(' + m.parts.join(' · ') + (m.n < 3 ? ' · ' + m.n + ' de 3' : '') + ')</span>' : '<span class="antes">nasce com a primeira sessão arquivada</span>') +
+      ' · <b>hoje:</b> ' + hj + '. Critério: conversão estável ou subindo, com a causa do erro registrada. Nunca «4 de 6».';
+  }
+
+  // ---------- componentes ----------
+  function card(id, numTxt, name, mediaHtml, controles, desc, ls) {
+    return '<article class="ex" id="' + id + '"><div class="ex-head"><span class="num">' + numTxt + '</span><h3>' + name + '</h3></div>' + mediaHtml + (controles || '') +
+      '<details class="how"><summary>Como fazer · vídeo</summary><div class="how-body"><div class="desc">' + desc + '</div><div class="parLinks">' + links(ls) + '</div></div></details></article>';
+  }
+  function fcard(id, numTxt, name, inner) { return '<article class="ex" id="' + id + '"><div class="ex-head"><span class="num">' + numTxt + '</span><h3>' + name + '</h3></div>' + inner + '</article>'; }
+  function media(img, chips, cue) {
+    var dose = '<div class="dose">' + chips.map(function (c) { return '<span>' + c + '</span>'; }).join('') + '</div>';
+    return '<div class="media">' + (img ? '<img class="thumb" src="' + img + '" alt="vídeo" loading="lazy" width="104" height="78">' : '') + '<div class="media-right">' + dose + '<p class="cue">' + cue + '</p></div></div>';
+  }
+  function links(ls) { return '<div class="links"><div class="lh">Vídeos</div>' + ls.map(function (l) { return '<a href="' + l.u + '" target="_blank" rel="noopener">' + l.t + '</a>'; }).join('') + '</div>'; }
+  function nota(h, cls) { return '<p class="' + (cls || 'cnota') + '">' + h + '</p>'; }
+  function ctr(k, lab, max, one) {
+    return '<div class="ctr' + (one ? ' one' : '') + '" data-k="' + k + '" data-max="' + max + '"><span class="clab">' + lab + '</span><button type="button" class="cm" aria-label="menos">−</button><span class="cv">' + n(k) + '</span><span class="cmax">/' + max + '</span><button type="button" class="cp" aria-label="mais">+</button></div>';
+  }
+  function tcard(b) {
+    return '<article class="ex tcard" id="tb_' + b.id + '"><div class="trow"><span class="tnum" id="tv_' + b.id + '">00:00</span><span class="talvo">/ ' + alvoDe(b) + ' min</span>' +
+      '<div class="tbtns"><button type="button" class="tbtn" id="tbtn_' + b.id + '" data-b="' + b.id + '">▶ Iniciar</button><button type="button" class="tdone" id="tdone_' + b.id + '" data-b="' + b.id + '">✓ Concluir bloco</button></div></div>' +
+      '<p class="obj"><b>Objetivo:</b> ' + b.obj + '</p></article>';
+  }
+  function txt(k, lab, ph) { return '<div class="crow col"><label>' + lab + '</label><input class="tx" id="in_' + k + '" type="text" placeholder="' + esc(ph || antVal(k, '')) + '" value="' + esc(v(k)) + '"></div>'; }
+  function num(k, lab, ph, max) { return '<div class="crow"><label>' + lab + '</label><input class="ac" id="in_' + k + '" type="number" inputmode="numeric" min="0"' + (max ? ' max="' + max + '"' : '') + ' placeholder="' + esc(ph || antVal(k, '–')) + '" value="' + esc(v(k)) + '"></div>'; }
+  function antVal(k, fb) { return (ant.vals && temValor(ant.vals[k])) ? String(ant.vals[k]) : fb; }
+  function inp(k, max) { return '<input class="ac" id="in_' + k + '" type="number" inputmode="numeric" min="0" max="' + max + '" placeholder="' + esc(antVal(k, '–')) + '" value="' + esc(v(k)) + '">'; }
+  function seg(k, opts, stack, toggle) {
+    return '<span class="seg ' + (stack ? 'stack' : 'row') + '" data-k="' + k + '"' + (toggle ? ' data-toggle="1"' : '') + '>' + opts.map(function (o) { return '<button type="button" data-v="' + o[0] + '"' + (v(k) === o[0] ? ' class="on"' : '') + '>' + o[1] + '</button>'; }).join('') + '</span>';
+  }
+  function row(lab, prev, inner) { return '<div class="crow"><label>' + lab + (prev ? ' <span class="antes">· prev. ' + prev + '</span>' : '') + '</label><span class="cin">' + inner + '</span></div>'; }
+
+  // ---------- BLOCO 0: porta de entrada (aba TREINO) ----------
+  function card0() {
+    var r24 = v('regra24');
+    var h = '<section class="bloco" id="b0" style="--acc:#9aa3c7"><div class="bh"><h2>BLOCO 0 — PORTA DE ENTRADA<small>joelho + modo do dia · o segundo muda a sessão inteira</small></h2></div>';
+    var inner = '<div class="crow"><label>Data</label><input type="date" id="in_data" value="' + esc(dataSessao()) + '"></div>' +
+      num('joelho_antes', 'Joelho de manhã (0–10)', '0–10', 10) +
+      '<div class="crow"><label>A regra das 24h disparou?</label>' + seg('regra24', [['nao', 'Não'], ['sim', 'Sim']]) + '</div>';
+    if (r24 === 'sim') {
+      inner += '<div class="atencao"><b>O domingo é o primeiro corte da semana</b> (dom &gt; sex &gt; saltos de quarta; Bloco C nunca). Hoje não roda.</div>' +
+        '<button type="button" class="btn" id="nrBtn">Registrar a sessão como não realizada</button>';
+    } else {
+      inner += '<div class="crow col"><label>Modo do dia <span class="antes">· obrigatório — reconfigura os blocos</span></label>' + seg('modo', MODOS, true) + '</div>' +
+        '<div class="crow col"><label>Pernas hoje</label>' + seg('pernas', [['leves', 'leves'], ['normais', 'normais'], ['pesadas', 'pesadas']]) + '</div>' +
+        txt('recente', 'Treino de pernas ou jogo recente') +
+        txt('correcao', 'Uma correção principal pra sessão') +
+        nota('Não entra aqui: <b>ênfase da semana</b> (é saída do registro final) e <b>correção trazida do personal</b> (o personal é terça e a saída dele vai pro C).');
+    }
+    return h + fcard('c0', '0', 'Antes de começar', inner) + '</section>';
+  }
+
+  // ---------- TELA TREINO ----------
+  function renderTreino() {
+    var sec = document.getElementById('tela-treino');
+    var c = cfg(), L = c.lado3;
+    var h = card0();
+    if (v('regra24') !== 'sim') BLOCOS.forEach(function (b) {
+      var sub = b.sub;
+      if (b.id === 'b2') sub = !c.m ? 'escolha o modo do dia no Bloco 0' : (c.m === 'pre' ? 'bloco pulado — o salto de hoje é o jogo' : (c.m === 'pos' ? '12 min · teto de 2–3 tentativas (pós-jogo)' : '12 min · até 6 tentativas · 60–90 s entre'));
+      if (b.id === 'b3' && c.m === 'pre') sub = '10 min · 16 reps (pré-jogo: metade), todas terminam em arremesso';
+      if ((b.id === 'b4' || b.id === 'b5') && c.leve) sub += ' · leve (pré-jogo)';
+      h += '<section class="bloco" id="' + b.id + '" style="--acc:' + b.cor + '"><div class="bh"><h2>' + b.titulo + '<small>' + sub + '</small></h2></div>';
+      if (!(b.id === 'b2' && (!c.m || c.m === 'pre'))) h += tcard(b);
+      if (b.id === 'b1') {
+        h += card('c1a', '1A', 'Aquecimento <span class="antes">5 min</span>',
+          media('img/v_i0eCC90oZVo.jpg', ['5 min', 'zero salto', 'intensidade subindo'], 'Rotina conhecida, intensidade subindo. <b>Sem contador</b>: só o timer do bloco.'),
+          '',
+          '<p><strong>Objetivo do bloco:</strong> preparar o corpo e chegar na enterrada com a aproximação já organizada.</p><p><strong>1A · Aquecimento · 5 min:</strong> rotina conhecida, intensidade subindo.</p><p><strong>Erro a observar:</strong> transformar o aquecimento em teste de impulsão.</p>',
+          [{ t: 'Pro Training — Pre-Workout / Pre-Game Stretch · 4:15 — rótulo na tela por exercício, zero salto', u: 'https://www.youtube.com/watch?v=i0eCC90oZVo' }, { t: 'BBall IQ — Dynamic Warmup and Stretches · 3:24', u: 'https://www.youtube.com/watch?v=wX9RmYxL2W8' }]);
+        h += card('c1b', '1B', 'Bandejas leves <span class="antes">3 min · 4 dir. + 4 esq.</span>',
+          media('img/v_rV-4Jk2oOYE.jpg', ['3 min', '4 dir. + 4 esq.', 'leves'], '<b>Mão direita:</b> últimos dois apoios direita-esquerda, impulsão na esquerda · <b>mão esquerda:</b> esquerda-direita, impulsão na direita.'),
+          ctr('b1_bd', 'Direita', 4, true) + ctr('b1_be', 'Esquerda', 4, true),
+          '<p><strong>8 tentativas: 4 direita, 4 esquerda</strong>, leves.</p><p><strong>Apoios:</strong> mão direita → últimos dois apoios direita-esquerda, impulsão na esquerda · mão esquerda → esquerda-direita, impulsão na direita.</p>',
+          [{ t: 'Shot Science — Layups 101 · 6:05 — trechos 0:37–1:23 (footwork «one two and up») e 1:38–2:20 (a recolhida). A informação está nos gráficos da tela, não só na fala', u: 'https://www.youtube.com/watch?v=rV-4Jk2oOYE&t=37s' }, { t: 'By Any Means — Daily Finishing Workout to Make More Layups · 6:59 — footwork e mão de finalização dos dois lados, zero propaganda', u: 'https://www.youtube.com/watch?v=zh2JLinO-ws' }]);
+        h += card('c1c', '1C', 'Aproximações progressivas <span class="antes">2 min · 3 saltos</span>',
+          media('img/v__5w2FD24CUU.jpg', ['2 min', '3 saltos', 'contam no orçamento'], 'Repetir o caminho que tu já usa pra enterrar, intenção crescente. <b>Saltos de preparação, não teste de impulsão.</b> Caminhar de volta entre eles.'),
+          '<div class="atencao">Erro a observar: transformar o aquecimento em teste de impulsão.</div>' + ctr('aprox', 'Aproximações com salto', 3, true),
+          '<p><strong>3 aproximações com salto</strong>, intenção crescente. Repetir o caminho que tu já usa pra enterrar. São saltos de preparação, não teste de impulsão. Caminhar de volta entre eles. <strong>Contam no orçamento de salto máximo do dia.</strong></p>',
+          [{ t: 'Coach Ty — How to Dunk w/ a Ball in Your Hands, trecho 2:37–3:35 — torso alto na penúltima passada', u: 'https://www.youtube.com/watch?v=_5w2FD24CUU&t=157s' }, { t: 'Isaiah Rivera — How To Dunk, trecho 0:00–1:10 — posição de mão que tu carrega na aproximação inteira', u: 'https://www.youtube.com/watch?v=Vc3TKW1PEQ4' }]);
+      }
+      if (b.id === 'b2') {
+        if (!c.m) h += fcard('c2', '2', 'Enterrada', '<p class="vazio">Escolha o <b>modo do dia</b> no Bloco 0 — é ele que define quantas tentativas cabem hoje.</p>');
+        else if (c.m === 'pre') h += fcard('c2', '2', 'Enterrada', '<div class="atencao">Bloco pulado — o salto de hoje é o jogo.</div>' + nota('Seis tentativas de enterrada <b>antes</b> do jogo entregam a perna gasta pro jogo. O orçamento de 10–15 saltos máximos é do dia, e um jogo de liga já gasta isso em rebote e finalização contestada.'));
+        else h += card('c2', '2', 'Enterrada <span class="antes">12 min · até ' + c.tent + ' tentativas</span>',
+          media('img/v_Vc3TKW1PEQ4.jpg', ['até ' + c.tent + ' tentativas', '60–90 s entre', 'padrão fixo'], '<b>A mão termina POR CIMA da bola ou de lado?</b> Causa nº 1 de bater no aro de trás. Depois de cada uma, marcar <b>um</b> ponto pra próxima.'),
+          (c.m === 'pos' ? '<div class="atencao">Pós-jogo: teto de 2–3 tentativas — o orçamento do dia já foi no jogo.</div>' : '') +
+          '<div class="prow"><div class="plab">Padrão de hoje <small>· o mesmo nas ' + c.tent + ' tentativas — é isso que torna a série comparável</small></div>' +
+          '<div class="crow col"><label>Impulsão habitual</label>' + seg('d_imp', [['um', 'um pé'], ['dois', 'dois pés']]) + '</div>' +
+          txt('d_conc', 'Conclusão habitual', 'ex.: uma mão, por cima') + txt('d_ponto', 'Ponto de partida', 'ex.: ala direita, sem drible') + num('d_drib', 'Nº de dribles', '–', 9) + '</div>' +
+          ctr('d_tent', 'Tentativas', c.tent, true) + ctr('d_conv', 'Convertidas', c.tent, true) + ctr('d_abort', 'Abortadas <small>· sem salto, registro separado</small>', c.tent, true) +
+          '<p class="cnota" id="mm3">' + mm3Txt() + '</p>',
+          '<p><strong>Objetivo:</strong> subir a taxa de conversão de uma enterrada que tu já executa, e identificar <strong>onde</strong> ela falha.</p>' +
+          '<p><strong>Padrão de hoje</strong> (preenchido uma vez e repetido): impulsão habitual (um pé / dois pés) · conclusão habitual · ponto de partida · nº de dribles. <strong>Manter o mesmo padrão nas 6 tentativas</strong> — é isso que torna a série comparável.</p>' +
+          '<p><strong>Execução:</strong></p><ol><li>~1 min ensaiando a recolhida e a transferência, <strong>sem salto máximo</strong></li><li>Até <strong>6 tentativas</strong> (ou o teto do modo do dia)</li><li><strong>60–90 s de descanso entre tentativas</strong>, caminhando</li><li>Depois de cada uma, marcar <strong>um</strong> ponto pra próxima</li></ol>' +
+          '<p><strong>O que observar — nesta ordem:</strong></p><ol><li><strong>A mão termina POR CIMA da bola ou DE LADO?</strong> — é a causa nº 1 de bater no aro de trás. Quanto mais mão por cima, maior a chance de entrar</li><li>A bola fica estável durante a aproximação?</li><li>A recolhida permite manter o ritmo dos últimos apoios?</li><li>A mão de apoio leva a bola até a posição de conclusão?</li><li>A aterrissagem fica controlada?</li></ol>' +
+          '<p><strong>Mecânica (do vídeo do Rivera):</strong> se está pouco acima do aro, <strong>não dá pra terminar com força</strong> — descurva a mão e termina na ponta dos dedos. Força só depois que sobra altura. Duas mãos: mãos <strong>por baixo</strong> da bola, na ponta dos dedos, não nas laterais.</p>' +
+          '<p><strong>Contagem:</strong> erro, perda de bola e aproximação abortada entram no orçamento das 6. <strong>Abortadas são registradas separadamente</strong> — tentativa sem salto não equivale a salto realizado.</p>' +
+          '<p><strong>Critério de progressão — NÃO usar «4 de 6».</strong> O próprio Rivera diz que, na altura máxima, <strong>2–3 de 10 é o normal</strong>. Exigir 67 % marca fracasso toda semana e empurra pra tentar enterrada mais fácil só pra bater a meta. O critério é <strong>conversão estável ou subindo na média de 3 sessões, com a causa do erro registrada</strong>. O app mostra a média móvel de 3, nunca a sessão solta.</p>' +
+          '<p><strong>Tempo:</strong> 12 min (eram 10: 5 descansos de 90 s + 6 tentativas + 1 min de ensaio dá 10 cravados). <strong>Não encurtar o descanso pra recuperar atraso</strong> — se o bloco 2 estourar, o que encolhe é o bloco 3.</p>' +
+          '<p><strong>Nota sobre o Coach Ty:</strong> ele nomeia uma sequência de apoios específica. <strong>Conferir se bate com a tua impulsão habitual antes de copiar o footwork</strong> — o princípio do swing vale sempre, a sequência de pés não.</p>',
+          [{ t: 'Isaiah Rivera — How To Dunk A Basketball · 6:49 · out/2025 — trechos 0:00–1:10 (posição de mão) · 1:11–3:23 (bater no aro de trás, descurvar, ponta dos dedos) · 5:45–6:48 (duas mãos). ⛔ Pular 3:53–5:45 — é o drill de aro rebaixado, e a Praça tem aro fixo', u: 'https://www.youtube.com/watch?v=Vc3TKW1PEQ4' }, { t: 'Coach Ty — How to Dunk w/ a Ball in Your Hands · 4:40 — trechos 1:01–2:37 (swing cross-body, mão não-dominante empurrando a bola pra cima) · 2:37–3:35 (aproximação, torso alto)', u: 'https://www.youtube.com/watch?v=_5w2FD24CUU&t=61s' }]);
+      }
+      if (b.id === 'b3') {
+        var pre3 = c.m === 'pre';
+        var tab3a = '<table class="prev"><tr><th>Série</th><th>Mão</th><th>Reps</th></tr><tr><td>1</td><td>direita</td><td>4</td></tr><tr><td>2</td><td>esquerda</td><td>4</td></tr><tr><td>3</td><td>direita</td><td>4</td></tr><tr><td>4</td><td>esquerda</td><td>4</td></tr></table>' + (pre3 ? '<p><strong>Pré-jogo:</strong> só as séries 1 e 2 (8 reps).</p>' : '');
+        var tab3b = '<table class="prev"><tr><th>Série</th><th>Início → saída</th><th>Reps</th></tr><tr><td>1</td><td>direita → esquerda</td><td>4</td></tr><tr><td>2</td><td>esquerda → direita</td><td>4</td></tr><tr><td>3</td><td>direita → esquerda</td><td>4</td></tr><tr><td>4</td><td>esquerda → direita</td><td>4</td></tr></table>' + (pre3 ? '<p><strong>Pré-jogo:</strong> só as séries 1 e 2 (8 reps).</p>' : '');
+        var chips3 = pre3 ? ['5 min', '8 reps', '2 séries × 4'] : ['10 min', '16 reps', '4 séries × 4'];
+        var rep = '<p><strong>Uma repetição</strong> = preparação → movimento → saída → arremesso de média → rebote → volta caminhando.</p>';
+        h += card('c3a', '3A', 'In-and-out <span class="antes">' + chips3[0] + ' · ' + chips3[1] + '</span>',
+          media('img/v_PmcJJuvPSeU.jpg', chips3, 'A bola <b>ameaça</b> a troca mas <b>fica na mesma mão</b>. Bola pra dentro com o corpo junto → sai pelo mesmo lado → <b>acelera</b> → um drible → arremesso de média.'),
+          ctr('io_d', 'Reps limpas · direita', L, true) + ctr('io_e', 'Reps limpas · esquerda', L, true) +
+          nota('<b>Rep limpa:</b> bola controlada · sequência correta · saída equilibrada com diferença perceptível de ritmo · arremesso tentado.'),
+          '<p><strong>Objetivo do bloco:</strong> duas ações conectadas, deslocamento pros dois lados — e todas terminam em arremesso.</p>' + rep + tab3a +
+          '<p><strong>Executar:</strong> drible confortável → bola levemente pra dentro com o corpo acompanhando → sai pelo lado da mesma mão → <strong>acelera</strong> → um drible → arremesso de média.</p><p><strong>Pontos técnicos:</strong> olhar à frente · finta corporal coerente com a bola · mão por cima/lateral, nunca sustentando por baixo.</p><p><strong>Erros:</strong> mover só a bola · velocidade constante do início ao fim · acelerar antes de controlar a saída.</p><p><strong>Descanso:</strong> volta caminhando + 30–45 s entre séries.</p>' +
+          '<p><strong>Por que 32 e não 48:</strong> todo rep termina em arremesso de média — o Coach Mason, aos 0:58: «take one more dribble and explode the opposite way for the nice mid-range jump shot». O volume caiu pra não estourar o tempo nem a carga de desaceleração: são 44 paradas com salto no dia (32 aqui + 12 no 4B).</p>',
+          [{ t: 'Dr. Dish / Coach Mason — Skill Builder: In and Out Move, trecho 0:47–1:12', u: 'https://www.youtube.com/watch?v=PmcJJuvPSeU&t=47s' }, { t: 'ShotMechanics — How To Crossover, trecho 2:00–3:14 — deixar a bola girar na mão em vez de segurar rígido. Com handle 4/10 isso é mecânica de base, não detalhe', u: 'https://www.youtube.com/watch?v=JrKdsdsZ3Hw&t=120s' }]);
+        h += card('c3b', '3B', 'In-and-out + crossover <span class="antes">' + chips3[0] + ' · ' + chips3[1] + '</span>',
+          media('img/v_JrKdsdsZ3Hw.jpg', chips3, 'Mesma preparação, mas a bola <b>cruza</b> pra outra mão e sai pelo outro lado. In-and-out → cruza → <b>corpo vai junto</b> → acelera pelo novo corredor → arremesso de média.'),
+          ctr('ic_d', 'Reps limpas · saída direita', L, true) + ctr('ic_e', 'Reps limpas · saída esquerda', L, true),
+          rep + tab3b + '<p><strong>Executar:</strong> in-and-out → cruza → <strong>corpo vai junto</strong> → acelera pelo novo corredor → arremesso de média.</p><p><strong>Erros:</strong> cruzar a bola e deixar o corpo parado · fazer a sequência inteira apressada · olhar pro chão.</p>' +
+          '<p><strong>Bônus:</strong> o mesmo vídeo do ShotMechanics, em 0:32–2:00, ensina três alturas de crossover (baixa, média, alta) escolhidas pela posição da mão do defensor. É leitura, não mecânica — material de terça, mas vale ver uma vez.</p>',
+          [{ t: 'Dr. Dish / Coach Mason — Skill Builder: In and Out Move, trecho 1:32–2:29', u: 'https://www.youtube.com/watch?v=PmcJJuvPSeU&t=92s' }, { t: 'ShotMechanics — How To Crossover, trecho 3:14–4:14 — mudança de ritmo (rápido-lento-rápido, hesitação, finta de ombro). ⛔ Pular 0:14–0:32, é captura de e-mail', u: 'https://www.youtube.com/watch?v=JrKdsdsZ3Hw&t=194s' }]);
+      }
+      if (b.id === 'b4') {
+        h += card('c4a', '4A', 'Movimento → bandeja <span class="antes">8 min · 16 tentativas</span>',
+          media('img/v_rV-4Jk2oOYE.jpg', ['8 min', '4 × 4', '1–3 dribles'], 'Da <b>ala</b>, marca fixa no chão. Resolver em <b>1–3 dribles</b> contando o movimento. Não trocar a esquerda pela direita no automático.'),
+          ctr('bj_d', 'Bandejas · direita', 8, true) + ctr('bj_e', 'Bandejas · esquerda', 8, true),
+          '<p><strong>Objetivo do bloco:</strong> o mesmo movimento, agora com <strong>desfecho variável</strong> — bandeja ou pull-up, decidido pelo espaço. Partir das <strong>alas</strong>, com marca fixa no chão. Resolver em <strong>1–3 dribles</strong> contando o movimento.</p>' +
+          '<table class="prev"><tr><th>Movimento</th><th>Mão</th><th>Reps</th></tr><tr><td>in-and-out na direita</td><td>direita</td><td>4</td></tr><tr><td>in-and-out na esquerda</td><td>esquerda</td><td>4</td></tr><tr><td>in-and-out esquerda + crossover</td><td>direita</td><td>4</td></tr><tr><td>in-and-out direita + crossover</td><td>esquerda</td><td>4</td></tr></table>' +
+          '<p><strong>Erros:</strong> continuar acrescentando dribles · perder equilíbrio na recolhida · <strong>trocar a esquerda pela direita no automático</strong>.</p>',
+          [{ t: 'Dr. Dish / Coach Mason — Skill Builder: In and Out Move, trechos 0:47–1:12 e 1:32–2:29', u: 'https://www.youtube.com/watch?v=PmcJJuvPSeU&t=47s' }, { t: 'Shot Science — Layups 101, trecho 2:40–3:41 — overhand vs underhand, e o alvo na tabela separado por lado esquerdo/direito', u: 'https://www.youtube.com/watch?v=rV-4Jk2oOYE&t=160s' }]);
+        h += card('c4b', '4B', 'Movimento → pull-up <span class="antes">7 min · 12 arremessos</span>',
+          media('img/v_PmcJJuvPSeU.jpg', ['7 min', '3 + 3 por movimento', 'lado = saída'], 'Da ala → movimento → deslocamento até a média → <b>desacelera, organiza a base, arremessa</b>. Direita/esquerda = lado da saída, não a mão.'),
+          ctr('pu_c', 'Acertos', 12, true) + ctr('pu_p', 'Paradas equilibradas', 12, true) +
+          nota('Bola pode entrar com parada ruim — registra os dois separados.'),
+          '<p>Direita e esquerda indicam <strong>o lado da saída</strong>, não a mão que arremessa.</p>' +
+          '<table class="prev"><tr><th>Movimento</th><th>Direita</th><th>Esquerda</th></tr><tr><td>in-and-out → pull-up</td><td>3</td><td>3</td></tr><tr><td>in-and-out + crossover → pull-up</td><td>3</td><td>3</td></tr></table>' +
+          '<p><strong>Executar:</strong> da ala → movimento → deslocamento até a média → <strong>desacelera, organiza a base, arremessa</strong>.</p><p><strong>Erros:</strong> correr pra dentro do arremesso · cair de lado sem intenção · afastar além da distância que controla.</p><p><strong>Dois contadores:</strong> acertos /12 e paradas equilibradas /12. Bola pode entrar com parada ruim.</p>',
+          [{ t: 'Dr. Dish / Coach Mason — trecho 2:57–3:32, o in-and-out crossover step back: a terceira progressão do vídeo e a peça mais direta pra esse bloco. ⛔ Cortar em 3:45, o resto é venda da máquina', u: 'https://www.youtube.com/watch?v=PmcJJuvPSeU&t=177s' }, { t: 'ShotMechanics — How To Crossover, trecho 3:14–4:14 — a mudança de ritmo é o que cria o espaço pra parar', u: 'https://www.youtube.com/watch?v=JrKdsdsZ3Hw&t=194s' }]);
+      }
+      if (b.id === 'b5') {
+        h += card('c5a', '5A', 'Catch-and-shoot <span class="antes">11 min · 30 arremessos</span>',
+          media('img/v_ecPyYg53Rw8.jpg', ['11 min', '5 pontos × 6'], 'Autopasse com rotação pra trás, recebe equilibrado, arremessa, rebote, volta à marca. Completar as 6 antes de trocar de ponto. <b>Não é benchmark — o benchmark é sexta.</b>'),
+          SPOTS.map(function (s) { return ctr('cs_' + s[0], s[1], 6, true); }).join('') +
+          '<div class="crow"><label>Total</label><span class="stot" id="cs_tot">–/30</span></div>' +
+          txt('cs_dist', 'Distância (se aproximou pra alcançar)', 'linha de 3 da competição') +
+          nota('<b>Distância:</b> linha de três da competição quando a execução aguenta. Se precisar compensar pra alcançar, <b>aproxima e registra a distância</b> — esses não entram como 3PT.'),
+          '<p><strong>Objetivo:</strong> manter exposição ao arremesso, que é a prioridade declarada. <strong>Não é benchmark</strong> — o benchmark é sexta, um por semana.</p><p>Autopasse com rotação pra trás, recebe equilibrado, arremessa, rebote, volta à marca. <strong>5 pontos × 6 tentativas.</strong> Completar as 6 antes de trocar de ponto: canto esquerdo · ala esquerda · topo · ala direita · canto direito.</p>',
+          [{ t: 'BreakthroughBBall — 5 Must-Know Catch & Shoot Drills · 15:11 — vídeo de estudo, fora da quadra', u: 'https://www.youtube.com/watch?v=ecPyYg53Rw8' }, { t: 'ShotMechanics — 3 Keys: How to Shoot Better off the Catch · 4:47 — pé pronto cedo', u: 'https://www.youtube.com/watch?v=IYzPW29rYEI' }]);
+        h += card('c5b', '5B', 'Lance livre <span class="antes">4 min · 10 arremessos</span>',
+          media('img/v_iW2VFzBiaQo.jpg', ['4 min', '2 séries de 5'], '<b>Mesma rotina antes de cada uma.</b> Não mudar a rotina porque errou a anterior.'),
+          ctr('ll_1', 'Série 1', 5, true) + ctr('ll_2', 'Série 2', 5, true) +
+          '<div class="crow"><label>Total</label><span class="stot" id="ll_tot">–/10</span></div>',
+          '<p>2 séries de 5, <strong>mesma rotina antes de cada uma</strong>. Não mudar a rotina porque errou a anterior.</p>',
+          [{ t: 'SIKANA — The Free Throw · 2:11 — posição, rotina, linha vertical aro–pé–joelho–cotovelo–mão–bola, backspin na ponta dos dedos. Zero propaganda', u: 'https://www.youtube.com/watch?v=iW2VFzBiaQo' }, { t: 'ShotMechanics — How to Make More Free Throws · 6:36 — rotina e respiração. ⛔ Parar em 6:00', u: 'https://www.youtube.com/watch?v=0343D3fjPnQ' }]);
+      }
+      h += '</section>';
+    });
+    sec.innerHTML = h;
+    sec.querySelectorAll('.tbtn').forEach(function (b) { b.addEventListener('click', function () { toggleBloco(b.dataset.b); }); });
+    sec.querySelectorAll('.tdone').forEach(function (b) { b.addEventListener('click', function () { concluirBloco(b.dataset.b); }); });
+    totais(); renderTimers();
+  }
+  // miniatura abre/fecha o "Como fazer · vídeo"; link de vídeo fecha o drop ao voltar (como no A)
+  document.getElementById('tela-treino').addEventListener('click', function (ev) {
+    var img = ev.target.closest('.thumb');
+    if (img) { var det = img.closest('.ex').querySelector('details.how'); if (det) det.open = !det.open; return; }
+    var a = ev.target.closest('.how-body a');
+    if (a) { var d2 = a.closest('details'); setTimeout(function () { d2.open = false; }, 250); }
+  });
+
+  // ---------- TELA REGISTRO ----------
+  function renderRegistro() {
+    var sec = document.getElementById('tela-registro');
+    var c = cfg(), L = c.lado3, r24 = v('regra24');
+    var anterior = '';
+    if (!sessaoAtiva() && ant.d) {
+      var he = histDe(ant.d);
+      anterior = '<div class="anterior"><div class="t">Sessão de ' + fmtRef(ant.d) + (he && he.nr ? ' — não realizada (regra das 24h)' : ' arquivada') + ' — «como acordou na segunda» continua editável aqui</div>' +
+        '<div class="crow"><label>Como acordou na segunda (0–10)</label><input class="ac" id="ant_acordou_seg" type="number" inputmode="numeric" min="0" max="10" placeholder="–" value="' + esc(antVal('acordou_seg', '')) + '"></div></div>';
+    }
+    var abertura = '<div class="guia"><b>Data:</b> ' + fmtRef(dataSessao()) + ' · <b>Joelho de manhã:</b> ' + (v('joelho_antes') ? esc(v('joelho_antes')) : '–') +
+      ' · <b>Regra das 24h:</b> ' + (r24 === 'sim' ? 'disparou — hoje não roda' : (r24 === 'nao' ? 'não' : '–')) + ' · <b>Modo:</b> ' + nomeModo() + ' · <b>Pernas:</b> ' + (v('pernas') || '–') +
+      '<br><b>Recente:</b> ' + (v('recente') ? esc(v('recente')) : '–') + '<br><b>Correção principal:</b> ' + (v('correcao') ? esc(v('correcao')) : '–') + '</div>' +
+      '<button type="button" class="btn" id="irB0">Editar no Bloco 0 (aba TREINO)</button>';
+    var enterrada = c.m === 'pre' ? row('Enterrada — convertidas / tentativas', null, '<span class="antes">bloco pulado (pré-jogo)</span>') :
+      row('Enterrada — convertidas / tentativas', c.tent, inp('d_conv', 9) + '<span class="x">/</span>' + inp('d_tent', 9)) + row('Enterrada — abortadas <span class="antes">· sem salto</span>', null, inp('d_abort', 9));
+    sec.innerHTML =
+      '<section class="bloco" id="rb1" style="--acc:#9aa3c7"><div class="bh"><h2>ABERTURA<small>Bloco 0 · preenchido na aba TREINO</small></h2></div>' + anterior +
+      fcard('ab', 'A', 'Abertura', abertura) + '</section>' +
+      '<section class="bloco" id="rb2" style="--acc:#fbbf24"><div class="bh"><h2>FECHAMENTO<small>consolidado dos contadores · editável</small></h2></div>' +
+      fcard('fc', 'F', 'Consolidado <span class="antes">valor · previsto</span>',
+        enterrada +
+        row('Aproximações progressivas', 3, inp('aprox', 3)) +
+        row('Bandejas 1B — dir. / esq.', '4 + 4', inp('b1_bd', 4) + '<span class="x">·</span>' + inp('b1_be', 4)) +
+        row('In-and-out — reps limpas dir. / esq.', L + ' + ' + L, inp('io_d', L) + '<span class="x">·</span>' + inp('io_e', L)) +
+        row('In-and-out + cross — saída dir. / esq.', L + ' + ' + L, inp('ic_d', L) + '<span class="x">·</span>' + inp('ic_e', L)) +
+        row('Bandejas 4A — dir. / esq.', '8 + 8', inp('bj_d', 8) + '<span class="x">·</span>' + inp('bj_e', 8)) +
+        row('Pull-up — acertos / paradas equilibradas', '12', inp('pu_c', 12) + '<span class="x">·</span>' + inp('pu_p', 12)) +
+        '<div class="crow col"><label>Catch-and-shoot <span class="antes">canto E · ala E · topo · ala D · canto D (/6 cada) · total <b id="cs_tot2">–/30</b></span></label><span class="cin">' + SPOTS.map(function (s) { return inp('cs_' + s[0], 6); }).join('') + '</span></div>' +
+        row('Lance livre <span class="antes">· série 1 + série 2 · total <b id="ll_tot2">–/10</b></span>', null, inp('ll_1', 5) + '<span class="x">+</span>' + inp('ll_2', 5)) +
+        '<p class="cnota" id="mm3b">' + mm3Txt() + '</p>') +
+      fcard('ft', 'T', 'Leitura da sessão',
+        '<div class="crow col"><label>Principal causa dos erros de enterrada</label>' + seg('causa', CAUSAS.map(function (x) { return [x, x]; }), true, true) + '</div>' +
+        txt('correcao_prox', 'Uma correção pra repetir no próximo D') +
+        txt('personal', 'Levar ao personal') +
+        txt('jogo', 'Situação pra tentar no jogo')) +
+      fcard('fs', 'S', 'Saídas do domingo <span class="antes">— obrigatórias pra exportar</span>',
+        '<div class="saida">' + txt('enfase', 'ÊNFASE DA SEMANA <span class="antes">— é o que vai governar a terça (B) e a sexta (A). Só o domingo define ênfase.</span>', '3–5 palavras') +
+        '<div class="crow col"><label>FECHAR LOG SEMANAL <span class="antes">— confirmação de que o log da nota 06 foi fechado</span></label>' + seg('log_ok', [['sim', 'Log semanal da nota 06 fechado']], true, true) + '</div></div>') +
+      fcard('fn', 'N', 'Como foi hoje',
+        num('duracao', 'Duração real (min) <span class="antes">em branco = usa a soma dos timers (valor cinza)</span>', '–') +
+        num('esforco', 'Esforço percebido (0–10)', '0–10', 10) +
+        num('joelho_dd', 'Joelho durante/depois (0–10)', '0–10', 10) +
+        ((!sessaoAtiva() && ant.d) ? nota('<b>Como acordou na segunda:</b> da sessão arquivada, preenche no box «sessão anterior» no topo do REGISTRO.') : num('acordou_seg', 'Como acordou na segunda (0–10) <span class="antes">preenche na segunda de manhã — continua editável depois de arquivar</span>', '0–10', 10)) +
+        nota('Botões no fim da página: <b>Exportar</b> copia o resumo (formato do /quarta; exige ÊNFASE e log fechado) · <b>Nova semana</b> arquiva esta sessão e abre a próxima.')) +
+      '</section>';
+    totais(); renderTimers();
+  }
+
+  // ---------- inputs: mesmo dado nas duas telas (delegação) ----------
+  document.addEventListener('input', function (ev) {
+    var el = ev.target;
+    if (!el.id) return;
+    if (el.id === 'ant_acordou_seg') {
+      ant.vals = ant.vals || {}; ant.ult = ant.ult || {};
+      if (el.value === '') { delete ant.vals.acordou_seg; delete ant.ult.acordou_seg; } else { ant.vals.acordou_seg = el.value; ant.ult.acordou_seg = el.value; }
+      save(); return;
+    }
+    if (el.id.indexOf('in_') !== 0) return;
+    var k = el.id.slice(3);
+    setVal(k, el.value);
+    if (NAO_INICIA.indexOf(k) < 0) marcarSessao();
+    save();
+    refreshCounters(k);
+    totais();
+  });
+  // seletores (modo, regra das 24h, pernas, impulsão, causa, log)
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target.closest('.seg[data-k] button[data-v]');
+    if (!btn) return;
+    var box = btn.closest('.seg'), k = box.dataset.k, val = btn.dataset.v;
+    if (box.dataset.toggle === '1' && v(k) === val) setVal(k, ''); else setVal(k, val);
+    if (k === 'regra24' && val === 'sim') pausarTudo();          // hoje não roda: nada continua contando
+    if (k === 'modo' && val === 'pre') pausar('b2');             // bloco 2 sai de cena
+    marcarSessao(); save();
+    if (k === 'modo' || k === 'regra24') renderTreino();
+    else box.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === v(k)); });
+    totais();
+  });
+  document.addEventListener('click', function (ev) {
+    if (ev.target.id === 'irB0') { state.tela = 'treino'; save(); renderTreino(); mostrarTela(); window.scrollTo(0, 0); }
+    if (ev.target.id === 'nrBtn') {
+      if (!confirm('Registrar o domingo ' + fmtRef(dataSessao()) + ' como NÃO REALIZADO (regra das 24h) e abrir a próxima sessão?')) return;
+      fecharSessao(true);
+    }
+  });
+
+  // ---------- contadores: mesmo dado nas duas telas ----------
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target.closest('.cm, .cp');
+    if (!btn) return;
+    var box = btn.closest('.ctr'), k = box.dataset.k, max = +box.dataset.max || 99;
+    var mais = btn.classList.contains('cp');
+    if (!mais && !temValor(state.vals[k])) return;  // "−" no zero, sem valor: não abre sessão
+    var val = mais ? Math.min(max, n(k) + 1) : Math.max(0, n(k) - 1);  // clamp só no sentido do toque
+    setVal(k, val);
+    marcarSessao(); save(); refreshCounters(k); refreshInput(k); totais();
+  });
+  function refreshCounters(k) { document.querySelectorAll('.ctr[data-k="' + k + '"] .cv').forEach(function (el) { el.textContent = n(k); }); }
+  function refreshInput(k) { var el = document.getElementById('in_' + k); if (el && document.activeElement !== el) el.value = v(k); }
+  function totais() {
+    var cs = 0, csN = 0; SPOTS.forEach(function (s) { if (temValor(state.vals['cs_' + s[0]])) { cs += n('cs_' + s[0]); csN++; } });
+    var ll = n('ll_1') + n('ll_2'), llN = (temValor(state.vals.ll_1) ? 1 : 0) + (temValor(state.vals.ll_2) ? 1 : 0);
+    ['cs_tot', 'cs_tot2'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = csN ? cs + '/30' : '–/30'; });
+    ['ll_tot', 'll_tot2'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = llN ? ll + '/10' : '–/10'; });
+    ['mm3', 'mm3b'].forEach(function (id) { var el = document.getElementById(id); if (el) el.innerHTML = mm3Txt(); });
+    renderFixo();
+  }
+
+  // ---------- telas ----------
+  function mostrarTela() {
+    document.getElementById('tela-treino').hidden = state.tela !== 'treino';
+    document.getElementById('tela-registro').hidden = state.tela !== 'registro';
+    document.querySelectorAll('#telaSeg button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === state.tela); });
+  }
+  document.querySelectorAll('#telaSeg button').forEach(function (b) {
+    b.addEventListener('click', function () { state.tela = b.dataset.v; save(); if (state.tela === 'registro') renderRegistro(); else renderTreino(); mostrarTela(); window.scrollTo(0, 0); });
+  });
+
+  // ---------- exportar (formato do /quarta: título · linha por exercício · como foi hoje · textos) ----------
+  function resumoTexto() {
+    var usaHoje = sessaoAtiva();
+    var vals = usaHoje ? state.vals : ant.ult, d = usaHoje ? dataSessao() : ant.d;
+    if (!vals || !d) return null;
+    var x = function (k) { return temValor(vals[k]) ? String(vals[k]).trim() : null; };
+    var q = function (k) { return temValor(vals[k]) ? String(vals[k]).trim() : '–'; };
+    var p = String(d).split('-');
+    var L = ['DOM · TREINO D — Criação + Enterrada · ' + fmtRef(d) + (p.length === 3 ? '/' + p[0] : '')];
+    var he = usaHoje ? null : histDe(d), nr = usaHoje ? x('regra24') === 'sim' : !!(he && he.nr);
+    var lado3 = x('modo') === 'pre' ? 4 : 8;
+    var ab = [];
+    if (x('joelho_antes')) ab.push('joelho de manhã ' + x('joelho_antes'));
+    if (nr) ab.push('regra das 24h disparou — NÃO REALIZADO'); else if (x('regra24') === 'nao') ab.push('regra das 24h: não');
+    if (x('modo')) ab.push('modo ' + nomeModo(x('modo')));
+    if (x('pernas')) ab.push('pernas ' + x('pernas'));
+    if (x('recente')) ab.push('recente: ' + x('recente'));
+    if (x('correcao')) ab.push('correção principal: ' + x('correcao'));
+    if (ab.length) L.push('Abertura: ' + ab.join(' · '));
+    if (x('b1_bd') || x('b1_be')) L.push('1B Bandejas leves: dir. ' + q('b1_bd') + '/4 · esq. ' + q('b1_be') + '/4');
+    if (x('aprox')) L.push('1C Aproximações: ' + q('aprox') + '/3');
+    if (x('modo') === 'pre') L.push('2 Enterrada: bloco pulado (pré-jogo)');
+    else if (x('d_tent') || x('d_conv') || x('d_abort')) {
+      var pad = [];
+      if (x('d_imp')) pad.push(x('d_imp') === 'um' ? 'um pé' : 'dois pés');
+      if (x('d_conc')) pad.push('conclusão ' + x('d_conc'));
+      if (x('d_ponto')) pad.push('partida ' + x('d_ponto'));
+      if (x('d_drib')) pad.push(x('d_drib') + ' dribles');
+      L.push('2 Enterrada: ' + q('d_conv') + '/' + q('d_tent') + ' convertidas · abortadas ' + q('d_abort') + (pad.length ? ' · padrão: ' + pad.join(' · ') : ''));
+    }
+    var m = mm3(); if (m) L.push('2 Média móvel de 3 sessões: ' + m.pct + ' % (' + m.parts.join(' · ') + ')');
+    if (x('io_d') || x('io_e')) L.push('3A In-and-out (reps limpas): dir. ' + q('io_d') + '/' + lado3 + ' · esq. ' + q('io_e') + '/' + lado3);
+    if (x('ic_d') || x('ic_e')) L.push('3B In-and-out + crossover (reps limpas): saída dir. ' + q('ic_d') + '/' + lado3 + ' · saída esq. ' + q('ic_e') + '/' + lado3);
+    if (x('bj_d') || x('bj_e')) L.push('4A Movimento → bandeja: dir. ' + q('bj_d') + '/8 · esq. ' + q('bj_e') + '/8');
+    if (x('pu_c') || x('pu_p')) L.push('4B Movimento → pull-up: acertos ' + q('pu_c') + '/12 · paradas equilibradas ' + q('pu_p') + '/12');
+    var csA = 0, csN = 0; SPOTS.forEach(function (s) { if (x('cs_' + s[0])) { csA += +vals['cs_' + s[0]]; csN++; } });
+    if (csN || x('cs_dist')) L.push('5A Catch-and-shoot: ' + (csN ? SPOTS.map(function (s) { return s[2] + ' ' + q('cs_' + s[0]) + '/6'; }).join(' · ') + ' = ' + csA + '/30' : '–') + (x('cs_dist') ? ' · distância: ' + x('cs_dist') : ''));
+    if (x('ll_1') || x('ll_2')) L.push('5B Lances livres: ' + q('ll_1') + '/5 + ' + q('ll_2') + '/5 = ' + ((+vals.ll_1 || 0) + (+vals.ll_2 || 0)) + '/10');
+    var durs = BLOCOS.map(function (b, i) { return x('dur_' + b.id) ? 'B' + (i + 1) + ' ' + x('dur_' + b.id) : null; }).filter(Boolean);
+    if (durs.length) L.push('Blocos (min): ' + durs.join(' · '));
+    var hj = [];
+    var durTot = x('duracao') || (usaHoje && state.t0 && somaDur() ? String(somaDur()) : null);
+    if (durTot && +durTot > 0) hj.push('duração ' + durTot + ' min');
+    if (x('esforco')) hj.push('esforço ' + x('esforco'));
+    if (x('joelho_dd')) hj.push('joelho durante/depois ' + x('joelho_dd'));
+    if (x('acordou_seg')) hj.push('acordou na segunda ' + x('acordou_seg'));
+    if (hj.length) L.push('Como foi hoje: ' + hj.join(' · '));
+    if (x('causa')) L.push('Causa principal dos erros de enterrada: ' + x('causa'));
+    if (x('correcao_prox')) L.push('Correção pro próximo D: ' + x('correcao_prox'));
+    if (x('personal')) L.push('Levar ao personal: ' + x('personal'));
+    if (x('jogo')) L.push('Situação pra tentar no jogo: ' + x('jogo'));
+    if (!nr) { L.push('ÊNFASE DA SEMANA: ' + q('enfase')); L.push('Log semanal (nota 06): ' + (x('log_ok') === 'sim' ? 'fechado' : '–')); }
+    return { txt: L.join('\n'), hoje: usaHoje, d: d, enfase: x('enfase'), log: x('log_ok') === 'sim', nr: nr };
+  }
+  document.getElementById('copiarBtn').addEventListener('click', function () {
+    var box = document.getElementById('resumoBox');
+    var r = resumoTexto();
+    if (!r) { msg('nada pra copiar ainda'); return; }
+    if (r.hoje && !r.nr && (!r.enfase || !r.log)) {
+      var falta = []; if (!r.enfase) falta.push('ÊNFASE DA SEMANA'); if (!r.log) falta.push('FECHAR LOG SEMANAL');
+      alert(falta.join(' e ') + ' em branco — ' + (falta.length > 1 ? 'são as saídas' : 'é uma saída') + ' obrigatória' + (falta.length > 1 ? 's' : '') + ' do domingo: é o que governa a terça e a sexta. Preenche no REGISTRO antes de exportar.');
+      state.tela = 'registro'; save(); renderRegistro(); mostrarTela();
+      var f = document.getElementById(r.enfase ? 'fs' : 'in_enfase'); if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (f.focus) f.focus(); }
+      return;
+    }
+    copiarTexto(r.txt, function (ok) {
+      if (ok) { box.hidden = true; msg('resumo copiado (' + (r.hoje ? 'sessão atual' : fmtRef(r.d)) + ') — cola no Notes'); }
+      else { box.value = r.txt; box.hidden = false; box.focus(); box.select(); msg('não consegui copiar — segura no texto e escolhe Selecionar tudo'); }
+    });
+  });
+
+  // ---------- fechar sessão: ÚNICO caminho (Nova semana e "não realizada") = referência cinza + histórico + abre a próxima ----------
+  function fecharSessao(nr) {
+    var vals = Object.assign({}, state.vals);
+    BLOCOS.forEach(function (b) { var st = bl(b.id); if ((st.t0 || st.acc) && !st.done) { vals['dur_' + b.id] = Math.max(1, Math.round(msBloco(b.id) / 60000)); } });
+    if (!temValor(vals.duracao)) { var sd = 0; BLOCOS.forEach(function (b) { sd += +vals['dur_' + b.id] || 0; }); if (sd) vals.duracao = sd; }  // soma das durações gravadas, consistente com o export
+    var d = dataSessao();
+    arquivar(vals, d);
+    state.hist = (state.hist || []).filter(function (e) { return e.d !== d; });
+    state.hist.push({ d: d, conv: +vals.d_conv || 0, tent: vals.modo === 'pre' ? 0 : (+vals.d_tent || 0), abort: +vals.d_abort || 0, modo: vals.modo || '', nr: !!nr });
+    if (state.hist.length > 40) state.hist = state.hist.slice(-40);
+    state.vals = {}; state.blocos = {}; state.t0 = null; state.av = {}; state.tela = nr ? 'treino' : 'registro';
+    if (!save()) alert('NÃO SALVOU — confira Ajustes › Safari › "Bloquear todos os cookies". A sessão continua aberta.');
+    location.reload();
+  }
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    if (!sessaoAtiva()) { msg('nenhuma sessão aberta pra arquivar'); return; }
+    if (v('regra24') === 'sim') { msg('hoje não rodou — usa o botão «Registrar a sessão como não realizada» no Bloco 0'); return; }
+    var falta = []; if (!v('enfase')) falta.push('ÊNFASE DA SEMANA'); if (v('log_ok') !== 'sim') falta.push('FECHAR LOG SEMANAL');
+    if (falta.length && !confirm(falta.join(' e ') + ' em branco — são as saídas do domingo que governam a terça e a sexta.\n\nArquivar mesmo assim?')) return;
+    if (!confirm('Nova semana: arquivar a sessão de ' + fmtRef(dataSessao()) + ' e abrir a próxima?\n\nOs números viram a referência cinza e a enterrada entra na média móvel. «Como acordou na segunda» continua editável no REGISTRO.')) return;
+    fecharSessao(false);
+  });
+
+  // ---------- volta do background: timers por timestamp já se corrigem; se outra instância gravou, recarrega ----------
+  function rehidratar() {
+    try { var raw = localStorage.getItem(KEY); if (raw && ultimoSalvo && raw !== ultimoSalvo) { location.reload(); return; } } catch (e) {}
+    renderTimers();
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) rehidratar(); });
+  window.addEventListener('pageshow', function (ev) { if (ev.persisted) rehidratar(); });
+  setInterval(renderTimers, 1000);
+
+  renderRef(); renderFixo();
+  if (state.tela === 'registro') renderRegistro(); else renderTreino();
+  mostrarTela();
+})();
+</script>
+</body>
+</html>
