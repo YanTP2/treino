@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Basquete C">
+<meta name="theme-color" content="#0e0c14">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Basquete TREINO C — Quinta</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { background:#0e0c14; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:#0e0c14; color:#e8e8ec; max-width:480px; margin:0 auto;
+    padding:0 14px calc(96px + env(safe-area-inset-bottom));
+    font-size:16px; line-height:1.45;
+  }
+  a { color:#ffb08a; }
+
+  .top {
+    position:sticky; top:0; z-index:10; background:rgba(16,16,20,.93);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    margin:0 -14px; padding:calc(10px + env(safe-area-inset-top)) 14px 0;
+    border-bottom:1px solid #241f2f;
+  }
+  .top-row { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .top h1 { font-size:16px; font-weight:800; letter-spacing:-.2px; color:#ff7a45; flex:1; min-width:0; line-height:1.2; }
+  .top h1 small { font-weight:600; color:#9d9da6; font-size:12.5px; white-space:nowrap; }
+  .prog-txt { font-size:13px; font-weight:700; color:#8e8e96; font-variant-numeric:tabular-nums; }
+  .chips-nav { display:flex; gap:6px; overflow-x:auto; padding:8px 0 10px; scrollbar-width:none; }
+  .chips-nav::-webkit-scrollbar { display:none; }
+  .chip {
+    flex-shrink:0; font-size:13px; font-weight:700; padding:10px 13px; border-radius:8px;
+    background:#1a1622; border:1px solid #2e2839; color:#9d9da6; white-space:nowrap;
+    text-decoration:none;
+  }
+  .chip.on { background:var(--bc); border-color:var(--bc); color:#0e0c14; }
+  .pbar { height:3px; background:#211c2b; margin:0 -14px; }
+  .pbar i { display:block; height:100%; width:0%; background:#ff7a45; transition:width .4s; }
+
+  .sub { font-size:12.5px; color:#8e8e96; margin:12px 0 0; text-align:center; }
+
+  details.notas {
+    background:#1a1622; border:1px solid #2e2839; border-radius:10px;
+    padding:0 14px; margin:12px 0 4px;
+  }
+  details.notas summary {
+    list-style:none; cursor:pointer; font-size:13.5px; font-weight:700; color:#e8e8ec;
+    padding:11px 0; display:flex; align-items:center; gap:6px;
+  }
+  details.notas summary::-webkit-details-marker { display:none; }
+  details.notas summary::before { content:"▸"; color:#ff7a45; transition:transform .2s; }
+  details.notas[open] summary::before { transform:rotate(90deg); }
+  details.notas p { font-size:13.5px; color:#aeaeb8; line-height:1.55; padding-bottom:10px; }
+  details.notas p strong { color:#e8e8ec; }
+
+  section.bloco { --acc:#ff7a45; scroll-margin-top:calc(100px + env(safe-area-inset-top)); }
+  .bh {
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin:22px 0 10px; padding:10px 14px; border-radius:8px;
+    background:color-mix(in srgb, var(--acc) 10%, transparent);
+    border-left:3px solid var(--acc);
+    scroll-margin-top:calc(100px + env(safe-area-inset-top));
+  }
+  @supports not (background: color-mix(in srgb, red 10%, transparent)) {
+    .bh { background:#1a1622; }
+  }
+  .bh h2 { font-size:14.5px; font-weight:800; color:var(--acc); }
+  .bh h2 small { display:block; font-size:12px; font-weight:600; color:#9d9da6; margin-top:1px; }
+
+  .ex {
+    background:#1a1622; border:1px solid #2e2839; border-radius:12px;
+    padding:14px 14px 12px; margin-bottom:12px; transition:opacity .3s, border-color .3s;
+    scroll-margin-top:calc(100px + env(safe-area-inset-top));
+  }
+  .ex.run { border-color:var(--acc); }
+  .ex.is-done { opacity:.5; }
+  .ex.flash { animation:fl .45s 2; }
+  @keyframes fl { 50% { border-color:#4ade80; box-shadow:0 0 0 3px #4ade8033; } }
+
+  .ex-head { display:flex; align-items:flex-start; gap:10px; }
+  .num {
+    min-width:30px; height:28px; padding:0 6px; border-radius:8px; background:var(--acc); color:#0e0c14;
+    font-weight:800; font-size:12.5px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; margin-top:1px; cursor:pointer;
+  }
+  .ex-head h3 { flex:1; font-size:17px; font-weight:750; line-height:1.25; letter-spacing:-.2px; }
+  .bpill {
+    display:inline-block; border:1.5px solid; border-radius:6px; padding:1px 7px;
+    font-size:10.5px; font-weight:800; letter-spacing:.4px; margin-left:6px;
+    vertical-align:2px; white-space:nowrap;
+  }
+  .done-btn {
+    width:44px; height:44px; margin:-8px -8px 0 0; flex-shrink:0; border-radius:10px;
+    border:1.5px solid #2e2839; background:transparent;
+    color:#6f6f78; font-size:18px; font-weight:800; cursor:pointer;
+  }
+  .is-done .done-btn { background:#4ade80; border-color:#4ade80; color:#0e0c14; }
+
+  .media { display:flex; gap:12px; margin:10px 0 11px; align-items:flex-start; }
+  .thumb {
+    width:104px; height:78px; object-fit:cover; border-radius:8px;
+    border:1px solid #2e2839; flex-shrink:0; cursor:pointer; background:#13101a;
+  }
+  .media-right { flex:1; min-width:0; }
+  .dose { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:7px; }
+  .dose span {
+    background:#0e0c14; border:1px solid #2e2839; border-radius:6px;
+    padding:4px 9px; font-size:14.5px; font-weight:800; font-variant-numeric:tabular-nums;
+  }
+  .dose span.eq { font-weight:600; color:#9d9da6; font-size:12.5px; align-self:center; border-style:dashed; }
+  .cue { font-size:13.5px; color:#aeaeb8; line-height:1.45; }
+  .cue b { color:#e8e8ec; }
+
+  .go {
+    width:100%; min-height:52px; border-radius:10px; border:1.5px solid var(--acc);
+    background:transparent; color:var(--acc); font-size:16.5px; font-weight:800;
+    font-variant-numeric:tabular-nums; cursor:pointer; transition:background .2s; margin-top:6px;
+  }
+  .go.running { background:var(--acc); color:#0e0c14; font-size:24px; }
+  .go.paused { background:#211c2b; border-color:#9d9da6; color:#e8e8ec; }
+  .is-done .go { border-color:#4ade80; color:#4ade80; font-size:15px; }
+
+  details.how { margin-top:10px; border-top:1px solid #241f2f; padding-top:2px; }
+  details.how summary {
+    list-style:none; cursor:pointer; font-size:13px; font-weight:700; color:#ffb08a;
+    padding:11px 0; display:flex; align-items:center; gap:6px;
+  }
+  details.how summary::-webkit-details-marker { display:none; }
+  details.how summary::before { content:"▸"; transition:transform .2s; }
+  details.how[open] summary::before { transform:rotate(90deg); }
+  .how-body { padding:2px 0 6px; }
+  .how-body p { font-size:14px; color:#aeaeb8; line-height:1.55; margin-bottom:10px; }
+  .how-body p strong { color:#e8e8ec; }
+  .links { background:#0e0c14; border:1px solid #241f2f; border-radius:8px; padding:8px 12px; }
+  .links .lh { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:#ffb08a; margin-bottom:3px; }
+  .links a { display:block; color:#aeaeb8; text-decoration:none; font-size:13.5px; padding:10px 0; }
+  .links a::before { content:"→ "; color:var(--acc); }
+
+  /* -------- formulário "como foi hoje" -------- */
+  .frm { display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+  .frow { display:flex; align-items:center; gap:8px; }
+  .frow label { flex:1; font-size:13.5px; color:#aeaeb8; }
+  .frow input[type=number], .frow input[type=text] {
+    background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec;
+    font-size:16px; font-weight:700; padding:10px 8px; text-align:center;
+  }
+  .frow input[type=number] { width:74px; }
+  .frow input[type=text] { flex:1.2; text-align:left; font-weight:600; }
+  .frm textarea {
+    background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec;
+    font-size:16px; padding:10px; min-height:74px; width:100%; font-family:inherit;
+  }
+  .seg { display:flex; gap:6px; }
+  .seg button {
+    border:1.5px solid #2e2839; background:transparent; color:#9d9da6; border-radius:8px;
+    font-size:14px; font-weight:700; padding:10px 16px; cursor:pointer;
+  }
+  .seg button.on { background:#ff7a45; border-color:#ff7a45; color:#0e0c14; }
+
+  .foot { text-align:center; margin-top:26px; font-size:12.5px; color:#8e8e96; line-height:1.7; }
+  .foot-btns { display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:14px; }
+  .foot .reset, .foot .copiar {
+    background:#211c2b; border:1px solid #2e2839; border-radius:10px;
+    font-size:14px; font-weight:700; padding:11px 18px; cursor:pointer; min-height:44px;
+  }
+  .foot .reset { color:#ff7a45; border-color:#4a2f1f; }
+  .foot .copiar { color:#aeaeb8; font-size:13px; }
+  .savemsg { font-size:12px; color:#4ade80; min-height:16px; }
+  .savemsg.err { color:#f87171; font-weight:700; }
+  .resumo-box { width:100%; min-height:140px; margin-top:10px; background:#151220; color:#e8e8ec; border:1px solid #2e2839;
+    border-radius:10px; padding:10px; font-size:13px; line-height:1.4; font-family:inherit; }
+  .sub.ref { margin-top:6px; color:#8e8e96; }
+  .fora { background:#3a2416; color:#ffb08a; font-size:12.5px; line-height:1.4; text-align:center; padding:8px 12px; border-radius:8px; margin:10px 0 0; }
+  .antes { color:#8e8e96; font-size:12px; font-weight:600; white-space:nowrap; }
+
+  /* -------- Treino A: modo, relógio, avisos -------- */
+  [hidden] { display:none !important; }
+  .top-sub { font-size:12px; color:#8e8e96; padding:3px 0 0; font-variant-numeric:tabular-nums; }
+  .banner {
+    display:flex; align-items:center; gap:10px; margin:0 0 8px; padding:9px 12px; border-radius:8px;
+    background:#3a2416; color:#ffb08a; font-size:13.5px; font-weight:700; line-height:1.35;
+  }
+  .banner button { margin-left:auto; flex-shrink:0; background:transparent; border:1px solid #ffb08a; color:#ffb08a; border-radius:6px; min-width:44px; min-height:36px; font-weight:800; cursor:pointer; }
+  .hdrbox { background:#1a1622; border:1px solid #2e2839; border-radius:10px; padding:10px 12px; margin:12px 0 0; display:flex; flex-direction:column; gap:9px; }
+  .hdrbox .frow label { font-size:13px; }
+  .hdrbox .frow input { min-width:0; }
+  .hdrbox .frow.col { flex-direction:column; align-items:stretch; gap:5px; }
+  .hdrbox .frow.col input[type=text] { width:100%; flex:none; text-align:left; }
+  .modo-row { display:flex; align-items:center; gap:10px; }
+  .modo-row label { font-size:13px; color:#9d9da6; font-weight:700; }
+  .modo-row .seg { flex:1; }
+  .modo-row .seg button { flex:1; padding:10px 4px; min-height:44px; }
+  .modo-desc, .dica { font-size:12.5px; color:#8e8e96; line-height:1.4; }
+  .dica b { color:#aeaeb8; }
+
+  /* -------- Treino A: campos de registro -------- */
+  .crow { display:flex; align-items:center; gap:8px; padding:4px 0; }
+  .crow label { font-size:13px; color:#9d9da6; font-weight:700; flex:1; min-width:0; line-height:1.3; }
+  .crow .cin { display:flex; align-items:center; gap:5px; flex-shrink:0; }
+  input.ac, input.tt {
+    background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec;
+    font-size:16px; font-weight:700; padding:10px 4px; text-align:center; width:58px; min-width:0;
+    font-variant-numeric:tabular-nums;
+  }
+  input.tt { width:50px; color:#9d9da6; font-weight:600; }
+  input.ac::placeholder, input.tt::placeholder { color:#5c5c66; font-weight:600; }
+  .crow input.tx { flex:1.3; min-width:0; background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec; font-size:16px; font-weight:600; padding:10px 8px; }
+  .crow input.tx::placeholder { color:#5c5c66; }
+  .den, .x { color:#6f6f78; font-size:13px; font-weight:700; flex-shrink:0; }
+  .crow .stot { font-size:14.5px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .seg-row .seg { flex-wrap:wrap; }
+  .seg button { min-height:44px; }
+  .spots { margin:8px 0 4px; border-top:1px solid #241f2f; padding-top:6px; }
+  .sph { display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-size:13px; font-weight:800; color:var(--acc); padding:2px 0 4px; }
+  .sph .stot { color:#e8e8ec; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .sprow { display:flex; align-items:center; gap:6px; padding:3px 0; }
+  .sprow .slab { flex:1; font-size:13.5px; font-weight:700; color:#aeaeb8; }
+  .cnota { font-size:13px; color:#aeaeb8; line-height:1.45; padding:6px 0 2px; }
+  .cnota b { color:#e8e8ec; }
+  .trav {
+    display:flex; align-items:center; gap:10px; background:#3a1a1a; border:1px solid #f87171; color:#fca5a5;
+    border-radius:8px; padding:9px 12px; margin:8px 0 4px; font-size:13.5px; font-weight:700; line-height:1.35;
+  }
+  .trav button { margin-left:auto; flex-shrink:0; min-width:44px; min-height:36px; background:transparent; border:1px solid #fca5a5; color:#fca5a5; border-radius:6px; font-weight:800; cursor:pointer; }
+  .ex.extra { border-style:dashed; }
+
+  /* -------- Treino A: histórico do benchmark -------- */
+  .hist { background:#0e0c14; border:1px solid #241f2f; border-radius:8px; padding:10px 12px; margin:10px 0 4px; }
+  .hh { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:var(--acc); }
+  .hbig { font-size:34px; font-weight:800; line-height:1.15; font-variant-numeric:tabular-nums; }
+  .hsm { font-size:12.5px; color:#8e8e96; line-height:1.4; }
+  .hnote { font-size:12.5px; color:#aeaeb8; margin-top:6px; border-top:1px solid #241f2f; padding-top:6px; line-height:1.4; }
+  .hwarn { font-size:13px; color:#ffb08a; font-weight:700; margin-bottom:6px; line-height:1.35; }
+  details.hlist { margin-top:4px; }
+  details.hlist summary { list-style:none; font-size:12.5px; color:#9d9da6; font-weight:700; cursor:pointer; padding:8px 0; }
+  details.hlist summary::-webkit-details-marker { display:none; }
+  details.hlist summary::before { content:"▸ "; }
+  details.hlist[open] summary::before { content:"▾ "; }
+  .hrow { font-size:12.5px; color:#aeaeb8; padding:3px 0; font-variant-numeric:tabular-nums; line-height:1.4; }
+
+  /* -------- Treino A: descrição completa no "Como fazer" -------- */
+  .desc p { font-size:14px; color:#aeaeb8; line-height:1.55; margin-bottom:10px; }
+  .desc strong { color:#e8e8ec; }
+  .desc ol, .desc ul { padding-left:20px; margin:0 0 10px; font-size:14px; color:#aeaeb8; line-height:1.55; }
+  .desc li { margin-bottom:3px; }
+  .vid-swap { margin-top:8px; font-size:11.5px; color:#6f6f78; line-height:1.5; }
+
+  /* -------- tema basquete (paleta trocada no gerador: fundo índigo, laranja de bola) -------- */
+  .top h1 { text-shadow:0 0 18px rgba(255,122,69,.35); }
+  .pbar { background:#241f2f; }
+  .pbar i { background:linear-gradient(90deg,#ff7a45,#c084fc); }
+  .top { border-bottom-color:#3a2f4a; }
+
+  /* -------- Treino C: identidade (listra verde-água→azul), telas, timers, contadores -------- */
+  .top h1 { text-shadow:0 0 18px rgba(45,212,191,.35); }
+  .top h1 small { white-space:normal; }
+  .pbar i { width:100%; background:linear-gradient(90deg,#2dd4bf,#38bdf8); }
+  .fixo { font-size:12px; color:#aeaeb8; line-height:1.4; padding:4px 0 2px; white-space:pre-line; }
+  .fixo b { color:#e8e8ec; }
+  .fixo.clamp { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .seg.telas { display:flex; gap:6px; padding:6px 0 8px; }
+  .seg.telas button { flex:1; min-height:44px; padding:6px 4px; font-size:14px; line-height:1.15; }
+  .seg.telas button.on { background:#2dd4bf; border-color:#2dd4bf; color:#0e0c14; }
+  .seg.telas small { display:block; font-size:11px; font-weight:600; opacity:.8; }
+  .banner { background:#0f2f2b; color:#5eead4; }
+  .banner button { border-color:#5eead4; color:#5eead4; }
+  .crow label .antes, .crow.col label .antes { white-space:normal; }
+  .crow.col { flex-direction:column; align-items:stretch; gap:5px; }
+  .crow.col label { flex:none; }
+  .crow.col input.tx, .crow.col textarea { width:100%; flex:none; }
+  .crow textarea { background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec; font-size:16px; padding:10px; min-height:72px; font-family:inherit; line-height:1.4; }
+  .crow input[type=date] { background:#0e0c14; border:1px solid #2e2839; border-radius:8px; color:#e8e8ec; font-size:16px; padding:9px 8px; min-height:44px; }
+  .crow .cin input.ac { width:52px; }
+  .ex.tcard { padding:10px 12px; }
+  .trow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .tnum { font-size:28px; font-weight:800; font-variant-numeric:tabular-nums; color:var(--acc); min-width:78px; }
+  .talvo { font-size:13px; color:#8e8e96; font-weight:700; flex:1; }
+  .tbtn, .tdone { min-height:44px; padding:8px 12px; border-radius:10px; border:1.5px solid var(--acc); background:transparent; color:var(--acc); font-size:14px; font-weight:800; cursor:pointer; }
+  .tdone { border-color:#2e2839; color:#aeaeb8; }
+  .tcard.run { border-color:var(--acc); box-shadow:0 0 0 1px var(--acc) inset; }
+  .tcard.run .tbtn { background:var(--acc); color:#0e0c14; }
+  .tcard.is-done { border-color:#4ade80; }
+  .tcard.is-done .tnum { color:#4ade80; }
+  .tcard.is-done .tdone { border-color:#4ade80; color:#4ade80; }
+  .tbtn:disabled { opacity:.45; }
+  .tcard .obj { font-size:13.5px; color:#aeaeb8; line-height:1.45; margin-top:8px; }
+  .tcard .obj b { color:#e8e8ec; }
+  .ctr { display:flex; align-items:center; gap:4px; }
+  .ctr .clab { font-size:11.5px; font-weight:700; color:#8e8e96; text-transform:uppercase; letter-spacing:.4px; margin-right:2px; }
+  .ctr button { width:44px; height:44px; border-radius:10px; border:1.5px solid #2e2839; background:#0e0c14; color:#e8e8ec; font-size:22px; font-weight:800; cursor:pointer; line-height:1; }
+  .ctr button.cp { border-color:var(--acc); color:var(--acc); }
+  .ctr .cv { min-width: 34px; text-align:center; font-size:20px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .ctr .cmax { font-size:12px; color:#6f6f78; font-weight:700; }
+  .prow { border-top:1px solid #241f2f; padding:8px 0 6px; }
+  .plab { font-size:13.5px; font-weight:700; color:#e8e8ec; margin-bottom:6px; line-height:1.3; }
+  .plab small { font-weight:600; color:#8e8e96; }
+  .pctrs { display:flex; gap:14px; flex-wrap:wrap; }
+  .ctr.one { border-top:1px solid #241f2f; padding:8px 0 4px; }
+  .ctr.one .clab { font-size:13.5px; text-transform:none; letter-spacing:0; color:#e8e8ec; flex:1; }
+  .aviso { background:#0f2f2b; color:#5eead4; border:1px solid #1f6b62; border-radius:8px; padding:10px 12px; margin:8px 0 4px; font-size:14px; font-weight:700; line-height:1.4; }
+  .atencao { background:#3a2416; color:#ffb08a; border:1px solid #7a4a2a; border-radius:8px; padding:9px 12px; margin:8px 0 4px; font-size:14px; font-weight:700; line-height:1.4; }
+  .links.vis { margin-top:10px; }
+  .links.vis a { white-space:normal; line-height:1.35; padding:9px 10px; }
+  .seg.stack { flex-direction:column; align-items:stretch; }
+  .seg.stack button { text-align:left; min-height:44px; }
+  .seg.stack button::before { content:"○ "; color:#8e8e96; }
+  .seg.stack button.on::before { content:"● "; color:#0e0c14; }
+  .saida { border:1.5px solid #2dd4bf; border-radius:10px; padding:10px 12px; margin-top:8px; }
+  .saida label { color:#5eead4 !important; font-size:14px !important; }
+  section.destaque > .bh { box-shadow:0 0 0 2px #2dd4bf; animation:pulsa 1.4s ease-in-out infinite; }
+  @keyframes pulsa { 0%,100% { box-shadow:0 0 0 2px #2dd4bf; } 50% { box-shadow:0 0 0 5px rgba(45,212,191,.35); } }
+  .btn { min-height:44px; border-radius:10px; border:1.5px solid #2dd4bf; background:transparent; color:#2dd4bf; font-size:15px; font-weight:800; padding:10px 14px; cursor:pointer; width:100%; margin-top:6px; }
+  .anterior { background:#1a1622; border:1px dashed #2e2839; border-radius:10px; padding:10px 12px; margin:0 0 12px; }
+  .anterior .t { font-size:13px; color:#8e8e96; font-weight:700; margin-bottom:6px; }
+  .guia { font-size:13px; color:#aeaeb8; line-height:1.5; padding:4px 0 6px; }
+  .guia b { color:#e8e8ec; }
+  .vazio { font-size:13.5px; color:#8e8e96; padding:6px 0; }
+  table.prev { width:100%; border-collapse:collapse; font-size:13px; margin:6px 0 10px; }
+  table.prev td, table.prev th { padding:5px 4px; border-bottom:1px solid #241f2f; color:#aeaeb8; text-align:left; }
+  table.prev th { color:#9d9da6; font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+  table.prev td:last-child, table.prev th:last-child { text-align:right; white-space:nowrap; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-row">
+    <h1>🏀 QUI · TREINO C <small>— Poste + Face-up</small></h1>
+    <span class="prog-txt" id="sessaoTxt">⏱ 00:00</span>
+  </div>
+  <div class="fixo clamp" id="fixo"></div>
+  <nav class="chips-nav"><span class="seg telas" id="telaSeg"><button type="button" data-v="treino">TREINO<small>na quadra</small></button><button type="button" data-v="registro">REGISTRO<small>abertura · fechamento</small></button></span></nav>
+  <div class="banner" id="banner" hidden><span id="banTxt"></span><button type="button" id="banOk" aria-label="dispensar aviso">ok</button></div>
+  <div class="pbar"><i></i></div>
+</div>
+
+<p class="sub"><strong>Prática bloqueada, sem defensor: padrão motor, não resultado.</strong><br>70 min programados · 90 oportunidades · 50 finalizações no aro · <strong>salto zero</strong></p>
+<p class="sub ref" id="refTxt"></p>
+
+<details class="notas">
+  <summary>Notas &amp; regras do treino</summary>
+  <p><strong>O que é:</strong> quinta de manhã, 70 minutos programados, prática <strong>bloqueada</strong> — sem defensor. O objetivo do dia é <strong>padrão motor</strong>, não resultado: a bola entrar não valida a repetição. <strong>O dia é leve por definição.</strong> Zero salto máximo. Zero tentativa de terminar alto. O C é o único dia da semana com salto zero.</p>
+  <p><strong>Entrada e saída obrigatórias:</strong> TERÇA (personal, com defensor) → TAREFA → QUINTA (C, bloqueado) constrói o PAR DE MOVIMENTOS → volta pra TERÇA. O app pede a tarefa no começo (abertura) e exige o par no fim (não exporta sem ele). Sem isso o C vira treino solto e a série terça→quinta→terça quebra.</p>
+  <p><strong>Aritmética:</strong> 90 oportunidades = 32 (bloco 2) + 16 (bloco 3) + 12 (bloco 4) + 30 (bloco 5). 50 finalizações no aro = 32 (bloco 2) + 8 (ataques do bloco 3) + 10 (bloco 4). Os 8 ensaios do 2A e os 8 giros do 3.1 não contam — não terminam em finalização. Bloco 4: 12 reps = 4 do par 1 + 4 do par 2 + 4 do par 3; no par 3, 2 terminam em ataque e 2 em arremesso → 10 das 12 são no aro.</p>
+  <p><strong>Regra do volume:</strong> o volume é referência, não dívida. Acabou o tempo do bloco, registra o que fez e avança. O app nunca bloqueia o avanço por volume incompleto.</p>
+  <p><strong>Tempo:</strong> timer por bloco, iniciado manualmente, por timestamp (sobrevive à tela bloqueada); ao concluir, grava a duração real. Timer geral da sessão começa no primeiro bloco. <strong>Aos 75 min</strong> o bloco 5 é destacado e o app sinaliza pra começar o arremesso, mesmo com repetição pendente. <strong>Aos 90 min</strong>, aviso de encerrar. Nenhum som, nenhuma vibração: aviso é visual. Sem avisos por relógio (o C ainda não tem horário cravado na agenda).</p>
+  <p><strong>Joelho:</strong> os campos de joelho (antes, durante/depois, manhã seguinte) são registro puro. Sem gatilho automático, sem filtro, sem link externo. Quem decide o que fazer com o número é o log semanal e a fisioterapeuta. O <strong>joelho na manhã seguinte</strong> é o medidor da decisão de ter movido o C pra quinta — fica editável na sexta de manhã, mesmo depois de arquivar.</p>
+  <p><strong>Ficou de fora, de propósito:</strong> quick spin (leitura tátil, material de terça) · impulsão de dois pés na reversa · goofy foot / goofy hand na reversa · rocker step no jab (progressão futura) · benchmark de arremesso (é do Treino A, sempre sexta).</p>
+  <p><strong>Registro:</strong> tudo salva a cada toque; os contadores da tela TREINO e a tabela do REGISTRO são o mesmo dado. <strong>Exportar</strong> copia no formato do /quarta. <strong>Arquivar sessão</strong> guarda a sessão como referência cinza e abre a próxima; a anterior continua com o joelho da manhã seguinte editável.</p>
+</details>
+
+<section id="tela-treino"></section>
+<section id="tela-registro" hidden></section>
+
+<div class="foot">
+  <div class="foot-btns">
+    <button class="reset" id="resetBtn" type="button">Arquivar sessão — abrir a próxima</button>
+    <button class="copiar" id="copiarBtn" type="button">Exportar (copiar resumo)</button>
+  </div>
+  <div class="savemsg" id="saveMsg"></div>
+  <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
+  <div>QUI · Basquete TREINO C v1 — prática bloqueada · salto zero · o benchmark é sexta</div>
+  <div>Basquete: <a href="../treino-b/">Treino B (ter)</a> · <a href="../basquete-sexta-a/">Treino A (sex)</a> · Matinal: <a href="../dia-b/">Dia B</a> · <a href="../">Completa</a></div>
+  <div class="vid-swap">19 vídeos validados via oEmbed em 13/09/2026. Trechos indicados nos links (t=) abrem no ponto certo.</div>
+</div>
+<!-- Fora de escopo, de propósito (não implementar): quick spin · impulsão de dois pés na reversa · goofy foot/hand na reversa · rocker step no jab · benchmark de arremesso (Treino A). -->
+
+<script>
+// ===================== DADOS =====================
+var BLOCOS = [
+  { id:'b1', cor:'#9aa3c7', titulo:'BLOCO 1 — PREPARAÇÃO', sub:'5 min · aquecimento progressivo', alvo:5,
+    obj:'Preparar tornozelo e quadril para girar sobre o pé de apoio. <b>Sem salto.</b>' },
+  { id:'b2', cor:'#2dd4bf', titulo:'BLOCO 2 — POSTE', sub:'25 min · 8 ensaios + 32 finalizações', alvo:25,
+    obj:'Ensaios de apoio (sem finalizar) → gancho pelo meio → drop step pela linha de fundo.' },
+  { id:'b3', cor:'#38bdf8', titulo:'BLOCO 3 — FACE-UP', sub:'15 min · 8 giros + 16 oportunidades', alvo:15,
+    obj:'É aqui que a identidade de <b>ala</b> entra num treino de poste. Tudo que se aprende de costas morre quando a posição muda; o face-up sobrevive.' },
+  { id:'b4', cor:'#c084fc', titulo:'BLOCO 4 — AÇÃO + COUNTER', sub:'10 min · 12 repetições', alvo:10,
+    obj:'Os blocos 2 e 3 instalam movimentos isolados. Este instala <b>leitura</b> — a ação é negada e o counter sai. Sem isso, o vocabulário existe mas não se conecta, e na terça o Yan trava no primeiro movimento negado.' },
+  { id:'b5', cor:'#ff7a45', titulo:'BLOCO 5 — ARREMESSO', sub:'15 min · 20 + 10 arremessos', alvo:15,
+    obj:'Descarregar com volume limpo. <b>Não é benchmark</b> — o benchmark é sexta, um por semana.' }
+];
+var PARES = [
+  { t:'1 · gancho pelo meio ↔ up-and-under', img:'img/v_zLQC8eZTLIE.jpg', links:[
+    { t:'Pro Training — Counter Move: Up & Under · 2:40 — enquadrado como counter desde o segundo 12', u:'https://www.youtube.com/watch?v=zLQC8eZTLIE' },
+    { t:'Pro Training — Top 5 Post Moves, trecho 1:27–2:30 — a descrição mais precisa do movimento: pé de dentro fica, passa com o pé de fora, explode nele, finaliza com a mão de fora', u:'https://www.youtube.com/watch?v=S3bqH9Sk_NA&t=87s' } ] },
+  { t:'2 · drop step ↔ reverse layup', img:'img/v_zkSHyZGWU-s.jpg', links:[
+    { t:'Get Handles — How To REVERSE LAYUP, trecho 0:33–1:50 apenas. Depois de 1:50 ele inverte as mãos de propósito e entra em variação avançada — não passar', u:'https://www.youtube.com/watch?v=zkSHyZGWU-s&t=33s' },
+    { t:'Howard Elite — Finishing at the Rim: Reverse lay up · 4:02', u:'https://www.youtube.com/watch?v=Gcooxa7z0bo' } ] },
+  { t:'3 · face-up ataque ↔ face-up arremesso', img:'img/v_sFz5lCkf1zw.jpg', links:[
+    { t:'Dr. Dish / Coach Mason — Face Up Series, trechos 0:50–1:08 e 1:46–2:23', u:'https://www.youtube.com/watch?v=sFz5lCkf1zw&t=50s' },
+    { t:'BreakthroughBBall — 4 Quick Post Moves Against Bigger Or Slower Defenders · 5:09 — mostra a leitura com defensor vivo e legenda na tela nomeando o gatilho', u:'https://www.youtube.com/watch?v=2zWE2uUtWTs' } ] }
+];
+var SPOTS = [['ce','Canto esquerdo'],['ae','Ala esquerda'],['tp','Topo'],['ad','Ala direita'],['cd','Canto direito']];
+// linhas da tabela de fechamento: [rótulo, chave cestas, chave reps, previsto]
+var TABELA = [
+  ['Gancho com direita', 'g_d_c', 'g_d_r', 8], ['Gancho com esquerda', 'g_e_c', 'g_e_r', 8],
+  ['Drop step com direita', 'ds_d_c', 'ds_d_r', 8], ['Drop step com esquerda', 'ds_e_c', 'ds_e_r', 8],
+  ['Face-up ataque direita', 'fa_d_c', 'fa_d_r', 4], ['Face-up ataque esquerda', 'fa_e_c', 'fa_e_r', 4],
+  ['Face-up arremesso direita', 'fs_d_c', 'fs_d_r', 4], ['Face-up arremesso esquerda', 'fs_e_c', 'fs_e_r', 4]
+];
+
+// ===================== APP =====================
+(function () {
+  var KEY = 'treino_c_v1';
+  function hoje() {
+    var d = new Date();
+    return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+  }
+  var state = { vals: {}, blocos: {}, t0: null, av: {}, tela: 'treino' };
+  var ant = { d: null, vals: {} };
+  var ultimoSalvo = null;
+  function arquivar(vals, d) {
+    var limpo = {}, n = 0;
+    Object.keys(vals || {}).forEach(function (k) {
+      var v = vals[k];
+      if (v != null && String(v).trim() !== '') { limpo[k] = v; n++; }
+    });
+    if (!n || !d) return false;
+    // vals = referência mesclada (campo em branco herda); ult = só os valores desta sessão (pro Copiar resumo)
+    // mesma data = continuação da sessão (ex.: questionário preenchido depois de Encerrar): ult acumula
+    var mesmoDia = ant && ant.d === d;
+    ant = { d: d, vals: Object.assign({}, (ant && ant.vals) || {}, limpo), ult: mesmoDia ? Object.assign({}, ant.ult || {}, limpo) : limpo };
+    return true;
+  }
+  function temValor(v) { return v != null && String(v).trim() !== ''; }
+  function msg(t, fixo) {
+    var el = document.getElementById('saveMsg');
+    if (fixo) msg._fixo = t;  // aviso fixo (NÃO SALVOU) volta depois das mensagens passageiras
+    el.textContent = t;
+    el.classList.toggle('err', !!fixo);
+    clearTimeout(msg._t);
+    if (t && !fixo) msg._t = setTimeout(function () { el.textContent = msg._fixo || ''; el.classList.toggle('err', !!msg._fixo); }, 2500);
+  }
+  function fmtRef(d) {
+    var p = String(d || '').split('-');
+    if (p.length !== 3) return String(d || '');
+    var dt = new Date(+p[0], +p[1] - 1, +p[2]);
+    return ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'][dt.getDay()] + ' ' + p[2] + '/' + p[1];
+  }
+  function esc(v) {
+    return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function copiarTexto(txt, cb) {
+    var fallback = function () {
+      var ta = document.createElement('textarea');
+      ta.value = txt; ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.top = '-1000px';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { ta.setSelectionRange(0, txt.length); } catch (e) {}
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      cb(ok);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { cb(true); }, fallback);
+    } else fallback();
+  }
+
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && p.vals) {
+        state = { vals: p.vals || {}, blocos: p.blocos || {}, t0: p.t0 || null, av: p.av || {}, tela: p.tela === 'registro' ? 'registro' : 'treino' };
+        ant = p.ant || ant;
+        ultimoSalvo = raw;
+      }
+    }
+  } catch (e) {}
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+
+  function save() {
+    try {
+      var txt = JSON.stringify({ vals: state.vals, blocos: state.blocos, t0: state.t0, av: state.av, tela: state.tela, ant: ant });
+      localStorage.setItem(KEY, txt);
+      ultimoSalvo = txt;
+      var d = new Date();
+      msg._fixo = '';
+      msg('salvo às ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2));
+      return true;
+    } catch (e) { msg('NÃO SALVOU — confira Ajustes › Safari › "Bloquear todos os cookies"', true); return false; }
+  }
+  // aviso: aberto fora do ícone (Safari, link de outro app, Mac) = outra memória, nada fica no app da tela de início
+  (function () {
+    var standalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    var publicado = /github\.io$/.test(location.hostname);
+    if (standalone || !publicado) return;
+    var w = document.createElement('div');
+    w.className = 'fora';
+    w.textContent = 'Aberto fora do ícone — o que você digitar aqui não fica salvo no app da tela de início.';
+    var top = document.querySelector('.top');
+    top.parentNode.insertBefore(w, top.nextSibling);
+  })();
+
+  // ---------- estado da sessão ----------
+  function n(k) { return +state.vals[k] || 0; }
+  function v(k) { return temValor(state.vals[k]) ? String(state.vals[k]).trim() : ''; }
+  function setVal(k, val) { if (val === '' || val == null) delete state.vals[k]; else state.vals[k] = val; }
+  function sessaoAtiva() {
+    return !!state.t0 || Object.keys(state.vals).some(function (k) { return k !== 'data' && temValor(state.vals[k]); });
+  }
+  function marcarSessao() { if (!temValor(state.vals.data)) state.vals.data = hoje(); }
+  function dataSessao() { return temValor(state.vals.data) ? state.vals.data : hoje(); }
+  function renderRef() {
+    document.getElementById('refTxt').textContent = ant.d ? 'última sessão: ' + fmtRef(ant.d) : 'sem referência ainda';
+  }
+  function renderFixo() {
+    var el = document.getElementById('fixo');
+    var j = v('joelho_antes'), t = v('tarefa');
+    el.innerHTML = '<b>Joelho antes:</b> ' + (j ? esc(j) : '–') + ' · <b>TAREFA da terça:</b> ' + (t ? esc(t) : 'preenche na abertura (REGISTRO)');
+  }
+  document.getElementById('fixo').addEventListener('click', function () { this.classList.toggle('clamp'); });
+
+  // ---------- timers (por timestamp, contagem crescente) ----------
+  function bl(id) { if (!state.blocos[id]) state.blocos[id] = { t0: null, acc: 0, done: false }; return state.blocos[id]; }
+  function msBloco(id) { var b = bl(id); return (b.acc || 0) + (b.t0 ? Date.now() - b.t0 : 0); }
+  function fmtMS(ms) { var s = Math.max(0, Math.floor(ms / 1000)); return ('0' + Math.floor(s / 60)).slice(-2) + ':' + ('0' + (s % 60)).slice(-2); }
+  function toggleBloco(id) {
+    var b = bl(id);
+    if (b.done) return;
+    if (b.t0) { b.acc = (b.acc || 0) + (Date.now() - b.t0); b.t0 = null; }
+    else { b.t0 = Date.now(); if (!state.t0) state.t0 = Date.now(); marcarSessao(); }
+    save(); renderTimers();
+  }
+  function concluirBloco(id) {
+    var b = bl(id);
+    if (b.done) { b.done = false; delete state.vals['dur_' + id]; }
+    else {
+      if (b.t0) { b.acc = (b.acc || 0) + (Date.now() - b.t0); b.t0 = null; }
+      b.done = true;
+      state.vals['dur_' + id] = Math.max(1, Math.round((b.acc || 0) / 60000));
+      marcarSessao();
+    }
+    save(); renderTimers(); refreshInput('dur_' + id);
+  }
+  function somaDur() { var s = 0; BLOCOS.forEach(function (b) { s += bl(b.id).done ? n('dur_' + b.id) : Math.round(msBloco(b.id) / 60000); }); return s; }
+  function renderTimers() {
+    BLOCOS.forEach(function (b) {
+      var st = bl(b.id), card = document.getElementById('tb_' + b.id);
+      if (!card) return;
+      document.getElementById('tv_' + b.id).textContent = st.done ? n('dur_' + b.id) + ' min' : fmtMS(msBloco(b.id));
+      card.classList.toggle('run', !!st.t0);
+      card.classList.toggle('is-done', !!st.done);
+      var btn = document.getElementById('tbtn_' + b.id);
+      btn.textContent = st.t0 ? '⏸ Pausar' : (st.acc ? '▶ Retomar' : '▶ Iniciar');
+      btn.disabled = !!st.done;
+      document.getElementById('tdone_' + b.id).textContent = st.done ? '↺ reabrir' : '✓ Concluir bloco';
+    });
+    var el = state.t0 ? Date.now() - state.t0 : 0;
+    document.getElementById('sessaoTxt').textContent = state.t0 ? '⏱ ' + fmtMS(el) : '⏱ 00:00';
+    var min = el / 60000, ban = document.getElementById('banner'), qual = null;
+    var b5 = document.getElementById('b5');
+    if (state.t0 && min >= 90) qual = 'b'; else if (state.t0 && min >= 75) qual = 'a';
+    if (b5) b5.classList.toggle('destaque', !!state.t0 && min >= 75 && !bl('b5').done);
+    if (qual && !state.av[qual]) {
+      ban.dataset.q = qual;
+      document.getElementById('banTxt').textContent = qual === 'a' ? '75 min de sessão — vai pro arremesso (bloco 5), mesmo com repetição pendente.' : '90 min de sessão — hora de encerrar.';
+      ban.hidden = false;
+    } else ban.hidden = true;
+    var dur = document.getElementById('in_duracao');
+    if (dur) dur.placeholder = state.t0 ? String(somaDur()) : '–';
+  }
+  document.getElementById('banOk').addEventListener('click', function () {
+    var q = document.getElementById('banner').dataset.q; if (q) state.av[q] = true; save(); renderTimers();
+  });
+
+  // ---------- componentes ----------
+  function card(id, numTxt, name, inner) { return '<article class="ex" id="' + id + '"><div class="ex-head"><span class="num">' + numTxt + '</span><h3>' + name + '</h3></div>' + inner + '</article>'; }
+  function media(img, chips, cue) {
+    var dose = '<div class="dose">' + chips.map(function (c) { return '<span>' + c + '</span>'; }).join('') + '</div>';
+    return '<div class="media">' + (img ? '<img class="thumb" src="' + img + '" alt="vídeo" loading="lazy" width="104" height="78">' : '') + '<div class="media-right">' + dose + '<p class="cue">' + cue + '</p></div></div>';
+  }
+  function links(ls) { return '<div class="links vis"><div class="lh">Vídeos</div>' + ls.map(function (l) { return '<a href="' + l.u + '" target="_blank" rel="noopener">' + l.t + '</a>'; }).join('') + '</div>'; }
+  function nota(h, cls) { return '<p class="' + (cls || 'cnota') + '">' + h + '</p>'; }
+  function ctr(k, lab, max, one) {
+    return '<div class="ctr' + (one ? ' one' : '') + '" data-k="' + k + '" data-max="' + max + '"><span class="clab">' + lab + '</span><button type="button" class="cm" aria-label="menos">−</button><span class="cv">' + n(k) + '</span><span class="cmax">/' + max + '</span><button type="button" class="cp" aria-label="mais">+</button></div>';
+  }
+  function pair(lab, kc, kr, max) { return '<div class="prow"><div class="plab">' + lab + '</div><div class="pctrs">' + ctr(kc, 'cestas', max) + ctr(kr, 'reps', max) + '</div></div>'; }
+  function tcard(b) {
+    return '<article class="ex tcard" id="tb_' + b.id + '"><div class="trow"><span class="tnum" id="tv_' + b.id + '">00:00</span><span class="talvo">/ ' + b.alvo + ' min</span>' +
+      '<button type="button" class="tbtn" id="tbtn_' + b.id + '" data-b="' + b.id + '">▶ Iniciar</button><button type="button" class="tdone" id="tdone_' + b.id + '" data-b="' + b.id + '">✓ Concluir bloco</button></div>' +
+      '<p class="obj"><b>Objetivo:</b> ' + b.obj + '</p></article>';
+  }
+  function txt(k, lab, ph) { return '<div class="crow col"><label>' + lab + '</label><input class="tx" id="in_' + k + '" type="text" placeholder="' + esc(ph || antVal(k, '')) + '" value="' + esc(v(k)) + '"></div>'; }
+  function area(k, lab, ph) { return '<div class="crow col"><label>' + lab + '</label><textarea id="in_' + k + '" placeholder="' + esc(ph || antVal(k, '')) + '">' + esc(v(k)) + '</textarea></div>'; }
+  function num(k, lab, ph, max) { return '<div class="crow"><label>' + lab + '</label><input class="ac" id="in_' + k + '" type="number" inputmode="numeric" min="0"' + (max ? ' max="' + max + '"' : '') + ' placeholder="' + esc(ph || antVal(k, '–')) + '" value="' + esc(v(k)) + '"></div>'; }
+  function antVal(k, fb) { return (ant.vals && temValor(ant.vals[k])) ? String(ant.vals[k]) : fb; }
+  function inp(k, max) { return '<input class="ac" id="in_' + k + '" type="number" inputmode="numeric" min="0" max="' + max + '" placeholder="' + esc(antVal(k, '–')) + '" value="' + esc(v(k)) + '">'; }
+
+  // ---------- TELA TREINO ----------
+  function renderTreino() {
+    var sec = document.getElementById('tela-treino');
+    var par = PARES[+state.vals.b4_par || 0];
+    var h = '';
+    BLOCOS.forEach(function (b) {
+      h += '<section class="bloco" id="' + b.id + '" style="--acc:' + b.cor + '"><div class="bh"><h2>' + b.titulo + '<small>' + b.sub + '</small></h2></div>' + tcard(b);
+      if (b.id === 'b1') {
+        h += card('c1', '1', 'Preparação',
+          media('img/v_i0eCC90oZVo.jpg', ['5 min', 'sem salto'], 'Aquecimento progressivo. <b>Sem contador</b>: só o timer do bloco e o Concluir.') +
+          '<ul class="lemb"><li><b>2 min</b> — mobilidade de tornozelo e quadril</li><li><b>2 min</b> — avanços alternados e deslocamentos leves, subindo o ritmo</li><li><b>1 min</b> — movimentação com bola, mudanças suaves de direção</li></ul>' +
+          links([{ t: 'Pro Training — Pre-Workout / Pre-Game Stretch · 4:15', u: 'https://www.youtube.com/watch?v=i0eCC90oZVo' }, { t: 'BBall IQ — Dynamic Warmup and Stretches for Basketball Players · 3:24', u: 'https://www.youtube.com/watch?v=wX9RmYxL2W8' }]));
+      }
+      if (b.id === 'b2') {
+        h += card('c2a', '2A', 'Ensaiar os apoios <span class="antes">5 min · 8 ensaios · SEM FINALIZAR</span>',
+          media('img/v_kcwCvwCBU-A.jpg', ['5 min', '8 ensaios', 'sem finalizar'], 'Separar o footwork do resultado. Parar <b>antes</b> da finalização é o ponto do exercício — se termina no aro, o cérebro otimiza a bola entrar e o pé errado fica invisível.') +
+          '<ul class="lemb"><li>Gancho pelo meio: 2 ensaios de cada lado</li><li>Drop step pela linha de fundo: 2 ensaios de cada lado</li></ul>' +
+          '<div class="atencao">Solte a bola antes de levantar o pé de pivô.</div>' +
+          ctr('ens', 'Ensaios', 8, true) +
+          links([{ t: 'Howcast — How to Do a Drop-Step, trecho 0:55–1:22 — por que pegar a bola com dois pés preserva a escolha dos dois pés de pivô', u: 'https://www.youtube.com/watch?v=kcwCvwCBU-A&t=55s' }, { t: 'Pro Training — Top 5 Post Moves, trecho 2:33–3:40 — a regra anti-passo-ilegal: «não pegue a bola de volta até plantar o pé»', u: 'https://www.youtube.com/watch?v=S3bqH9Sk_NA&t=153s' }]));
+        h += card('c2b', '2B', 'Gancho pelo meio <span class="antes">10 min · 16 finalizações</span>',
+          media('img/v_7we0Dob8UPY.jpg', ['10 min', '2 voltas de 4 por lado'], 'Instalar o gancho como finalização padrão do poste. O corpo fica entre a bola e o defensor — é o único arremesso do poste que não dá pra bloquear sem falta.') +
+          pair('Poste baixo esquerdo → saída pelo meio → <b>mão direita</b> <small>· 8</small>', 'g_d_c', 'g_d_r', 8) +
+          pair('Poste baixo direito → saída pelo meio → <b>mão esquerda</b> <small>· 8</small>', 'g_e_c', 'g_e_r', 8) +
+          nota('<b>Meta técnica:</b> ombro entre o defensor e a bola · subir vertical · soltar no ponto mais alto · estalo de punho.<br><b>Erro a observar:</b> abrir o ombro cedo e expor a bola na frente do corpo.') +
+          links([{ t: 'Howcast — How to Do a Jump Hook Shot · 2:07 — ombro entre defensor e bola, impulsão nos dois pés, demonstrado com as duas mãos e com defensor vivo', u: 'https://www.youtube.com/watch?v=7we0Dob8UPY' }, { t: 'Pro Training / Will Regan — Go to Move: Jump Hook · 2:56 — nomeia o pé de dentro; o demonstrador é big man', u: 'https://www.youtube.com/watch?v=PGkD0b84yAs' }]));
+        h += card('c2c', '2C', 'Drop step pela linha de fundo <span class="antes">10 min · 16 finalizações</span>',
+          media('img/v_kcwCvwCBU-A.jpg', ['10 min', '2 voltas de 4 por lado'], 'O counter do gancho quando o defensor sela o lado de cima. Drop step é <b>pivô reverso</b> — gira de costas pro defensor, e precisa <b>cobrir distância</b>.') +
+          pair('Poste baixo esquerdo → linha de fundo → <b>mão esquerda</b> <small>· 8</small>', 'ds_e_c', 'ds_e_r', 8) +
+          pair('Poste baixo direito → linha de fundo → <b>mão direita</b> <small>· 8</small>', 'ds_d_c', 'ds_d_r', 8) +
+          nota('<b>Meta técnica:</b> o pé de pivô <b>muda conforme o bloco</b> — pivô no pé de dentro. Depois do giro, <b>todos os dedos apontados pra linha de fundo</b>.<br><b>Erro a observar:</b> abrir pro help defense em vez de ficar paralelo à baseline · giro amplo demais e acabar embaixo da tabela.') +
+          links([{ t: 'Howcast — How to Do a Drop-Step · 2:34 — defensor vivo, close-up nos pés, os dois lados demonstrados por jogadores diferentes, e a regra da recepção com dois pés', u: 'https://www.youtube.com/watch?v=kcwCvwCBU-A' }, { t: 'Coach P. Basketball — Learn How to Drop Step, trecho 1:09–1:51 e espelho 3:06–3:45', u: 'https://www.youtube.com/watch?v=2G12wCf2mWY&t=69s' }]));
+      }
+      if (b.id === 'b3') {
+        h += card('c31', '3.1', 'Giros <span class="antes">3 min · 8 giros · SEM FINALIZAR</span>',
+          media('img/v_LX5Kl0_Agj0.jpg', ['3 min', '4 por lado', 'poste médio'], '4 giros de frente por lado, a partir do poste médio. Manter o pivô, terminar equilibrado, proteger a bola, <b>levantar os olhos pra cesta</b>.') +
+          ctr('giros', 'Giros', 8, true) +
+          nota('⚠️ <b>Team Esface:</b> escolha do Yan, conteúdo falado não verificado — o YouTube não serviu o áudio pra análise. O enquadramento é fechado e corta os pés em boa parte das explicações, e a posição é poste alto, não o poste médio do bloco. Se travar, o substituto verificado é ShotMechanics «3 Simple BUT Deadly Post Moves» 0:39–1:06.') +
+          links([{ t: 'ShotMechanics — 3 Killer Face Up Post Moves, trecho 1:09–1:30 — a regra de qual pé usar no pivô reverso: «o que funciona melhor é pivotar no pé de fora»', u: 'https://www.youtube.com/watch?v=LX5Kl0_Agj0&t=69s' }, { t: 'Team Esface — Basketball Move Series: HIGH POST PIVOT REVERSE · 3:47 — vídeo inteiro dedicado ao pivô reverso, com defensor e leituras numeradas na tela', u: 'https://www.youtube.com/watch?v=k46sp18Z2-o' }, { t: 'Substituto verificado: ShotMechanics — 3 Simple BUT Deadly Post Moves, 0:39–1:06', u: 'https://www.youtube.com/watch?v=1BkPSQL1ZzM&t=39s' }]));
+        h += card('c32', '3.2', 'Jab <span class="antes">12 min · 8 ataques + 8 arremessos</span>',
+          media('img/v_sFz5lCkf1zw.jpg', ['12 min', '4 D + 4 E', '× 2 desfechos'], 'Criar separação <b>sem gastar drible</b>. Jab que nunca vira chute é blefe — o defensor senta no drible e o ataque morre junto. E o midrange é a força do Yan, então o jab-arremesso é o lado mais rentável.') +
+          pair('Jab → <b>ataque</b> → finaliza com a mão do lado atacado · direita <small>· 4</small>', 'fa_d_c', 'fa_d_r', 4) +
+          pair('Jab → <b>ataque</b> · esquerda <small>· 4</small>', 'fa_e_c', 'fa_e_r', 4) +
+          pair('Jab → <b>arremesso</b> · direita <small>· 4</small>', 'fs_d_c', 'fs_d_r', 4) +
+          pair('Jab → <b>arremesso</b> · esquerda <small>· 4</small>', 'fs_e_c', 'fs_e_r', 4) +
+          nota('<b>Meta técnica:</b> transformar o primeiro drible em deslocamento útil.<br><b>Erro a observar:</b> jab tão longo que precisa se reorganizar antes de atacar.') +
+          links([{ t: 'Dr. Dish / Coach Mason — Face Up Series, trechos 0:19–1:08 (face-up, arremesso direto, jab→arremesso) e 1:46–2:23 (jab pro fundo e pro meio). Não passar de 3:13 — o resto é propaganda', u: 'https://www.youtube.com/watch?v=sFz5lCkf1zw&t=19s' }, { t: 'ShotMechanics — 3 Simple BUT Deadly Post Moves · 6:15', u: 'https://www.youtube.com/watch?v=1BkPSQL1ZzM' }]));
+      }
+      if (b.id === 'b4') {
+        h += card('c4', '4', 'Ação + counter <span class="antes">12 repetições · 4 por par</span>',
+          media(par.img, ['10 min', '3 pares × 4'], '<b>Antes de cada repetição, dizer mentalmente a ação: «meio», «fundo» ou «frente».</b>') +
+          '<table class="prev"><tr><th>Par</th><th>Ação</th><th>Counter</th><th>Reps</th></tr><tr><td>1</td><td>gancho pelo meio</td><td><b>up-and-under</b></td><td>4</td></tr><tr><td>2</td><td>drop step</td><td><b>reverse layup</b></td><td>4</td></tr><tr><td>3</td><td>face-up ataque</td><td><b>face-up arremesso</b></td><td>4</td></tr></table>' +
+          ctr('b4_c', 'Cestas', 12, true) + ctr('b4_x', 'Execuções controladas', 12, true) +
+          '<div class="aviso"><b>Execução controlada:</b> apoios organizados sem passo extra · bola sob controle · finalização e aterrissagem equilibradas.<br>Uma bola pode entrar com execução ruim ou sair com execução boa. Registre as duas coisas separadamente.</div>' +
+          '<div class="crow col"><label>Vídeos do par</label><span class="seg stack" id="b4_par">' + PARES.map(function (p, i) { return '<button type="button" data-v="' + i + '"' + (i === (+state.vals.b4_par || 0) ? ' class="on"' : '') + '>' + p.t + '</button>'; }).join('') + '</span></div>' +
+          '<div id="parLinks">' + links(par.links) + '</div>');
+      }
+      if (b.id === 'b5') {
+        h += card('c5a', '5A', 'Catch-and-shoot <span class="antes">20 arremessos</span>',
+          media('img/v_ecPyYg53Rw8.jpg', ['5 posições × 4'], 'Autopasse com rotação pra trás, recebe equilibrado, arremessa, pega o rebote, volta à marca. <b>Não é benchmark.</b>') +
+          nota('<b>Distância:</b> a de construção definida no A — ' + (v('dist_a') ? '<b>' + esc(v('dist_a')) + '</b>' : 'preenche na abertura (REGISTRO)') + '. Se ainda estiver dentro da linha, registra assim; não são 3PT.') +
+          SPOTS.map(function (s) { return ctr('cs_' + s[0], s[1], 4, true); }).join('') +
+          '<div class="crow"><label>Total</label><span class="stot" id="cs_tot">–/20</span></div>' +
+          links([{ t: 'BreakthroughBBall — 5 Must-Know Catch & Shoot Drills · 15:11 — vídeo de estudo, ver fora da quadra', u: 'https://www.youtube.com/watch?v=ecPyYg53Rw8' }, { t: 'ShotMechanics — 3 Keys: How to Shoot Better off the Catch · 4:47 — pé pronto cedo', u: 'https://www.youtube.com/watch?v=IYzPW29rYEI' }]));
+        h += card('c5b', '5B', 'Lances livres <span class="antes">10 arremessos</span>',
+          media('img/v_iW2VFzBiaQo.jpg', ['2 séries de 5'], '<b>Mesma rotina antes de cada arremesso.</b>') +
+          ctr('ll_1', 'Série 1', 5, true) + ctr('ll_2', 'Série 2', 5, true) +
+          '<div class="crow"><label>Total</label><span class="stot" id="ll_tot">–/10</span></div>' +
+          links([{ t: 'SIKANA — The Free Throw · 2:11 — posição (pé dominante levemente à frente), rotina fixa, e a linha vertical aro–pé–joelho–cotovelo–mão–bola. Zero propaganda', u: 'https://www.youtube.com/watch?v=iW2VFzBiaQo' }, { t: 'ShotMechanics — How to Make More Free Throws · 6:36 — rotina e respiração, mais denso. Parar em 6:00 — o resto é propaganda', u: 'https://www.youtube.com/watch?v=0343D3fjPnQ' }]));
+      }
+      h += '</section>';
+    });
+    sec.innerHTML = h;
+    sec.querySelectorAll('.tbtn').forEach(function (b) { b.addEventListener('click', function () { toggleBloco(b.dataset.b); }); });
+    sec.querySelectorAll('.tdone').forEach(function (b) { b.addEventListener('click', function () { concluirBloco(b.dataset.b); }); });
+    sec.querySelectorAll('.thumb').forEach(function (img) {
+      img.addEventListener('click', function () { var a = img.closest('.ex').querySelector('.links a'); if (a) window.open(a.href, '_blank', 'noopener'); });
+    });
+    sec.querySelectorAll('#b4_par button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        state.vals.b4_par = +btn.dataset.v; save();
+        var p = PARES[+btn.dataset.v];
+        document.querySelectorAll('#b4_par button').forEach(function (b2) { b2.classList.toggle('on', b2 === btn); });
+        document.getElementById('parLinks').innerHTML = links(p.links);
+        document.querySelector('#c4 .thumb').src = p.img;
+      });
+    });
+    totais(); renderTimers();
+  }
+
+  // ---------- TELA REGISTRO ----------
+  function renderRegistro() {
+    var sec = document.getElementById('tela-registro');
+    var anterior = '';
+    if (!sessaoAtiva() && ant.d) {
+      anterior = '<div class="anterior"><div class="t">Sessão de ' + fmtRef(ant.d) + ' arquivada — o joelho da manhã seguinte continua editável aqui</div>' +
+        '<div class="crow"><label>Joelho na manhã seguinte (0–10)</label><input class="ac" id="ant_joelho_ms" type="number" inputmode="numeric" min="0" max="10" placeholder="–" value="' + esc(antVal('joelho_ms', '')) + '"></div></div>';
+    }
+    sec.innerHTML =
+      '<section class="bloco" id="rb1" style="--acc:#2dd4bf"><div class="bh"><h2>ABERTURA<small>preencher antes de sair de casa</small></h2></div>' + anterior +
+      card('ab', 'A', 'Abertura',
+        '<div class="crow"><label>Data</label><input type="date" id="in_data" value="' + esc(dataSessao()) + '"></div>' +
+        num('joelho_antes', 'Joelho antes (0–10)', '0–10', 10) +
+        area('tarefa', 'TAREFA vinda da terça', 'o que o personal mandou construir') +
+        txt('enfase', 'Ênfase da semana (domingo)') +
+        txt('dist_a', 'Distância de construção do A', 'ex.: −1 m da linha') +
+        txt('atencao', 'Uma atenção técnica pra hoje')) +
+      '</section>' +
+      '<section class="bloco" id="rb2" style="--acc:#38bdf8"><div class="bh"><h2>FECHAMENTO<small>preenchido pelos contadores · editável</small></h2></div>' +
+      card('fc', 'F', 'Movimentos <span class="antes">cestas / reps · previsto</span>',
+        TABELA.map(function (r) { return '<div class="crow"><label>' + r[0] + ' <span class="antes">· prev. ' + r[3] + '</span></label><span class="cin">' + inp(r[1], 99) + '<span class="x">/</span>' + inp(r[2], 99) + '</span></div>'; }).join('') +
+        '<div class="crow"><label>Bloco 4 — cestas <span class="antes">· /12</span></label><span class="cin">' + inp('b4_c', 12) + '</span></div>' +
+        '<div class="crow"><label>Bloco 4 — execuções controladas <span class="antes">· /12</span></label><span class="cin">' + inp('b4_x', 12) + '</span></div>' +
+        '<div class="crow col"><label>Catch-and-shoot <span class="antes">CE · AE · TP · AD · CD (/4 cada) · total <b id="cs_tot2">–/20</b></span></label><span class="cin">' + SPOTS.map(function (s) { return inp('cs_' + s[0], 4); }).join('') + '</span></div>' +
+        '<div class="crow"><label>Lance livre <span class="antes">· série 1 / série 2 · total <b id="ll_tot2">–/10</b></span></label><span class="cin">' + inp('ll_1', 5) + '<span class="x">+</span>' + inp('ll_2', 5) + '</span></div>' +
+        '<div class="crow"><label>Ensaios (2A) / giros (3.1) <span class="antes">· não contam como finalização</span></label><span class="cin">' + inp('ens', 8) + '<span class="x">·</span>' + inp('giros', 8) + '</span></div>') +
+      card('ft', 'T', 'Leitura da sessão',
+        txt('conf', 'Movimento mais confortável') +
+        txt('perdeu', 'Movimento que mais perdeu organização') +
+        txt('correcao', 'Uma correção pro próximo C') +
+        '<div class="saida">' + txt('par', 'PAR DE MOVIMENTOS PRA TERÇA <span class="antes">— obrigatório: é isso que o personal vai pressionar na terça</span>', 'gancho pelo meio + drop step pela linha de fundo') + '</div>') +
+      card('fn', 'N', 'Fecho',
+        num('duracao', 'Duração real (min) <span class="antes">em branco = soma dos timers (o cinza é a soma)</span>', '–') +
+        num('esforco', 'Esforço percebido (0–10)', '0–10', 10) +
+        num('joelho_dd', 'Joelho durante/depois (0–10)', '0–10', 10) +
+        num('joelho_ms', 'Joelho na manhã seguinte (0–10) <span class="antes">preenche na sexta de manhã — continua editável depois de arquivar</span>', '0–10', 10) +
+        nota('Botões no fim da página: <b>Exportar</b> copia o resumo (formato do /quarta) · <b>Arquivar sessão</b> guarda esta sessão e abre a próxima.')) +
+      '</section>';
+    sec.querySelectorAll('input, textarea').forEach(function (el) {
+      el.addEventListener('input', function () {
+        if (el.id === 'ant_joelho_ms') { ant.vals = ant.vals || {}; ant.ult = ant.ult || {}; if (el.value === '') { delete ant.vals.joelho_ms; delete ant.ult.joelho_ms; } else { ant.vals.joelho_ms = el.value; ant.ult.joelho_ms = el.value; } save(); return; }
+        var k = el.id.replace(/^in_/, '');
+        setVal(k, el.value);
+        if (k !== 'data') marcarSessao();
+        save();
+        refreshCounters(k);
+        if (k === 'joelho_antes' || k === 'tarefa') renderFixo();
+        if (k === 'dist_a') renderTreino();
+        totais();
+      });
+    });
+    totais(); renderTimers();
+  }
+
+  // ---------- contadores: mesmo dado nas duas telas ----------
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target.closest('.cm, .cp');
+    if (!btn) return;
+    var box = btn.closest('.ctr'), k = box.dataset.k, max = +box.dataset.max || 99;
+    var val = Math.max(0, Math.min(max, n(k) + (btn.classList.contains('cp') ? 1 : -1)));
+    setVal(k, val);
+    marcarSessao(); save(); refreshCounters(k); refreshInput(k); totais();
+  });
+  function refreshCounters(k) { document.querySelectorAll('.ctr[data-k="' + k + '"] .cv').forEach(function (el) { el.textContent = n(k); }); }
+  function refreshInput(k) { var el = document.getElementById('in_' + k); if (el && document.activeElement !== el) el.value = v(k); }
+  function totais() {
+    var cs = 0, csN = 0; SPOTS.forEach(function (s) { if (temValor(state.vals['cs_' + s[0]])) { cs += n('cs_' + s[0]); csN++; } });
+    var ll = n('ll_1') + n('ll_2'), llN = (temValor(state.vals.ll_1) ? 1 : 0) + (temValor(state.vals.ll_2) ? 1 : 0);
+    ['cs_tot', 'cs_tot2'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = csN ? cs + '/20' : '–/20'; });
+    ['ll_tot', 'll_tot2'].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = llN ? ll + '/10' : '–/10'; });
+  }
+
+  // ---------- telas ----------
+  function mostrarTela() {
+    document.getElementById('tela-treino').hidden = state.tela !== 'treino';
+    document.getElementById('tela-registro').hidden = state.tela !== 'registro';
+    document.querySelectorAll('#telaSeg button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === state.tela); });
+  }
+  document.querySelectorAll('#telaSeg button').forEach(function (b) {
+    b.addEventListener('click', function () { state.tela = b.dataset.v; save(); if (state.tela === 'registro') renderRegistro(); else renderTreino(); mostrarTela(); window.scrollTo(0, 0); });
+  });
+
+  // ---------- exportar (formato do /quarta: título · linha por exercício · como foi hoje) ----------
+  function resumoTexto() {
+    var usaHoje = sessaoAtiva();
+    var vals = usaHoje ? state.vals : ant.ult, d = usaHoje ? dataSessao() : ant.d;
+    if (!vals || !d) return null;
+    var x = function (k) { return temValor(vals[k]) ? String(vals[k]).trim() : null; };
+    var q = function (k) { return temValor(vals[k]) ? String(vals[k]).trim() : '–'; };
+    var cr = function (kc, kr, prev) { return (x(kc) || x(kr)) ? q(kc) + '/' + q(kr) : null; };
+    var dur = function (b) { return x('dur_' + b) ? ' · ' + x('dur_' + b) + ' min' : ''; };
+    var p = String(d).split('-');
+    var L = ['QUI · TREINO C — Poste + Face-up · ' + fmtRef(d) + (p.length === 3 ? '/' + p[0] : '')];
+    var ab = [];
+    if (x('joelho_antes')) ab.push('joelho antes ' + x('joelho_antes'));
+    if (x('enfase')) ab.push('ênfase: ' + x('enfase'));
+    if (x('dist_a')) ab.push('distância do A: ' + x('dist_a'));
+    if (x('atencao')) ab.push('atenção: ' + x('atencao'));
+    if (ab.length) L.push('Abertura: ' + ab.join(' · '));
+    if (x('tarefa')) L.push('TAREFA (terça): ' + x('tarefa'));
+    if (x('dur_b1')) L.push('1 Preparação: ' + x('dur_b1') + ' min');
+    if (x('ens')) L.push('2A Ensaios: ' + q('ens') + '/8');
+    var g = [cr('g_d_c', 'g_d_r'), cr('g_e_c', 'g_e_r')];
+    if (g[0] || g[1]) L.push('2B Gancho pelo meio: D ' + (g[0] || '–') + ' · E ' + (g[1] || '–'));
+    var ds = [cr('ds_d_c', 'ds_d_r'), cr('ds_e_c', 'ds_e_r')];
+    if (ds[0] || ds[1] || x('dur_b2')) L.push('2C Drop step: D ' + (ds[0] || '–') + ' · E ' + (ds[1] || '–') + dur('b2').replace(' · ', ' · bloco 2: '));
+    if (x('giros')) L.push('3.1 Giros: ' + q('giros') + '/8');
+    var fa = [cr('fa_d_c', 'fa_d_r'), cr('fa_e_c', 'fa_e_r')], fs = [cr('fs_d_c', 'fs_d_r'), cr('fs_e_c', 'fs_e_r')];
+    if (fa[0] || fa[1] || fs[0] || fs[1] || x('dur_b3')) L.push('3.2 Jab: ataque D ' + (fa[0] || '–') + ' · E ' + (fa[1] || '–') + ' · arremesso D ' + (fs[0] || '–') + ' · E ' + (fs[1] || '–') + dur('b3').replace(' · ', ' · bloco 3: '));
+    if (x('b4_c') || x('b4_x') || x('dur_b4')) L.push('4 Ação + counter: cestas ' + q('b4_c') + '/12 · execuções controladas ' + q('b4_x') + '/12' + dur('b4'));
+    var csA = 0, csN = 0; SPOTS.forEach(function (s) { if (x('cs_' + s[0])) { csA += +vals['cs_' + s[0]]; csN++; } });
+    if (csN) L.push('5A Catch-and-shoot: ' + SPOTS.map(function (s) { return s[0].toUpperCase() + ' ' + q('cs_' + s[0]) + '/4'; }).join(' · ') + ' = ' + csA + '/20');
+    if (x('ll_1') || x('ll_2') || x('dur_b5')) L.push('5B Lances livres: ' + q('ll_1') + '/5 + ' + q('ll_2') + '/5 = ' + ((+vals.ll_1 || 0) + (+vals.ll_2 || 0)) + '/10' + dur('b5').replace(' · ', ' · bloco 5: '));
+    var hj = [];
+    var durTot = x('duracao') || (usaHoje && state.t0 ? String(somaDur()) : null);
+    if (durTot) hj.push('duração ' + durTot + ' min');
+    if (x('esforco')) hj.push('esforço ' + x('esforco'));
+    if (x('joelho_dd')) hj.push('joelho durante/depois ' + x('joelho_dd'));
+    if (x('joelho_ms')) hj.push('joelho manhã seguinte ' + x('joelho_ms'));
+    if (hj.length) L.push('Como foi hoje: ' + hj.join(' · '));
+    if (x('conf')) L.push('Mais confortável: ' + x('conf'));
+    if (x('perdeu')) L.push('Perdeu organização: ' + x('perdeu'));
+    if (x('correcao')) L.push('Correção pro próximo C: ' + x('correcao'));
+    L.push('PAR DE MOVIMENTOS PRA TERÇA: ' + q('par'));
+    return { txt: L.join('\n'), hoje: usaHoje, d: d, par: x('par') };
+  }
+  document.getElementById('copiarBtn').addEventListener('click', function () {
+    var box = document.getElementById('resumoBox');
+    var r = resumoTexto();
+    if (!r) { msg('nada pra copiar ainda'); return; }
+    if (!r.par) {
+      alert('PAR DE MOVIMENTOS PRA TERÇA está vazio — é isso que o personal vai pressionar na terça. Preenche no REGISTRO antes de exportar.');
+      if (r.hoje) { state.tela = 'registro'; save(); renderRegistro(); mostrarTela(); var f = document.getElementById('in_par'); if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.focus(); } }
+      return;
+    }
+    copiarTexto(r.txt, function (ok) {
+      if (ok) { box.hidden = true; msg('resumo copiado (' + (r.hoje ? 'sessão atual' : fmtRef(r.d)) + ') — cola no Notes'); }
+      else { box.value = r.txt; box.hidden = false; box.focus(); box.select(); msg('não consegui copiar — segura no texto e escolhe Selecionar tudo'); }
+    });
+  });
+
+  // ---------- arquivar sessão: referência cinza + abre a próxima ----------
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    if (!sessaoAtiva()) { msg('nenhuma sessão aberta pra arquivar'); return; }
+    if (!confirm('Arquivar a sessão de ' + fmtRef(dataSessao()) + ' e abrir a próxima?\n\nOs números viram a referência cinza. O joelho da manhã seguinte continua editável no REGISTRO.')) return;
+    var vals = Object.assign({}, state.vals);
+    if (!temValor(vals.duracao) && state.t0) vals.duracao = somaDur();
+    BLOCOS.forEach(function (b) { if (bl(b.id).t0 && !bl(b.id).done) { vals['dur_' + b.id] = Math.max(1, Math.round(msBloco(b.id) / 60000)); } });
+    arquivar(vals, dataSessao());
+    state = { vals: {}, blocos: {}, t0: null, av: {}, tela: 'registro' };
+    if (!save()) alert('NÃO SALVOU — confira Ajustes › Safari › "Bloquear todos os cookies". A sessão continua aberta.');
+    location.reload();
+  });
+
+  // ---------- volta do background: timers por timestamp já se corrigem; se outra instância gravou, recarrega ----------
+  function rehidratar() {
+    try { var raw = localStorage.getItem(KEY); if (raw && ultimoSalvo && raw !== ultimoSalvo) { location.reload(); return; } } catch (e) {}
+    renderTimers();
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) rehidratar(); });
+  window.addEventListener('pageshow', function (ev) { if (ev.persisted) rehidratar(); });
+  setInterval(renderTimers, 1000);
+
+  renderRef(); renderFixo();
+  if (state.tela === 'registro') renderRegistro(); else renderTreino();
+  mostrarTela();
+})();
+</script>
+</body>
+</html>
