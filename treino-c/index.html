@@ -264,10 +264,7 @@
   .fixo { font-size:12px; color:#aeaeb8; line-height:1.4; padding:4px 0 2px; white-space:pre-line; }
   .fixo b { color:#e8e8ec; }
   .fixo.clamp { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .seg.telas { display:flex; gap:6px; padding:6px 0 8px; }
-  .seg.telas button { flex:1; min-height:44px; padding:6px 4px; font-size:14px; line-height:1.15; }
-  .seg.telas button.on { background:#2dd4bf; border-color:#2dd4bf; color:#0e0c14; }
-  .seg.telas small { display:block; font-size:11px; font-weight:600; opacity:.8; }
+  button.chip { font-family:inherit; cursor:pointer; }
   .banner { background:#0f2f2b; color:#5eead4; }
   .banner button { border-color:#5eead4; color:#5eead4; }
   .crow label .antes, .crow.col label .antes { white-space:normal; }
@@ -305,8 +302,7 @@
   .ctr.one .clab { font-size:13.5px; text-transform:none; letter-spacing:0; color:#e8e8ec; flex:1; }
   .aviso { background:#0f2f2b; color:#5eead4; border:1px solid #1f6b62; border-radius:8px; padding:10px 12px; margin:8px 0 4px; font-size:14px; font-weight:700; line-height:1.4; }
   .atencao { background:#3a2416; color:#ffb08a; border:1px solid #7a4a2a; border-radius:8px; padding:9px 12px; margin:8px 0 4px; font-size:14px; font-weight:700; line-height:1.4; }
-  .links.vis { margin-top:10px; }
-  .links.vis a { white-space:normal; line-height:1.35; padding:9px 10px; }
+  .links a { white-space:normal; line-height:1.35; }
   .seg.stack { flex-direction:column; align-items:stretch; }
   .seg.stack button { text-align:left; min-height:44px; }
   .seg.stack button::before { content:"○ "; color:#8e8e96; }
@@ -335,7 +331,7 @@
     <span class="prog-txt" id="sessaoTxt">⏱ 00:00</span>
   </div>
   <div class="fixo clamp" id="fixo"></div>
-  <nav class="chips-nav"><span class="seg telas" id="telaSeg"><button type="button" data-v="treino">TREINO<small>na quadra</small></button><button type="button" data-v="registro">REGISTRO<small>abertura · fechamento</small></button></span></nav>
+  <nav class="chips-nav" id="telaSeg"><button type="button" class="chip" data-v="treino" style="--bc:#2dd4bf">TREINO</button><button type="button" class="chip" data-v="registro" style="--bc:#38bdf8">REGISTRO</button></nav>
   <div class="banner" id="banner" hidden><span id="banTxt"></span><button type="button" id="banOk" aria-label="dispensar aviso">ok</button></div>
   <div class="pbar"><i></i></div>
 </div>
@@ -572,12 +568,16 @@ var TABELA = [
   });
 
   // ---------- componentes ----------
-  function card(id, numTxt, name, inner) { return '<article class="ex" id="' + id + '"><div class="ex-head"><span class="num">' + numTxt + '</span><h3>' + name + '</h3></div>' + inner + '</article>'; }
+  function card(id, numTxt, name, mediaHtml, controles, desc, ls) {
+    return '<article class="ex" id="' + id + '"><div class="ex-head"><span class="num">' + numTxt + '</span><h3>' + name + '</h3></div>' + mediaHtml + (controles || '') +
+      '<details class="how"><summary>Como fazer · vídeo</summary><div class="how-body"><div class="desc">' + desc + '</div><div class="parLinks">' + links(ls) + '</div></div></details></article>';
+  }
+  function fcard(id, numTxt, name, inner) { return '<article class="ex" id="' + id + '"><div class="ex-head"><span class="num">' + numTxt + '</span><h3>' + name + '</h3></div>' + inner + '</article>'; }
   function media(img, chips, cue) {
     var dose = '<div class="dose">' + chips.map(function (c) { return '<span>' + c + '</span>'; }).join('') + '</div>';
     return '<div class="media">' + (img ? '<img class="thumb" src="' + img + '" alt="vídeo" loading="lazy" width="104" height="78">' : '') + '<div class="media-right">' + dose + '<p class="cue">' + cue + '</p></div></div>';
   }
-  function links(ls) { return '<div class="links vis"><div class="lh">Vídeos</div>' + ls.map(function (l) { return '<a href="' + l.u + '" target="_blank" rel="noopener">' + l.t + '</a>'; }).join('') + '</div>'; }
+  function links(ls) { return '<div class="links"><div class="lh">Vídeos</div>' + ls.map(function (l) { return '<a href="' + l.u + '" target="_blank" rel="noopener">' + l.t + '</a>'; }).join('') + '</div>'; }
   function nota(h, cls) { return '<p class="' + (cls || 'cnota') + '">' + h + '</p>'; }
   function ctr(k, lab, max, one) {
     return '<div class="ctr' + (one ? ' one' : '') + '" data-k="' + k + '" data-max="' + max + '"><span class="clab">' + lab + '</span><button type="button" class="cm" aria-label="menos">−</button><span class="cv">' + n(k) + '</span><span class="cmax">/' + max + '</span><button type="button" class="cp" aria-label="mais">+</button></div>';
@@ -603,86 +603,92 @@ var TABELA = [
       h += '<section class="bloco" id="' + b.id + '" style="--acc:' + b.cor + '"><div class="bh"><h2>' + b.titulo + '<small>' + b.sub + '</small></h2></div>' + tcard(b);
       if (b.id === 'b1') {
         h += card('c1', '1', 'Preparação',
-          media('img/v_i0eCC90oZVo.jpg', ['5 min', 'sem salto'], 'Aquecimento progressivo. <b>Sem contador</b>: só o timer do bloco e o Concluir.') +
-          '<ul class="lemb"><li><b>2 min</b> — mobilidade de tornozelo e quadril</li><li><b>2 min</b> — avanços alternados e deslocamentos leves, subindo o ritmo</li><li><b>1 min</b> — movimentação com bola, mudanças suaves de direção</li></ul>' +
-          links([{ t: 'Pro Training — Pre-Workout / Pre-Game Stretch · 4:15', u: 'https://www.youtube.com/watch?v=i0eCC90oZVo' }, { t: 'BBall IQ — Dynamic Warmup and Stretches for Basketball Players · 3:24', u: 'https://www.youtube.com/watch?v=wX9RmYxL2W8' }]));
+          media('img/v_i0eCC90oZVo.jpg', ['5 min', 'sem salto'], 'Aquecimento progressivo: mobilidade → deslocamentos → bola. <b>Sem contador</b>: só o timer do bloco e o Concluir.'),
+          '',
+          '<ol><li><strong>2 min</strong> — mobilidade de tornozelo e quadril</li><li><strong>2 min</strong> — avanços alternados e deslocamentos leves, subindo o ritmo</li><li><strong>1 min</strong> — movimentação com bola, mudanças suaves de direção</li></ol><p><strong>Objetivo:</strong> preparar tornozelo e quadril para girar sobre o pé de apoio. Sem salto.</p>',
+          [{ t: 'Pro Training — Pre-Workout / Pre-Game Stretch · 4:15', u: 'https://www.youtube.com/watch?v=i0eCC90oZVo' }, { t: 'BBall IQ — Dynamic Warmup and Stretches for Basketball Players · 3:24', u: 'https://www.youtube.com/watch?v=wX9RmYxL2W8' }]);
       }
       if (b.id === 'b2') {
         h += card('c2a', '2A', 'Ensaiar os apoios <span class="antes">5 min · 8 ensaios · SEM FINALIZAR</span>',
-          media('img/v_kcwCvwCBU-A.jpg', ['5 min', '8 ensaios', 'sem finalizar'], 'Separar o footwork do resultado. Parar <b>antes</b> da finalização é o ponto do exercício — se termina no aro, o cérebro otimiza a bola entrar e o pé errado fica invisível.') +
-          '<ul class="lemb"><li>Gancho pelo meio: 2 ensaios de cada lado</li><li>Drop step pela linha de fundo: 2 ensaios de cada lado</li></ul>' +
-          '<div class="atencao">Solte a bola antes de levantar o pé de pivô.</div>' +
-          ctr('ens', 'Ensaios', 8, true) +
-          links([{ t: 'Howcast — How to Do a Drop-Step, trecho 0:55–1:22 — por que pegar a bola com dois pés preserva a escolha dos dois pés de pivô', u: 'https://www.youtube.com/watch?v=kcwCvwCBU-A&t=55s' }, { t: 'Pro Training — Top 5 Post Moves, trecho 2:33–3:40 — a regra anti-passo-ilegal: «não pegue a bola de volta até plantar o pé»', u: 'https://www.youtube.com/watch?v=S3bqH9Sk_NA&t=153s' }]));
+          media('img/v_kcwCvwCBU-A.jpg', ['5 min', '8 ensaios', 'sem finalizar'], 'Gancho pelo meio: 2 ensaios de cada lado · drop step pela linha de fundo: 2 de cada lado. Parar <b>antes</b> da finalização.'),
+          '<div class="atencao">Solte a bola antes de levantar o pé de pivô.</div>' + ctr('ens', 'Ensaios', 8, true),
+          '<p><strong>Objetivo:</strong> separar o footwork do resultado. Parar <strong>antes</strong> da finalização é o ponto do exercício — se termina no aro, o cérebro otimiza a bola entrar e o pé errado fica invisível.</p><ul><li>Gancho pelo meio: 2 ensaios de cada lado</li><li>Drop step pela linha de fundo: 2 ensaios de cada lado</li></ul>',
+          [{ t: 'Howcast — How to Do a Drop-Step, trecho 0:55–1:22 — por que pegar a bola com dois pés preserva a escolha dos dois pés de pivô', u: 'https://www.youtube.com/watch?v=kcwCvwCBU-A&t=55s' }, { t: 'Pro Training — Top 5 Post Moves, trecho 2:33–3:40 — a regra anti-passo-ilegal: «não pegue a bola de volta até plantar o pé»', u: 'https://www.youtube.com/watch?v=S3bqH9Sk_NA&t=153s' }]);
         h += card('c2b', '2B', 'Gancho pelo meio <span class="antes">10 min · 16 finalizações</span>',
-          media('img/v_7we0Dob8UPY.jpg', ['10 min', '2 voltas de 4 por lado'], 'Instalar o gancho como finalização padrão do poste. O corpo fica entre a bola e o defensor — é o único arremesso do poste que não dá pra bloquear sem falta.') +
+          media('img/v_7we0Dob8UPY.jpg', ['10 min', '2 voltas de 4 por lado'], 'Ombro entre o defensor e a bola · subir vertical · soltar no ponto mais alto · estalo de punho.'),
           pair('Poste baixo esquerdo → saída pelo meio → <b>mão direita</b> <small>· 8</small>', 'g_d_c', 'g_d_r', 8) +
-          pair('Poste baixo direito → saída pelo meio → <b>mão esquerda</b> <small>· 8</small>', 'g_e_c', 'g_e_r', 8) +
-          nota('<b>Meta técnica:</b> ombro entre o defensor e a bola · subir vertical · soltar no ponto mais alto · estalo de punho.<br><b>Erro a observar:</b> abrir o ombro cedo e expor a bola na frente do corpo.') +
-          links([{ t: 'Howcast — How to Do a Jump Hook Shot · 2:07 — ombro entre defensor e bola, impulsão nos dois pés, demonstrado com as duas mãos e com defensor vivo', u: 'https://www.youtube.com/watch?v=7we0Dob8UPY' }, { t: 'Pro Training / Will Regan — Go to Move: Jump Hook · 2:56 — nomeia o pé de dentro; o demonstrador é big man', u: 'https://www.youtube.com/watch?v=PGkD0b84yAs' }]));
+          pair('Poste baixo direito → saída pelo meio → <b>mão esquerda</b> <small>· 8</small>', 'g_e_c', 'g_e_r', 8),
+          '<p><strong>Objetivo:</strong> instalar o gancho como finalização padrão do poste. O corpo fica entre a bola e o defensor — é o único arremesso do poste que não dá pra bloquear sem falta.</p><p><strong>Volume:</strong> poste baixo esquerdo → saída pelo meio → mão direita, 8 · poste baixo direito → saída pelo meio → mão esquerda, 8. Duas voltas de 4 por lado.</p><p><strong>Meta técnica:</strong> ombro entre o defensor e a bola · subir vertical · soltar no ponto mais alto · estalo de punho.</p><p><strong>Erro a observar:</strong> abrir o ombro cedo e expor a bola na frente do corpo.</p>',
+          [{ t: 'Howcast — How to Do a Jump Hook Shot · 2:07 — ombro entre defensor e bola, impulsão nos dois pés, demonstrado com as duas mãos e com defensor vivo', u: 'https://www.youtube.com/watch?v=7we0Dob8UPY' }, { t: 'Pro Training / Will Regan — Go to Move: Jump Hook · 2:56 — nomeia o pé de dentro; o demonstrador é big man', u: 'https://www.youtube.com/watch?v=PGkD0b84yAs' }]);
         h += card('c2c', '2C', 'Drop step pela linha de fundo <span class="antes">10 min · 16 finalizações</span>',
-          media('img/v_kcwCvwCBU-A.jpg', ['10 min', '2 voltas de 4 por lado'], 'O counter do gancho quando o defensor sela o lado de cima. Drop step é <b>pivô reverso</b> — gira de costas pro defensor, e precisa <b>cobrir distância</b>.') +
+          media('img/v_kcwCvwCBU-A.jpg', ['10 min', '2 voltas de 4 por lado'], 'Pivô reverso: gira de costas pro defensor e <b>cobre distância</b>. Pivô no pé de dentro; depois do giro, dedos pra linha de fundo.'),
           pair('Poste baixo esquerdo → linha de fundo → <b>mão esquerda</b> <small>· 8</small>', 'ds_e_c', 'ds_e_r', 8) +
-          pair('Poste baixo direito → linha de fundo → <b>mão direita</b> <small>· 8</small>', 'ds_d_c', 'ds_d_r', 8) +
-          nota('<b>Meta técnica:</b> o pé de pivô <b>muda conforme o bloco</b> — pivô no pé de dentro. Depois do giro, <b>todos os dedos apontados pra linha de fundo</b>.<br><b>Erro a observar:</b> abrir pro help defense em vez de ficar paralelo à baseline · giro amplo demais e acabar embaixo da tabela.') +
-          links([{ t: 'Howcast — How to Do a Drop-Step · 2:34 — defensor vivo, close-up nos pés, os dois lados demonstrados por jogadores diferentes, e a regra da recepção com dois pés', u: 'https://www.youtube.com/watch?v=kcwCvwCBU-A' }, { t: 'Coach P. Basketball — Learn How to Drop Step, trecho 1:09–1:51 e espelho 3:06–3:45', u: 'https://www.youtube.com/watch?v=2G12wCf2mWY&t=69s' }]));
+          pair('Poste baixo direito → linha de fundo → <b>mão direita</b> <small>· 8</small>', 'ds_d_c', 'ds_d_r', 8),
+          '<p><strong>Objetivo:</strong> o counter do gancho quando o defensor sela o lado de cima. Drop step é <strong>pivô reverso</strong> — gira de costas pro defensor, e precisa <strong>cobrir distância</strong>.</p><p><strong>Volume:</strong> poste baixo esquerdo → linha de fundo → mão esquerda, 8 · poste baixo direito → linha de fundo → mão direita, 8. Duas voltas de 4 por lado.</p><p><strong>Meta técnica:</strong> o pé de pivô <strong>muda conforme o bloco</strong> — pivô no pé de dentro. Depois do giro, <strong>todos os dedos apontados pra linha de fundo</strong>.</p><p><strong>Erro a observar:</strong> abrir pro help defense em vez de ficar paralelo à baseline · giro amplo demais e acabar embaixo da tabela.</p>',
+          [{ t: 'Howcast — How to Do a Drop-Step · 2:34 — defensor vivo, close-up nos pés, os dois lados demonstrados por jogadores diferentes, e a regra da recepção com dois pés', u: 'https://www.youtube.com/watch?v=kcwCvwCBU-A' }, { t: 'Coach P. Basketball — Learn How to Drop Step, trecho 1:09–1:51 e espelho 3:06–3:45', u: 'https://www.youtube.com/watch?v=2G12wCf2mWY&t=69s' }]);
       }
       if (b.id === 'b3') {
         h += card('c31', '3.1', 'Giros <span class="antes">3 min · 8 giros · SEM FINALIZAR</span>',
-          media('img/v_LX5Kl0_Agj0.jpg', ['3 min', '4 por lado', 'poste médio'], '4 giros de frente por lado, a partir do poste médio. Manter o pivô, terminar equilibrado, proteger a bola, <b>levantar os olhos pra cesta</b>.') +
-          ctr('giros', 'Giros', 8, true) +
-          nota('⚠️ <b>Team Esface:</b> escolha do Yan, conteúdo falado não verificado — o YouTube não serviu o áudio pra análise. O enquadramento é fechado e corta os pés em boa parte das explicações, e a posição é poste alto, não o poste médio do bloco. Se travar, o substituto verificado é ShotMechanics «3 Simple BUT Deadly Post Moves» 0:39–1:06.') +
-          links([{ t: 'ShotMechanics — 3 Killer Face Up Post Moves, trecho 1:09–1:30 — a regra de qual pé usar no pivô reverso: «o que funciona melhor é pivotar no pé de fora»', u: 'https://www.youtube.com/watch?v=LX5Kl0_Agj0&t=69s' }, { t: 'Team Esface — Basketball Move Series: HIGH POST PIVOT REVERSE · 3:47 — vídeo inteiro dedicado ao pivô reverso, com defensor e leituras numeradas na tela', u: 'https://www.youtube.com/watch?v=k46sp18Z2-o' }, { t: 'Substituto verificado: ShotMechanics — 3 Simple BUT Deadly Post Moves, 0:39–1:06', u: 'https://www.youtube.com/watch?v=1BkPSQL1ZzM&t=39s' }]));
+          media('img/v_LX5Kl0_Agj0.jpg', ['3 min', '4 por lado', 'poste médio'], 'Manter o pivô, terminar equilibrado, proteger a bola, <b>levantar os olhos pra cesta</b>.'),
+          ctr('giros', 'Giros', 8, true),
+          '<p>4 giros de frente por lado, a partir do poste médio. Manter o pivô, terminar equilibrado, proteger a bola, <strong>levantar os olhos pra cesta</strong>.</p><p>⚠️ <strong>Team Esface:</strong> escolha do Yan, conteúdo falado não verificado — o YouTube não serviu o áudio pra análise. O enquadramento é fechado e corta os pés em boa parte das explicações, e a posição é poste alto, não o poste médio do bloco. Se travar, o substituto verificado é o terceiro link (ShotMechanics, 0:39–1:06).</p>',
+          [{ t: 'ShotMechanics — 3 Killer Face Up Post Moves, trecho 1:09–1:30 — a regra de qual pé usar no pivô reverso: «o que funciona melhor é pivotar no pé de fora»', u: 'https://www.youtube.com/watch?v=LX5Kl0_Agj0&t=69s' }, { t: 'Team Esface — Basketball Move Series: HIGH POST PIVOT REVERSE · 3:47 — vídeo inteiro dedicado ao pivô reverso, com defensor e leituras numeradas na tela', u: 'https://www.youtube.com/watch?v=k46sp18Z2-o' }, { t: 'Substituto verificado: ShotMechanics — 3 Simple BUT Deadly Post Moves, 0:39–1:06', u: 'https://www.youtube.com/watch?v=1BkPSQL1ZzM&t=39s' }]);
         h += card('c32', '3.2', 'Jab <span class="antes">12 min · 8 ataques + 8 arremessos</span>',
-          media('img/v_sFz5lCkf1zw.jpg', ['12 min', '4 D + 4 E', '× 2 desfechos'], 'Criar separação <b>sem gastar drible</b>. Jab que nunca vira chute é blefe — o defensor senta no drible e o ataque morre junto. E o midrange é a força do Yan, então o jab-arremesso é o lado mais rentável.') +
-          pair('Jab → <b>ataque</b> → finaliza com a mão do lado atacado · direita <small>· 4</small>', 'fa_d_c', 'fa_d_r', 4) +
+          media('img/v_sFz5lCkf1zw.jpg', ['12 min', '4 D + 4 E', '× 2 desfechos'], 'Criar separação <b>sem gastar drible</b>. Transformar o primeiro drible em deslocamento útil.'),
+          pair('Jab → <b>ataque</b> · direita <small>· 4 · finaliza com a mão do lado atacado</small>', 'fa_d_c', 'fa_d_r', 4) +
           pair('Jab → <b>ataque</b> · esquerda <small>· 4</small>', 'fa_e_c', 'fa_e_r', 4) +
           pair('Jab → <b>arremesso</b> · direita <small>· 4</small>', 'fs_d_c', 'fs_d_r', 4) +
-          pair('Jab → <b>arremesso</b> · esquerda <small>· 4</small>', 'fs_e_c', 'fs_e_r', 4) +
-          nota('<b>Meta técnica:</b> transformar o primeiro drible em deslocamento útil.<br><b>Erro a observar:</b> jab tão longo que precisa se reorganizar antes de atacar.') +
-          links([{ t: 'Dr. Dish / Coach Mason — Face Up Series, trechos 0:19–1:08 (face-up, arremesso direto, jab→arremesso) e 1:46–2:23 (jab pro fundo e pro meio). Não passar de 3:13 — o resto é propaganda', u: 'https://www.youtube.com/watch?v=sFz5lCkf1zw&t=19s' }, { t: 'ShotMechanics — 3 Simple BUT Deadly Post Moves · 6:15', u: 'https://www.youtube.com/watch?v=1BkPSQL1ZzM' }]));
+          pair('Jab → <b>arremesso</b> · esquerda <small>· 4</small>', 'fs_e_c', 'fs_e_r', 4),
+          '<p><strong>Objetivo:</strong> criar separação <strong>sem gastar drible</strong>.</p><p><strong>Por que os dois desfechos:</strong> jab que nunca vira chute é blefe — o defensor senta no drible e o ataque morre junto. E o midrange é a força do Yan, então o jab-arremesso é o lado mais rentável.</p><p><strong>Volume:</strong> jab → ataque → finaliza com a mão do lado atacado (4 direita + 4 esquerda) · jab → arremesso (4 direita + 4 esquerda).</p><p><strong>Meta técnica:</strong> transformar o primeiro drible em deslocamento útil.</p><p><strong>Erro a observar:</strong> jab tão longo que precisa se reorganizar antes de atacar.</p>',
+          [{ t: 'Dr. Dish / Coach Mason — Face Up Series, trechos 0:19–1:08 (face-up, arremesso direto, jab→arremesso) e 1:46–2:23 (jab pro fundo e pro meio). Não passar de 3:13 — o resto é propaganda', u: 'https://www.youtube.com/watch?v=sFz5lCkf1zw&t=19s' }, { t: 'ShotMechanics — 3 Simple BUT Deadly Post Moves · 6:15', u: 'https://www.youtube.com/watch?v=1BkPSQL1ZzM' }]);
       }
       if (b.id === 'b4') {
         h += card('c4', '4', 'Ação + counter <span class="antes">12 repetições · 4 por par</span>',
-          media(par.img, ['10 min', '3 pares × 4'], '<b>Antes de cada repetição, dizer mentalmente a ação: «meio», «fundo» ou «frente».</b>') +
-          '<table class="prev"><tr><th>Par</th><th>Ação</th><th>Counter</th><th>Reps</th></tr><tr><td>1</td><td>gancho pelo meio</td><td><b>up-and-under</b></td><td>4</td></tr><tr><td>2</td><td>drop step</td><td><b>reverse layup</b></td><td>4</td></tr><tr><td>3</td><td>face-up ataque</td><td><b>face-up arremesso</b></td><td>4</td></tr></table>' +
+          media(par.img, ['10 min', '3 pares × 4'], '<b>Antes de cada repetição, dizer mentalmente a ação: «meio», «fundo» ou «frente».</b>'),
+          '<div class="crow col"><label>Par (troca os vídeos)</label><span class="seg stack" id="b4_par">' + PARES.map(function (p, i) { return '<button type="button" data-v="' + i + '"' + (i === (+state.vals.b4_par || 0) ? ' class="on"' : '') + '>' + p.t + '</button>'; }).join('') + '</span></div>' +
           ctr('b4_c', 'Cestas', 12, true) + ctr('b4_x', 'Execuções controladas', 12, true) +
-          '<div class="aviso"><b>Execução controlada:</b> apoios organizados sem passo extra · bola sob controle · finalização e aterrissagem equilibradas.<br>Uma bola pode entrar com execução ruim ou sair com execução boa. Registre as duas coisas separadamente.</div>' +
-          '<div class="crow col"><label>Vídeos do par</label><span class="seg stack" id="b4_par">' + PARES.map(function (p, i) { return '<button type="button" data-v="' + i + '"' + (i === (+state.vals.b4_par || 0) ? ' class="on"' : '') + '>' + p.t + '</button>'; }).join('') + '</span></div>' +
-          '<div id="parLinks">' + links(par.links) + '</div>');
+          nota('<b>Execução controlada:</b> apoios organizados sem passo extra · bola sob controle · finalização e aterrissagem equilibradas.'),
+          '<p><strong>Objetivo:</strong> os blocos 2 e 3 instalam movimentos isolados. Este instala <strong>leitura</strong> — a ação é negada e o counter sai. Sem isso, o vocabulário existe mas não se conecta, e na terça o Yan trava no primeiro movimento negado.</p><table class="prev"><tr><th>Par</th><th>Ação</th><th>Counter</th><th>Reps</th></tr><tr><td>1</td><td>gancho pelo meio</td><td><strong>up-and-under</strong></td><td>4</td></tr><tr><td>2</td><td>drop step</td><td><strong>reverse layup</strong></td><td>4</td></tr><tr><td>3</td><td>face-up ataque</td><td><strong>face-up arremesso</strong></td><td>4</td></tr></table><p><strong>Dois contadores distintos, e isso é o coração do bloco:</strong> cestas /12 e execuções controladas /12. Uma bola pode entrar com execução ruim ou sair com execução boa. Registre as duas coisas separadamente.</p>',
+          par.links);
       }
       if (b.id === 'b5') {
         h += card('c5a', '5A', 'Catch-and-shoot <span class="antes">20 arremessos</span>',
-          media('img/v_ecPyYg53Rw8.jpg', ['5 posições × 4'], 'Autopasse com rotação pra trás, recebe equilibrado, arremessa, pega o rebote, volta à marca. <b>Não é benchmark.</b>') +
-          nota('<b>Distância:</b> a de construção definida no A — ' + (v('dist_a') ? '<b>' + esc(v('dist_a')) + '</b>' : 'preenche na abertura (REGISTRO)') + '. Se ainda estiver dentro da linha, registra assim; não são 3PT.') +
+          media('img/v_ecPyYg53Rw8.jpg', ['5 posições × 4'], 'Autopasse com rotação pra trás, recebe equilibrado, arremessa, pega o rebote, volta à marca. <b>Não é benchmark.</b>'),
+          nota('<b>Distância:</b> a de construção do A — ' + (v('dist_a') ? '<b>' + esc(v('dist_a')) + '</b>' : 'preenche na abertura (REGISTRO)') + '.') +
           SPOTS.map(function (s) { return ctr('cs_' + s[0], s[1], 4, true); }).join('') +
-          '<div class="crow"><label>Total</label><span class="stot" id="cs_tot">–/20</span></div>' +
-          links([{ t: 'BreakthroughBBall — 5 Must-Know Catch & Shoot Drills · 15:11 — vídeo de estudo, ver fora da quadra', u: 'https://www.youtube.com/watch?v=ecPyYg53Rw8' }, { t: 'ShotMechanics — 3 Keys: How to Shoot Better off the Catch · 4:47 — pé pronto cedo', u: 'https://www.youtube.com/watch?v=IYzPW29rYEI' }]));
+          '<div class="crow"><label>Total</label><span class="stot" id="cs_tot">–/20</span></div>',
+          '<p><strong>Objetivo:</strong> descarregar com volume limpo. Não é benchmark — o benchmark é sexta, um por semana.</p><p>Autopasse com rotação pra trás, recebe equilibrado, arremessa, pega o rebote, volta à marca. <strong>5 posições × 4 tentativas.</strong></p><p>Usar <strong>a distância de construção definida no A</strong> — o campo preenchido na abertura. Se ainda estiver dentro da linha, registrar assim; não são 3PT.</p>',
+          [{ t: 'BreakthroughBBall — 5 Must-Know Catch & Shoot Drills · 15:11 — vídeo de estudo, ver fora da quadra', u: 'https://www.youtube.com/watch?v=ecPyYg53Rw8' }, { t: 'ShotMechanics — 3 Keys: How to Shoot Better off the Catch · 4:47 — pé pronto cedo', u: 'https://www.youtube.com/watch?v=IYzPW29rYEI' }]);
         h += card('c5b', '5B', 'Lances livres <span class="antes">10 arremessos</span>',
-          media('img/v_iW2VFzBiaQo.jpg', ['2 séries de 5'], '<b>Mesma rotina antes de cada arremesso.</b>') +
+          media('img/v_iW2VFzBiaQo.jpg', ['2 séries de 5'], '<b>Mesma rotina antes de cada arremesso.</b>'),
           ctr('ll_1', 'Série 1', 5, true) + ctr('ll_2', 'Série 2', 5, true) +
-          '<div class="crow"><label>Total</label><span class="stot" id="ll_tot">–/10</span></div>' +
-          links([{ t: 'SIKANA — The Free Throw · 2:11 — posição (pé dominante levemente à frente), rotina fixa, e a linha vertical aro–pé–joelho–cotovelo–mão–bola. Zero propaganda', u: 'https://www.youtube.com/watch?v=iW2VFzBiaQo' }, { t: 'ShotMechanics — How to Make More Free Throws · 6:36 — rotina e respiração, mais denso. Parar em 6:00 — o resto é propaganda', u: 'https://www.youtube.com/watch?v=0343D3fjPnQ' }]));
+          '<div class="crow"><label>Total</label><span class="stot" id="ll_tot">–/10</span></div>',
+          '<p>2 séries de 5, <strong>mesma rotina antes de cada arremesso</strong>.</p>',
+          [{ t: 'SIKANA — The Free Throw · 2:11 — posição (pé dominante levemente à frente), rotina fixa, e a linha vertical aro–pé–joelho–cotovelo–mão–bola. Zero propaganda', u: 'https://www.youtube.com/watch?v=iW2VFzBiaQo' }, { t: 'ShotMechanics — How to Make More Free Throws · 6:36 — rotina e respiração, mais denso. Parar em 6:00 — o resto é propaganda', u: 'https://www.youtube.com/watch?v=0343D3fjPnQ' }]);
       }
       h += '</section>';
     });
     sec.innerHTML = h;
     sec.querySelectorAll('.tbtn').forEach(function (b) { b.addEventListener('click', function () { toggleBloco(b.dataset.b); }); });
     sec.querySelectorAll('.tdone').forEach(function (b) { b.addEventListener('click', function () { concluirBloco(b.dataset.b); }); });
-    sec.querySelectorAll('.thumb').forEach(function (img) {
-      img.addEventListener('click', function () { var a = img.closest('.ex').querySelector('.links a'); if (a) window.open(a.href, '_blank', 'noopener'); });
-    });
     sec.querySelectorAll('#b4_par button').forEach(function (btn) {
       btn.addEventListener('click', function () {
         state.vals.b4_par = +btn.dataset.v; save();
         var p = PARES[+btn.dataset.v];
         document.querySelectorAll('#b4_par button').forEach(function (b2) { b2.classList.toggle('on', b2 === btn); });
-        document.getElementById('parLinks').innerHTML = links(p.links);
+        document.querySelector('#c4 .parLinks').innerHTML = links(p.links);
         document.querySelector('#c4 .thumb').src = p.img;
       });
     });
     totais(); renderTimers();
   }
+  // miniatura abre/fecha o "Como fazer · vídeo"; link de vídeo fecha o drop ao voltar (como no A)
+  document.getElementById('tela-treino').addEventListener('click', function (ev) {
+    var img = ev.target.closest('.thumb');
+    if (img) { var det = img.closest('.ex').querySelector('details.how'); if (det) det.open = !det.open; return; }
+    var a = ev.target.closest('.how-body a');
+    if (a) { var d2 = a.closest('details'); setTimeout(function () { d2.open = false; }, 250); }
+  });
 
   // ---------- TELA REGISTRO ----------
   function renderRegistro() {
@@ -694,7 +700,7 @@ var TABELA = [
     }
     sec.innerHTML =
       '<section class="bloco" id="rb1" style="--acc:#2dd4bf"><div class="bh"><h2>ABERTURA<small>preencher antes de sair de casa</small></h2></div>' + anterior +
-      card('ab', 'A', 'Abertura',
+      fcard('ab', 'A', 'Abertura',
         '<div class="crow"><label>Data</label><input type="date" id="in_data" value="' + esc(dataSessao()) + '"></div>' +
         num('joelho_antes', 'Joelho antes (0–10)', '0–10', 10) +
         area('tarefa', 'TAREFA vinda da terça', 'o que o personal mandou construir') +
@@ -703,19 +709,19 @@ var TABELA = [
         txt('atencao', 'Uma atenção técnica pra hoje')) +
       '</section>' +
       '<section class="bloco" id="rb2" style="--acc:#38bdf8"><div class="bh"><h2>FECHAMENTO<small>preenchido pelos contadores · editável</small></h2></div>' +
-      card('fc', 'F', 'Movimentos <span class="antes">cestas / reps · previsto</span>',
+      fcard('fc', 'F', 'Movimentos <span class="antes">cestas / reps · previsto</span>',
         TABELA.map(function (r) { return '<div class="crow"><label>' + r[0] + ' <span class="antes">· prev. ' + r[3] + '</span></label><span class="cin">' + inp(r[1], 99) + '<span class="x">/</span>' + inp(r[2], 99) + '</span></div>'; }).join('') +
         '<div class="crow"><label>Bloco 4 — cestas <span class="antes">· /12</span></label><span class="cin">' + inp('b4_c', 12) + '</span></div>' +
         '<div class="crow"><label>Bloco 4 — execuções controladas <span class="antes">· /12</span></label><span class="cin">' + inp('b4_x', 12) + '</span></div>' +
         '<div class="crow col"><label>Catch-and-shoot <span class="antes">CE · AE · TP · AD · CD (/4 cada) · total <b id="cs_tot2">–/20</b></span></label><span class="cin">' + SPOTS.map(function (s) { return inp('cs_' + s[0], 4); }).join('') + '</span></div>' +
         '<div class="crow"><label>Lance livre <span class="antes">· série 1 / série 2 · total <b id="ll_tot2">–/10</b></span></label><span class="cin">' + inp('ll_1', 5) + '<span class="x">+</span>' + inp('ll_2', 5) + '</span></div>' +
         '<div class="crow"><label>Ensaios (2A) / giros (3.1) <span class="antes">· não contam como finalização</span></label><span class="cin">' + inp('ens', 8) + '<span class="x">·</span>' + inp('giros', 8) + '</span></div>') +
-      card('ft', 'T', 'Leitura da sessão',
+      fcard('ft', 'T', 'Leitura da sessão',
         txt('conf', 'Movimento mais confortável') +
         txt('perdeu', 'Movimento que mais perdeu organização') +
         txt('correcao', 'Uma correção pro próximo C') +
         '<div class="saida">' + txt('par', 'PAR DE MOVIMENTOS PRA TERÇA <span class="antes">— obrigatório: é isso que o personal vai pressionar na terça</span>', 'gancho pelo meio + drop step pela linha de fundo') + '</div>') +
-      card('fn', 'N', 'Fecho',
+      fcard('fn', 'N', 'Fecho',
         num('duracao', 'Duração real (min) <span class="antes">em branco = soma dos timers (o cinza é a soma)</span>', '–') +
         num('esforco', 'Esforço percebido (0–10)', '0–10', 10) +
         num('joelho_dd', 'Joelho durante/depois (0–10)', '0–10', 10) +
