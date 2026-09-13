@@ -261,9 +261,15 @@
   .top h1 { text-shadow:0 0 18px rgba(45,212,191,.35); }
   .top h1 small { white-space:normal; }
   .pbar i { width:100%; background:linear-gradient(90deg,#2dd4bf,#38bdf8); }
-  .fixo { font-size:12px; color:#aeaeb8; line-height:1.4; padding:4px 0 2px; white-space:pre-line; }
+  .fixo { font-size:12px; color:#aeaeb8; line-height:1.4; padding:4px 0 2px; white-space:pre-line; overflow-wrap:anywhere; cursor:pointer; }
   .fixo b { color:#e8e8ec; }
+  .fixo::before { content:"▴ "; color:#2dd4bf; }
+  .fixo.clamp::before { content:"▾ "; }
   .fixo.clamp { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .fixo:not(.clamp) { max-height:40vh; overflow:auto; }
+  .banner button { min-height:44px; }
+  input::placeholder, textarea::placeholder { color:#7d7d8a; }
+  .ctr .cmax, .x, .den { color:#8e8e96; }
   button.chip { font-family:inherit; cursor:pointer; }
   .banner { background:#0f2f2b; color:#5eead4; }
   .banner button { border-color:#5eead4; color:#5eead4; }
@@ -276,6 +282,8 @@
   .crow .cin input.ac { width:52px; }
   .ex.tcard { padding:10px 12px; }
   .trow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .tbtns { flex-basis:100%; display:flex; gap:8px; }
+  .tbtns button { flex:1; }
   .tnum { font-size:28px; font-weight:800; font-variant-numeric:tabular-nums; color:var(--acc); min-width:78px; }
   .talvo { font-size:13px; color:#8e8e96; font-weight:700; flex:1; }
   .tbtn, .tdone { min-height:44px; padding:8px 12px; border-radius:10px; border:1.5px solid var(--acc); background:transparent; color:var(--acc); font-size:14px; font-weight:800; cursor:pointer; }
@@ -347,7 +355,6 @@
   <p><strong>Regra do volume:</strong> o volume é referência, não dívida. Acabou o tempo do bloco, registra o que fez e avança. O app nunca bloqueia o avanço por volume incompleto.</p>
   <p><strong>Tempo:</strong> timer por bloco, iniciado manualmente, por timestamp (sobrevive à tela bloqueada); ao concluir, grava a duração real. Timer geral da sessão começa no primeiro bloco. <strong>Aos 75 min</strong> o bloco 5 é destacado e o app sinaliza pra começar o arremesso, mesmo com repetição pendente. <strong>Aos 90 min</strong>, aviso de encerrar. Nenhum som, nenhuma vibração: aviso é visual. Sem avisos por relógio (o C ainda não tem horário cravado na agenda).</p>
   <p><strong>Joelho:</strong> os campos de joelho (antes, durante/depois, manhã seguinte) são registro puro. Sem gatilho automático, sem filtro, sem link externo. Quem decide o que fazer com o número é o log semanal e a fisioterapeuta. O <strong>joelho na manhã seguinte</strong> é o medidor da decisão de ter movido o C pra quinta — fica editável na sexta de manhã, mesmo depois de arquivar.</p>
-  <p><strong>Ficou de fora, de propósito:</strong> quick spin (leitura tátil, material de terça) · impulsão de dois pés na reversa · goofy foot / goofy hand na reversa · rocker step no jab (progressão futura) · benchmark de arremesso (é do Treino A, sempre sexta).</p>
   <p><strong>Registro:</strong> tudo salva a cada toque; os contadores da tela TREINO e a tabela do REGISTRO são o mesmo dado. <strong>Exportar</strong> copia no formato do /quarta. <strong>Arquivar sessão</strong> guarda a sessão como referência cinza e abre a próxima; a anterior continua com o joelho da manhã seguinte editável.</p>
 </details>
 
@@ -499,8 +506,9 @@ var TABELA = [
   function n(k) { return +state.vals[k] || 0; }
   function v(k) { return temValor(state.vals[k]) ? String(state.vals[k]).trim() : ''; }
   function setVal(k, val) { if (val === '' || val == null) delete state.vals[k]; else state.vals[k] = val; }
+  var NAO_INICIA = ['data', 'b4_par'];  // campos que não abrem uma sessão (data default e escolha de vídeo)
   function sessaoAtiva() {
-    return !!state.t0 || Object.keys(state.vals).some(function (k) { return k !== 'data' && temValor(state.vals[k]); });
+    return !!state.t0 || Object.keys(state.vals).some(function (k) { return NAO_INICIA.indexOf(k) < 0 && temValor(state.vals[k]); });
   }
   function marcarSessao() { if (!temValor(state.vals.data)) state.vals.data = hoje(); }
   function dataSessao() { return temValor(state.vals.data) ? state.vals.data : hoje(); }
@@ -522,7 +530,10 @@ var TABELA = [
     var b = bl(id);
     if (b.done) return;
     if (b.t0) { b.acc = (b.acc || 0) + (Date.now() - b.t0); b.t0 = null; }
-    else { b.t0 = Date.now(); if (!state.t0) state.t0 = Date.now(); marcarSessao(); }
+    else {
+      BLOCOS.forEach(function (o) { var ob = bl(o.id); if (ob.t0) { ob.acc = (ob.acc || 0) + (Date.now() - ob.t0); ob.t0 = null; } });  // um bloco por vez
+      b.t0 = Date.now(); if (!state.t0) state.t0 = Date.now(); marcarSessao();
+    }
     save(); renderTimers();
   }
   function concluirBloco(id) {
@@ -531,7 +542,7 @@ var TABELA = [
     else {
       if (b.t0) { b.acc = (b.acc || 0) + (Date.now() - b.t0); b.t0 = null; }
       b.done = true;
-      state.vals['dur_' + id] = Math.max(1, Math.round((b.acc || 0) / 60000));
+      if (b.acc) state.vals['dur_' + id] = Math.max(1, Math.round(b.acc / 60000)); else delete state.vals['dur_' + id];
       marcarSessao();
     }
     save(); renderTimers(); refreshInput('dur_' + id);
@@ -541,13 +552,13 @@ var TABELA = [
     BLOCOS.forEach(function (b) {
       var st = bl(b.id), card = document.getElementById('tb_' + b.id);
       if (!card) return;
-      document.getElementById('tv_' + b.id).textContent = st.done ? n('dur_' + b.id) + ' min' : fmtMS(msBloco(b.id));
+      document.getElementById('tv_' + b.id).textContent = st.done ? (n('dur_' + b.id) ? n('dur_' + b.id) + ' min' : 'feito') : fmtMS(msBloco(b.id));
       card.classList.toggle('run', !!st.t0);
       card.classList.toggle('is-done', !!st.done);
       var btn = document.getElementById('tbtn_' + b.id);
       btn.textContent = st.t0 ? '⏸ Pausar' : (st.acc ? '▶ Retomar' : '▶ Iniciar');
       btn.disabled = !!st.done;
-      document.getElementById('tdone_' + b.id).textContent = st.done ? '↺ reabrir' : '✓ Concluir bloco';
+      document.getElementById('tdone_' + b.id).textContent = st.done ? '↺ Reabrir' : '✓ Concluir bloco';
     });
     var el = state.t0 ? Date.now() - state.t0 : 0;
     document.getElementById('sessaoTxt').textContent = state.t0 ? '⏱ ' + fmtMS(el) : '⏱ 00:00';
@@ -585,7 +596,7 @@ var TABELA = [
   function pair(lab, kc, kr, max) { return '<div class="prow"><div class="plab">' + lab + '</div><div class="pctrs">' + ctr(kc, 'cestas', max) + ctr(kr, 'reps', max) + '</div></div>'; }
   function tcard(b) {
     return '<article class="ex tcard" id="tb_' + b.id + '"><div class="trow"><span class="tnum" id="tv_' + b.id + '">00:00</span><span class="talvo">/ ' + b.alvo + ' min</span>' +
-      '<button type="button" class="tbtn" id="tbtn_' + b.id + '" data-b="' + b.id + '">▶ Iniciar</button><button type="button" class="tdone" id="tdone_' + b.id + '" data-b="' + b.id + '">✓ Concluir bloco</button></div>' +
+      '<div class="tbtns"><button type="button" class="tbtn" id="tbtn_' + b.id + '" data-b="' + b.id + '">▶ Iniciar</button><button type="button" class="tdone" id="tdone_' + b.id + '" data-b="' + b.id + '">✓ Concluir bloco</button></div></div>' +
       '<p class="obj"><b>Objetivo:</b> ' + b.obj + '</p></article>';
   }
   function txt(k, lab, ph) { return '<div class="crow col"><label>' + lab + '</label><input class="tx" id="in_' + k + '" type="text" placeholder="' + esc(ph || antVal(k, '')) + '" value="' + esc(v(k)) + '"></div>'; }
@@ -610,7 +621,7 @@ var TABELA = [
       }
       if (b.id === 'b2') {
         h += card('c2a', '2A', 'Ensaiar os apoios <span class="antes">5 min · 8 ensaios · SEM FINALIZAR</span>',
-          media('img/v_kcwCvwCBU-A.jpg', ['5 min', '8 ensaios', 'sem finalizar'], 'Gancho pelo meio: 2 ensaios de cada lado · drop step pela linha de fundo: 2 de cada lado. Parar <b>antes</b> da finalização.'),
+          media('img/v_kcwCvwCBU-A.jpg', ['5 min', '8 ensaios', 'sem finalizar'], 'Separar o footwork do resultado: parar <b>antes</b> da finalização. Gancho pelo meio 2/lado · drop step pela linha de fundo 2/lado.'),
           '<div class="atencao">Solte a bola antes de levantar o pé de pivô.</div>' + ctr('ens', 'Ensaios', 8, true),
           '<p><strong>Objetivo:</strong> separar o footwork do resultado. Parar <strong>antes</strong> da finalização é o ponto do exercício — se termina no aro, o cérebro otimiza a bola entrar e o pé errado fica invisível.</p><ul><li>Gancho pelo meio: 2 ensaios de cada lado</li><li>Drop step pela linha de fundo: 2 ensaios de cada lado</li></ul>',
           [{ t: 'Howcast — How to Do a Drop-Step, trecho 0:55–1:22 — por que pegar a bola com dois pés preserva a escolha dos dois pés de pivô', u: 'https://www.youtube.com/watch?v=kcwCvwCBU-A&t=55s' }, { t: 'Pro Training — Top 5 Post Moves, trecho 2:33–3:40 — a regra anti-passo-ilegal: «não pegue a bola de volta até plantar o pé»', u: 'https://www.youtube.com/watch?v=S3bqH9Sk_NA&t=153s' }]);
@@ -634,7 +645,7 @@ var TABELA = [
           '<p>4 giros de frente por lado, a partir do poste médio. Manter o pivô, terminar equilibrado, proteger a bola, <strong>levantar os olhos pra cesta</strong>.</p><p>⚠️ <strong>Team Esface:</strong> escolha do Yan, conteúdo falado não verificado — o YouTube não serviu o áudio pra análise. O enquadramento é fechado e corta os pés em boa parte das explicações, e a posição é poste alto, não o poste médio do bloco. Se travar, o substituto verificado é o terceiro link (ShotMechanics, 0:39–1:06).</p>',
           [{ t: 'ShotMechanics — 3 Killer Face Up Post Moves, trecho 1:09–1:30 — a regra de qual pé usar no pivô reverso: «o que funciona melhor é pivotar no pé de fora»', u: 'https://www.youtube.com/watch?v=LX5Kl0_Agj0&t=69s' }, { t: 'Team Esface — Basketball Move Series: HIGH POST PIVOT REVERSE · 3:47 — vídeo inteiro dedicado ao pivô reverso, com defensor e leituras numeradas na tela', u: 'https://www.youtube.com/watch?v=k46sp18Z2-o' }, { t: 'Substituto verificado: ShotMechanics — 3 Simple BUT Deadly Post Moves, 0:39–1:06', u: 'https://www.youtube.com/watch?v=1BkPSQL1ZzM&t=39s' }]);
         h += card('c32', '3.2', 'Jab <span class="antes">12 min · 8 ataques + 8 arremessos</span>',
-          media('img/v_sFz5lCkf1zw.jpg', ['12 min', '4 D + 4 E', '× 2 desfechos'], 'Criar separação <b>sem gastar drible</b>. Transformar o primeiro drible em deslocamento útil.'),
+          media('img/v_sFz5lCkf1zw.jpg', ['12 min', '4 dir. + 4 esq.', '× 2 desfechos'], 'Criar separação <b>sem gastar drible</b>. Transformar o primeiro drible em deslocamento útil.'),
           pair('Jab → <b>ataque</b> · direita <small>· 4 · finaliza com a mão do lado atacado</small>', 'fa_d_c', 'fa_d_r', 4) +
           pair('Jab → <b>ataque</b> · esquerda <small>· 4</small>', 'fa_e_c', 'fa_e_r', 4) +
           pair('Jab → <b>arremesso</b> · direita <small>· 4</small>', 'fs_d_c', 'fs_d_r', 4) +
@@ -703,7 +714,7 @@ var TABELA = [
       fcard('ab', 'A', 'Abertura',
         '<div class="crow"><label>Data</label><input type="date" id="in_data" value="' + esc(dataSessao()) + '"></div>' +
         num('joelho_antes', 'Joelho antes (0–10)', '0–10', 10) +
-        area('tarefa', 'TAREFA vinda da terça', 'o que o personal mandou construir') +
+        area('tarefa', 'TAREFA da terça', 'o que o personal mandou construir') +
         txt('enfase', 'Ênfase da semana (domingo)') +
         txt('dist_a', 'Distância de construção do A', 'ex.: −1 m da linha') +
         txt('atencao', 'Uma atenção técnica pra hoje')) +
@@ -713,7 +724,7 @@ var TABELA = [
         TABELA.map(function (r) { return '<div class="crow"><label>' + r[0] + ' <span class="antes">· prev. ' + r[3] + '</span></label><span class="cin">' + inp(r[1], 99) + '<span class="x">/</span>' + inp(r[2], 99) + '</span></div>'; }).join('') +
         '<div class="crow"><label>Bloco 4 — cestas <span class="antes">· /12</span></label><span class="cin">' + inp('b4_c', 12) + '</span></div>' +
         '<div class="crow"><label>Bloco 4 — execuções controladas <span class="antes">· /12</span></label><span class="cin">' + inp('b4_x', 12) + '</span></div>' +
-        '<div class="crow col"><label>Catch-and-shoot <span class="antes">CE · AE · TP · AD · CD (/4 cada) · total <b id="cs_tot2">–/20</b></span></label><span class="cin">' + SPOTS.map(function (s) { return inp('cs_' + s[0], 4); }).join('') + '</span></div>' +
+        '<div class="crow col"><label>Catch-and-shoot <span class="antes">canto E · ala E · topo · ala D · canto D (/4 cada) · total <b id="cs_tot2">–/20</b></span></label><span class="cin">' + SPOTS.map(function (s) { return inp('cs_' + s[0], 4); }).join('') + '</span></div>' +
         '<div class="crow"><label>Lance livre <span class="antes">· série 1 / série 2 · total <b id="ll_tot2">–/10</b></span></label><span class="cin">' + inp('ll_1', 5) + '<span class="x">+</span>' + inp('ll_2', 5) + '</span></div>' +
         '<div class="crow"><label>Ensaios (2A) / giros (3.1) <span class="antes">· não contam como finalização</span></label><span class="cin">' + inp('ens', 8) + '<span class="x">·</span>' + inp('giros', 8) + '</span></div>') +
       fcard('ft', 'T', 'Leitura da sessão',
@@ -721,11 +732,11 @@ var TABELA = [
         txt('perdeu', 'Movimento que mais perdeu organização') +
         txt('correcao', 'Uma correção pro próximo C') +
         '<div class="saida">' + txt('par', 'PAR DE MOVIMENTOS PRA TERÇA <span class="antes">— obrigatório: é isso que o personal vai pressionar na terça</span>', 'gancho pelo meio + drop step pela linha de fundo') + '</div>') +
-      fcard('fn', 'N', 'Fecho',
-        num('duracao', 'Duração real (min) <span class="antes">em branco = soma dos timers (o cinza é a soma)</span>', '–') +
+      fcard('fn', 'N', 'Como foi hoje',
+        num('duracao', 'Duração real (min) <span class="antes">em branco = usa a soma dos timers (valor cinza)</span>', '–') +
         num('esforco', 'Esforço percebido (0–10)', '0–10', 10) +
         num('joelho_dd', 'Joelho durante/depois (0–10)', '0–10', 10) +
-        num('joelho_ms', 'Joelho na manhã seguinte (0–10) <span class="antes">preenche na sexta de manhã — continua editável depois de arquivar</span>', '0–10', 10) +
+        ((!sessaoAtiva() && ant.d) ? nota('<b>Joelho na manhã seguinte:</b> da sessão arquivada, preenche no box «sessão anterior» no topo do REGISTRO.') : num('joelho_ms', 'Joelho na manhã seguinte (0–10) <span class="antes">preenche na sexta de manhã — continua editável depois de arquivar</span>', '0–10', 10)) +
         nota('Botões no fim da página: <b>Exportar</b> copia o resumo (formato do /quarta) · <b>Arquivar sessão</b> guarda esta sessão e abre a próxima.')) +
       '</section>';
     sec.querySelectorAll('input, textarea').forEach(function (el) {
@@ -749,7 +760,9 @@ var TABELA = [
     var btn = ev.target.closest('.cm, .cp');
     if (!btn) return;
     var box = btn.closest('.ctr'), k = box.dataset.k, max = +box.dataset.max || 99;
-    var val = Math.max(0, Math.min(max, n(k) + (btn.classList.contains('cp') ? 1 : -1)));
+    var mais = btn.classList.contains('cp');
+    if (!mais && !temValor(state.vals[k])) return;  // "−" no zero, sem valor: não abre sessão
+    var val = mais ? Math.min(max, n(k) + 1) : Math.max(0, n(k) - 1);
     setVal(k, val);
     marcarSessao(); save(); refreshCounters(k); refreshInput(k); totais();
   });
@@ -780,7 +793,6 @@ var TABELA = [
     var x = function (k) { return temValor(vals[k]) ? String(vals[k]).trim() : null; };
     var q = function (k) { return temValor(vals[k]) ? String(vals[k]).trim() : '–'; };
     var cr = function (kc, kr, prev) { return (x(kc) || x(kr)) ? q(kc) + '/' + q(kr) : null; };
-    var dur = function (b) { return x('dur_' + b) ? ' · ' + x('dur_' + b) + ' min' : ''; };
     var p = String(d).split('-');
     var L = ['QUI · TREINO C — Poste + Face-up · ' + fmtRef(d) + (p.length === 3 ? '/' + p[0] : '')];
     var ab = [];
@@ -789,23 +801,24 @@ var TABELA = [
     if (x('dist_a')) ab.push('distância do A: ' + x('dist_a'));
     if (x('atencao')) ab.push('atenção: ' + x('atencao'));
     if (ab.length) L.push('Abertura: ' + ab.join(' · '));
-    if (x('tarefa')) L.push('TAREFA (terça): ' + x('tarefa'));
-    if (x('dur_b1')) L.push('1 Preparação: ' + x('dur_b1') + ' min');
+    if (x('tarefa')) L.push('TAREFA da terça: ' + x('tarefa'));
     if (x('ens')) L.push('2A Ensaios: ' + q('ens') + '/8');
     var g = [cr('g_d_c', 'g_d_r'), cr('g_e_c', 'g_e_r')];
-    if (g[0] || g[1]) L.push('2B Gancho pelo meio: D ' + (g[0] || '–') + ' · E ' + (g[1] || '–'));
+    if (g[0] || g[1]) L.push('2B Gancho pelo meio: dir. ' + (g[0] || '–') + ' · esq. ' + (g[1] || '–'));
     var ds = [cr('ds_d_c', 'ds_d_r'), cr('ds_e_c', 'ds_e_r')];
-    if (ds[0] || ds[1] || x('dur_b2')) L.push('2C Drop step: D ' + (ds[0] || '–') + ' · E ' + (ds[1] || '–') + dur('b2').replace(' · ', ' · bloco 2: '));
+    if (ds[0] || ds[1]) L.push('2C Drop step: dir. ' + (ds[0] || '–') + ' · esq. ' + (ds[1] || '–'));
     if (x('giros')) L.push('3.1 Giros: ' + q('giros') + '/8');
     var fa = [cr('fa_d_c', 'fa_d_r'), cr('fa_e_c', 'fa_e_r')], fs = [cr('fs_d_c', 'fs_d_r'), cr('fs_e_c', 'fs_e_r')];
-    if (fa[0] || fa[1] || fs[0] || fs[1] || x('dur_b3')) L.push('3.2 Jab: ataque D ' + (fa[0] || '–') + ' · E ' + (fa[1] || '–') + ' · arremesso D ' + (fs[0] || '–') + ' · E ' + (fs[1] || '–') + dur('b3').replace(' · ', ' · bloco 3: '));
-    if (x('b4_c') || x('b4_x') || x('dur_b4')) L.push('4 Ação + counter: cestas ' + q('b4_c') + '/12 · execuções controladas ' + q('b4_x') + '/12' + dur('b4'));
+    if (fa[0] || fa[1] || fs[0] || fs[1]) L.push('3.2 Jab: ataque dir. ' + (fa[0] || '–') + ' · esq. ' + (fa[1] || '–') + ' · arremesso dir. ' + (fs[0] || '–') + ' · esq. ' + (fs[1] || '–'));
+    if (x('b4_c') || x('b4_x')) L.push('4 Ação + counter: cestas ' + q('b4_c') + '/12 · execuções controladas ' + q('b4_x') + '/12');
     var csA = 0, csN = 0; SPOTS.forEach(function (s) { if (x('cs_' + s[0])) { csA += +vals['cs_' + s[0]]; csN++; } });
-    if (csN) L.push('5A Catch-and-shoot: ' + SPOTS.map(function (s) { return s[0].toUpperCase() + ' ' + q('cs_' + s[0]) + '/4'; }).join(' · ') + ' = ' + csA + '/20');
-    if (x('ll_1') || x('ll_2') || x('dur_b5')) L.push('5B Lances livres: ' + q('ll_1') + '/5 + ' + q('ll_2') + '/5 = ' + ((+vals.ll_1 || 0) + (+vals.ll_2 || 0)) + '/10' + dur('b5').replace(' · ', ' · bloco 5: '));
+    if (csN) L.push('5A Catch-and-shoot: ' + SPOTS.map(function (s) { return s[1].toLowerCase().replace('esquerd', 'E').replace('direit', 'D').replace('Ea', 'E').replace('Do', 'D').replace('Eo', 'E') + ' ' + q('cs_' + s[0]) + '/4'; }).join(' · ') + ' = ' + csA + '/20');
+    if (x('ll_1') || x('ll_2')) L.push('5B Lances livres: ' + q('ll_1') + '/5 + ' + q('ll_2') + '/5 = ' + ((+vals.ll_1 || 0) + (+vals.ll_2 || 0)) + '/10');
+    var durs = BLOCOS.map(function (b, i) { return x('dur_' + b.id) ? 'B' + (i + 1) + ' ' + x('dur_' + b.id) : null; }).filter(Boolean);
+    if (durs.length) L.push('Blocos (min): ' + durs.join(' · '));
     var hj = [];
-    var durTot = x('duracao') || (usaHoje && state.t0 ? String(somaDur()) : null);
-    if (durTot) hj.push('duração ' + durTot + ' min');
+    var durTot = x('duracao') || (usaHoje && state.t0 && somaDur() ? String(somaDur()) : null);
+    if (durTot && +durTot > 0) hj.push('duração ' + durTot + ' min');
     if (x('esforco')) hj.push('esforço ' + x('esforco'));
     if (x('joelho_dd')) hj.push('joelho durante/depois ' + x('joelho_dd'));
     if (x('joelho_ms')) hj.push('joelho manhã seguinte ' + x('joelho_ms'));
@@ -820,9 +833,10 @@ var TABELA = [
     var box = document.getElementById('resumoBox');
     var r = resumoTexto();
     if (!r) { msg('nada pra copiar ainda'); return; }
-    if (!r.par) {
+    if (!r.par && r.hoje) {
       alert('PAR DE MOVIMENTOS PRA TERÇA está vazio — é isso que o personal vai pressionar na terça. Preenche no REGISTRO antes de exportar.');
-      if (r.hoje) { state.tela = 'registro'; save(); renderRegistro(); mostrarTela(); var f = document.getElementById('in_par'); if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.focus(); } }
+      state.tela = 'registro'; save(); renderRegistro(); mostrarTela();
+      var f = document.getElementById('in_par'); if (f) { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.focus(); }
       return;
     }
     copiarTexto(r.txt, function (ok) {
@@ -834,12 +848,13 @@ var TABELA = [
   // ---------- arquivar sessão: referência cinza + abre a próxima ----------
   document.getElementById('resetBtn').addEventListener('click', function () {
     if (!sessaoAtiva()) { msg('nenhuma sessão aberta pra arquivar'); return; }
+    if (!v('par') && !confirm('PAR DE MOVIMENTOS PRA TERÇA está vazio — é isso que o personal vai pressionar na terça.\n\nArquivar mesmo assim?')) return;
     if (!confirm('Arquivar a sessão de ' + fmtRef(dataSessao()) + ' e abrir a próxima?\n\nOs números viram a referência cinza. O joelho da manhã seguinte continua editável no REGISTRO.')) return;
     var vals = Object.assign({}, state.vals);
-    if (!temValor(vals.duracao) && state.t0) vals.duracao = somaDur();
-    BLOCOS.forEach(function (b) { if (bl(b.id).t0 && !bl(b.id).done) { vals['dur_' + b.id] = Math.max(1, Math.round(msBloco(b.id) / 60000)); } });
+    BLOCOS.forEach(function (b) { var st = bl(b.id); if ((st.t0 || st.acc) && !st.done) { vals['dur_' + b.id] = Math.max(1, Math.round(msBloco(b.id) / 60000)); } });
+    if (!temValor(vals.duracao)) { var sd = 0; BLOCOS.forEach(function (b) { sd += +vals['dur_' + b.id] || 0; }); if (sd) vals.duracao = sd; }  // soma das durações gravadas, consistente com o export
     arquivar(vals, dataSessao());
-    state = { vals: {}, blocos: {}, t0: null, av: {}, tela: 'registro' };
+    state = { vals: temValor(vals.b4_par) ? { b4_par: vals.b4_par } : {}, blocos: {}, t0: null, av: {}, tela: 'registro' };
     if (!save()) alert('NÃO SALVOU — confira Ajustes › Safari › "Bloquear todos os cookies". A sessão continua aberta.');
     location.reload();
   });
