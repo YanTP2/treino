@@ -753,6 +753,7 @@ var CAUSAS = ['mão de lado', 'aproximação', 'recolhida', 'conclusão', 'outro
       }
       h += '</section>';
     });
+    if (v('regra24') !== 'sim') h += '<button type="button" class="btn" id="irReg">Ir pro REGISTRO →</button>';
     sec.innerHTML = h;
     sec.querySelectorAll('.tbtn').forEach(function (b) { b.addEventListener('click', function () { toggleBloco(b.dataset.b); }); });
     sec.querySelectorAll('.tdone').forEach(function (b) { b.addEventListener('click', function () { concluirBloco(b.dataset.b); }); });
@@ -809,7 +810,7 @@ var CAUSAS = ['mão de lado', 'aproximação', 'recolhida', 'conclusão', 'outro
         num('duracao', 'Duração real (min) <span class="antes">em branco = usa a soma dos timers (valor cinza)</span>', '–') +
         num('esforco', 'Esforço percebido (0–10)', '0–10', 10) +
         num('joelho_dd', 'Joelho durante/depois (0–10)', '0–10', 10) +
-        ((!sessaoAtiva() && ant.d) ? nota('<b>Como acordou na segunda:</b> da sessão arquivada, preenche no box «sessão anterior» no topo do REGISTRO.') : num('acordou_seg', 'Como acordou na segunda (0–10) <span class="antes">preenche na segunda de manhã — continua editável depois de arquivar</span>', '0–10', 10)) +
+        (!sessaoAtiva() ? nota(ant.d ? '<b>Como acordou na segunda:</b> da sessão arquivada, preenche no box «sessão anterior» no topo do REGISTRO.' : '<b>Como acordou na segunda:</b> aparece depois da primeira sessão — fica editável na segunda de manhã, mesmo depois de arquivar.') : num('acordou_seg', 'Como acordou na segunda (0–10) <span class="antes">preenche na segunda de manhã — continua editável depois de arquivar</span>', '0–10', 10)) +
         nota('Botões no fim da página: <b>Exportar</b> copia o resumo (formato do /quarta; exige ÊNFASE e log fechado) · <b>Nova semana</b> arquiva esta sessão e abre a próxima.')) +
       '</section>';
     totais(); renderTimers();
@@ -847,6 +848,7 @@ var CAUSAS = ['mão de lado', 'aproximação', 'recolhida', 'conclusão', 'outro
   });
   document.addEventListener('click', function (ev) {
     if (ev.target.id === 'irB0') { state.tela = 'treino'; save(); renderTreino(); mostrarTela(); window.scrollTo(0, 0); }
+    if (ev.target.id === 'irReg') { state.tela = 'registro'; save(); renderRegistro(); mostrarTela(); window.scrollTo(0, 0); }
     if (ev.target.id === 'nrBtn') {
       if (!confirm('Registrar o domingo ' + fmtRef(dataSessao()) + ' como NÃO REALIZADO (regra das 24h) e abrir a próxima sessão?')) return;
       fecharSessao(true);
@@ -991,6 +993,19 @@ var CAUSAS = ['mão de lado', 'aproximação', 'recolhida', 'conclusão', 'outro
   renderRef(); renderFixo();
   if (state.tela === 'registro') renderRegistro(); else renderTreino();
   mostrarTela();
+})();
+
+// ---- comum a todos os apps (patch_geral 2026-09-14): número dentro de min/max · botão Copiar confirma no lugar ----
+document.addEventListener('input', function (ev) {
+  var el = ev.target; if (!el || el.tagName !== 'INPUT' || el.type !== 'number' || el.value === '') return;
+  if (el.max !== '' && +el.value > +el.max) el.value = el.max;
+  if (el.min !== '' && +el.value < +el.min) el.value = el.min;
+}, true);
+(function () {
+  var b = document.getElementById('copiarBtn'), m = document.getElementById('saveMsg');
+  if (!b || !m || !window.MutationObserver) return;
+  var t = b.textContent, h = null;
+  new MutationObserver(function () { if (/copiad/.test(m.textContent)) { b.textContent = '✓ copiado'; clearTimeout(h); h = setTimeout(function () { b.textContent = t; }, 2000); } }).observe(m, { childList: true, characterData: true, subtree: true });
 })();
 </script>
 </body>

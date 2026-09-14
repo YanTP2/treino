@@ -986,6 +986,19 @@ var DATA = [
   }, { passive: true });
   spy();
 })();
+
+// ---- comum a todos os apps (patch_geral 2026-09-14): número dentro de min/max · botão Copiar confirma no lugar ----
+document.addEventListener('input', function (ev) {
+  var el = ev.target; if (!el || el.tagName !== 'INPUT' || el.type !== 'number' || el.value === '') return;
+  if (el.max !== '' && +el.value > +el.max) el.value = el.max;
+  if (el.min !== '' && +el.value < +el.min) el.value = el.min;
+}, true);
+(function () {
+  var b = document.getElementById('copiarBtn'), m = document.getElementById('saveMsg');
+  if (!b || !m || !window.MutationObserver) return;
+  var t = b.textContent, h = null;
+  new MutationObserver(function () { if (/copiad/.test(m.textContent)) { b.textContent = '✓ copiado'; clearTimeout(h); h = setTimeout(function () { b.textContent = t; }, 2000); } }).observe(m, { childList: true, characterData: true, subtree: true });
+})();
 </script>
 </body>
 </html>

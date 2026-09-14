@@ -144,6 +144,7 @@
 
   /* -------- formulário "como foi hoje" -------- */
   .frm { display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+  .frm input { max-width:100%; min-width:0; }
   .frow { display:flex; align-items:center; gap:8px; }
   .frow label { flex:1; font-size:13.5px; color:#aeaeb8; }
   .frow input[type=number], .frow input[type=text] {
@@ -615,6 +616,7 @@ var FORM = [
     var raw = localStorage.getItem(KEY);
     if (raw) {
       var p = JSON.parse(raw);
+        RUN_SALVO = p && p.run ? p.run : null;
       if (p && p.ex) throw 0; // formato de outro app — ignora
       if (p && p.bench && p.bench.fiba && p.bench.ref) { bench = p.bench; if (!bench.sem) bench.sem = []; }
       if (p && p.h2b) h2b = p.h2b;
@@ -636,7 +638,7 @@ var FORM = [
   }
   function save() {
     try {
-      localStorage.setItem(KEY, JSON.stringify({ d: state.d, vals: state.vals, steps: state.steps, modo: state.modo, t0: state.t0, t1: state.t1, av: state.av, travOk: state.travOk, ant: ant, bench: bench, h2b: h2b }));
+      localStorage.setItem(KEY, JSON.stringify({ d: state.d, vals: state.vals, steps: state.steps, modo: state.modo, t0: state.t0, t1: state.t1, av: state.av, travOk: state.travOk, ant: ant, bench: bench, h2b: h2b, run: run ? { id: run.id, end: run.end, remaining: run.remaining } : null }));
       var d = new Date();
       msg._fixo = '';  // salvou de novo = erro resolvido
       msg('salvo às ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2));
@@ -660,7 +662,8 @@ var FORM = [
   }
   function renderRef() {
     var el = document.getElementById('refTxt');
-    if (el) el.textContent = ant.d ? 'última sessão: ' + fmtRef(ant.d) + (ant.modo ? ' · ' + rotuloModo(ant.modo) : '') : 'sem referência ainda';
+    var bq = null; ['fiba', 'ref'].forEach(function (k) { (bench[k] || []).forEach(function (e) { if (ant.d && e.d === ant.d) bq = { e: e, k: k }; }); });
+    if (el) el.textContent = ant.d ? 'última sessão: ' + fmtRef(ant.d) + (ant.modo ? ' · ' + rotuloModo(ant.modo) : '') + (bq ? ' · benchmark ' + bq.e.ac + '/' + bq.e.at + ' ' + (bq.k === 'fiba' ? 'FIBA' : 'Ref') + (bq.e.flag === 'incompleto' ? ' (incompleto)' : '') : '') : 'sem referência ainda';
   }
   renderRef();
   // aviso: aberto fora do ícone (Safari, link de outro app, Mac) = outra memória, nada fica no app da tela de início
@@ -858,6 +861,7 @@ var FORM = [
 
   // ---------- motores ----------
   var run = null;      // timer de passos (aquecimento / Rio)
+  var RUN_SALVO;  // run gravado no último save (retomado no fim do init) — sem inicializador: a declaração vem depois do load e não pode zerar o valor
   function fmt(s) { return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
   function card(id) { return document.getElementById(id); }
   function goBtn(id) { return card(id).querySelector('.go'); }
@@ -994,6 +998,7 @@ var FORM = [
       renderGo(id);
     }, 250);
     renderGo(id);
+    save();
   }
   function onGo(id) {
     ensureAudio();
@@ -1008,7 +1013,7 @@ var FORM = [
         run.remaining = Math.max(1, Math.ceil((run.end - Date.now()) / 1000));
         wakeOff();
       } else { run.end = Date.now() + run.remaining * 1000; run.remaining = null; wakeOn(); }
-      renderGo(id);
+      renderGo(id); save();
       return;
     }
     var steps = stepsDe(e), step = steps[Math.min(s.i, steps.length - 1)];
@@ -1251,6 +1256,12 @@ var FORM = [
   aplicarRelogio();
   setInterval(aplicarRelogio, 15000);
 
+  // timer de passos sobrevive a um reload (iOS matando a página em segundo plano)
+  if (RUN_SALVO && RUN_SALVO.id && byId[RUN_SALVO.id] && !exDone(RUN_SALVO.id) && visivel(byId[RUN_SALVO.id])) {
+    if (RUN_SALVO.remaining != null) { startTimer(RUN_SALVO.id, RUN_SALVO.remaining); run.remaining = RUN_SALVO.remaining; wakeOff(); renderGo(RUN_SALVO.id); }
+    else { var restou = Math.ceil((RUN_SALVO.end - Date.now()) / 1000); if (restou > 0) startTimer(RUN_SALVO.id, restou); else completeStep(RUN_SALVO.id, true); }
+  }
+  RUN_SALVO = null;
   // retomar onde parou
   var started = DATA.some(function (e) { return exDone(e.id) || stSteps(e.id).i > 0; }) ||
     Object.keys(state.vals).some(function (k) { return k.indexOf('hdr_') !== 0 && temValor(state.vals[k]); });
@@ -1405,6 +1416,19 @@ var FORM = [
     spyT = setTimeout(function () { spyT = null; spy(); }, 120);
   }, { passive: true });
   spy();
+})();
+
+// ---- comum a todos os apps (patch_geral 2026-09-14): número dentro de min/max · botão Copiar confirma no lugar ----
+document.addEventListener('input', function (ev) {
+  var el = ev.target; if (!el || el.tagName !== 'INPUT' || el.type !== 'number' || el.value === '') return;
+  if (el.max !== '' && +el.value > +el.max) el.value = el.max;
+  if (el.min !== '' && +el.value < +el.min) el.value = el.min;
+}, true);
+(function () {
+  var b = document.getElementById('copiarBtn'), m = document.getElementById('saveMsg');
+  if (!b || !m || !window.MutationObserver) return;
+  var t = b.textContent, h = null;
+  new MutationObserver(function () { if (/copiad/.test(m.textContent)) { b.textContent = '✓ copiado'; clearTimeout(h); h = setTimeout(function () { b.textContent = t; }, 2000); } }).observe(m, { childList: true, characterData: true, subtree: true });
 })();
 </script>
 </body>

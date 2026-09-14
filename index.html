@@ -232,7 +232,7 @@
   <button class="reset" id="resetBtn">Zerar o dia (tirar marcações)</button>
   <div class="savemsg" id="saveMsg"></div>
   <div>vC.12 — Sessão Matinal COMPLETA (sábado · ~55–60 min) · Par: <a href="dia-a/">DIA A</a> (seg · qua · sex) · <a href="dia-b/">DIA B</a> (ter · qui · dom)</div>
-  <div>Basquete: <a href="basquete-sexta-a/">Treino A</a> (sex) · <a href="treino-b/">Treino B</a> (ter) · <a href="treino-c/">Treino C</a> (qui) · <a href="treino-d/">Treino D</a> (dom) · <a href="log/">Log semanal</a> · GYM: <a href="gym-fb1/">FB1</a> · <a href="quarta/">Quarta</a> · <a href="gym-fb2/">FB2</a></div>
+  <div><a href="log/">Log semanal</a> · Basquete: <a href="basquete-sexta-a/">Treino A</a> (sex) · <a href="treino-b/">Treino B</a> (ter) · <a href="treino-c/">Treino C</a> (qui) · <a href="treino-d/">Treino D</a> (dom) · GYM: <a href="gym-fb1/">FB1</a> · <a href="quarta/">Quarta</a> · <a href="gym-fb2/">FB2</a></div>
   <div>Fontes: Rathleff 2015 · Haroy 2019 · Lauersen 2014 · Rio 2015 · Thomas 2018 · DiGiovanni 2003 · McGill (Big 3) · Afonso 2021 · @squat_university · @lokonga.training · @garcia_effect_official · @newmindstart · @yourpainmechanic</div>
 </div>
 
@@ -1076,6 +1076,19 @@ var DATA = [
     spyT = setTimeout(function () { spyT = null; spy(); }, 120);
   }, { passive: true });
   spy();
+})();
+
+// ---- comum a todos os apps (patch_geral 2026-09-14): número dentro de min/max · botão Copiar confirma no lugar ----
+document.addEventListener('input', function (ev) {
+  var el = ev.target; if (!el || el.tagName !== 'INPUT' || el.type !== 'number' || el.value === '') return;
+  if (el.max !== '' && +el.value > +el.max) el.value = el.max;
+  if (el.min !== '' && +el.value < +el.min) el.value = el.min;
+}, true);
+(function () {
+  var b = document.getElementById('copiarBtn'), m = document.getElementById('saveMsg');
+  if (!b || !m || !window.MutationObserver) return;
+  var t = b.textContent, h = null;
+  new MutationObserver(function () { if (/copiad/.test(m.textContent)) { b.textContent = '✓ copiado'; clearTimeout(h); h = setTimeout(function () { b.textContent = t; }, 2000); } }).observe(m, { childList: true, characterData: true, subtree: true });
 })();
 </script>
 </body>

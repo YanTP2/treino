@@ -886,7 +886,7 @@ var NOTAS_REGISTRO = '<p><strong>Registro:</strong> anota as reps E/D (ou kg, cm
     var inner = form.map(function (f) {
       var fid = formId + '_' + f.id;
       var v = state.vals[fid] != null ? esc(state.vals[fid]) : '';
-      if (f.k === 'num') return '<div class="frow"><label>' + f.t + '</label><input type="number" inputmode="numeric" data-k="' + fid + '" placeholder="' + esc(antVal(fid, '–')) + '" value="' + v + '"></div>';
+      if (f.k === 'num') return '<div class="frow"><label>' + f.t + '</label><input type="number" inputmode="numeric"' + (/10\)/.test(f.t) ? ' min=\"0\" max=\"10\"' : '') + ' data-k="' + fid + '" placeholder="' + esc(antVal(fid, '–')) + '" value="' + v + '"></div>';
       if (f.k === 'txt') return '<div class="frow"><label>' + f.t + '</label><input type="text" data-k="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '" value="' + v + '"></div>';
       if (f.k === 'area') return '<div><label style="font-size:13.5px;color:#b9c0b4">' + f.t + '</label><textarea data-k="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '">' + v + '</textarea></div>';
       var antes = antVal(fid, '');
@@ -1400,6 +1400,19 @@ var NOTAS_REGISTRO = '<p><strong>Registro:</strong> anota as reps E/D (ou kg, cm
     if (spyT) return;
     spyT = setTimeout(function () { spyT = null; spy(); }, 120);
   }, { passive: true });
+})();
+
+// ---- comum a todos os apps (patch_geral 2026-09-14): número dentro de min/max · botão Copiar confirma no lugar ----
+document.addEventListener('input', function (ev) {
+  var el = ev.target; if (!el || el.tagName !== 'INPUT' || el.type !== 'number' || el.value === '') return;
+  if (el.max !== '' && +el.value > +el.max) el.value = el.max;
+  if (el.min !== '' && +el.value < +el.min) el.value = el.min;
+}, true);
+(function () {
+  var b = document.getElementById('copiarBtn'), m = document.getElementById('saveMsg');
+  if (!b || !m || !window.MutationObserver) return;
+  var t = b.textContent, h = null;
+  new MutationObserver(function () { if (/copiad/.test(m.textContent)) { b.textContent = '✓ copiado'; clearTimeout(h); h = setTimeout(function () { b.textContent = t; }, 2000); } }).observe(m, { childList: true, characterData: true, subtree: true });
 })();
 </script>
 </body>

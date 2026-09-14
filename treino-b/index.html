@@ -261,6 +261,7 @@
   .top h1 { text-shadow:0 0 18px rgba(239,68,68,.35); }
   .top h1 small { white-space:normal; }
   .crow label .antes, .crow.col label .antes { white-space:normal; }
+  .ex-head h3 .antes { white-space:normal; }
   .pbar i { width:100%; background:linear-gradient(90deg,#ef4444,#ff7a45); }
   #tela-pauta { --acc:#ef4444; } #tela-registro { --acc:#ff7a45; } #tela-hist { --acc:#c084fc; }
   .chips-nav { display:flex; }
@@ -724,6 +725,19 @@ var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
   renderPauta();
   renderRegistro();
   mostrarTela();
+})();
+
+// ---- comum a todos os apps (patch_geral 2026-09-14): número dentro de min/max · botão Copiar confirma no lugar ----
+document.addEventListener('input', function (ev) {
+  var el = ev.target; if (!el || el.tagName !== 'INPUT' || el.type !== 'number' || el.value === '') return;
+  if (el.max !== '' && +el.value > +el.max) el.value = el.max;
+  if (el.min !== '' && +el.value < +el.min) el.value = el.min;
+}, true);
+(function () {
+  var b = document.getElementById('copiarBtn'), m = document.getElementById('saveMsg');
+  if (!b || !m || !window.MutationObserver) return;
+  var t = b.textContent, h = null;
+  new MutationObserver(function () { if (/copiad/.test(m.textContent)) { b.textContent = '✓ copiado'; clearTimeout(h); h = setTimeout(function () { b.textContent = t; }, 2000); } }).observe(m, { childList: true, characterData: true, subtree: true });
 })();
 </script>
 </body>

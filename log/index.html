@@ -265,8 +265,10 @@
   .wknav button { width:44px; height:40px; border-radius:10px; border:1.5px solid #2a2a33; background:#18181e; color:#fbbf24; font-size:22px; font-weight:800; cursor:pointer; line-height:1; }
   .wknav button:disabled { opacity:.35; }
   .pbar i { width:100%; background:linear-gradient(90deg,#6b6b78,#fbbf24); }
-  .chips-nav.sub { padding:0 0 8px; gap:5px; }
-  .chips-nav.sub .chip { font-size:12px; padding:7px 10px; min-height:32px; }
+  .chips-nav.sub { padding:0 0 8px; gap:4px; }
+  .chips-nav.sub .chip { font-size:11.5px; padding:6px 8px; min-height:30px; }
+  .dias .hoje label { color:#fbbf24; }
+  .dias .hoje input { border-color:#fbbf24; box-shadow:0 0 0 1px #fbbf24 inset; }
   .banner button { min-height:44px; }
   .banner { background:#3a2e0c; color:#fde68a; }
   .banner button { border-color:#fde68a; color:#fde68a; }
@@ -476,7 +478,11 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
   function chaves() { return Object.keys(state.semanas).sort(); }
   function sem(k) { if (!state.semanas[k]) state.semanas[k] = { v: {}, fechada: false }; return state.semanas[k]; }
   var semanaAtual = segundaDe(hoje());
-  if (!state.semanas[semanaAtual]) { sem(semanaAtual); state.aberta = semanaAtual; }  // vira sozinha na segunda
+  if (!state.semanas[semanaAtual]) {  // vira sozinha na segunda; a anterior com dado fica marcada como fechada
+    chaves().forEach(function (k) { var w = state.semanas[k]; if (k < semanaAtual && !w.fechada && Object.keys(w.v).length) w.fechada = true; });
+    sem(semanaAtual); state.aberta = semanaAtual;
+  }
+  var HOJE_DIA = DIAS[(new Date().getDay() + 6) % 7][0];
   if (!state.aberta || !state.semanas[state.aberta]) state.aberta = semanaAtual;
   function W() { return sem(state.aberta); }
   function anterior(k) { var ks = chaves(), i = ks.indexOf(k); return i > 0 ? state.semanas[ks[i - 1]] : null; }
@@ -495,9 +501,9 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
     var pct = Math.round(pts / PLANEJADOS * 100);
     return { pts: pts, pct: pct, valida: pct >= VALIDA_PCT, marc: marc };
   }
-  function ciclo(ate) {  // semanas válidas FECHADAS desde o último deload (a semana de deload zera)
+  function ciclo(ate) {  // semanas válidas que já TERMINARAM (ou fechadas à mão) desde o último deload (a semana de deload zera)
     var c = 0;
-    chaves().forEach(function (k) { if (ate && k > ate) return; var w = state.semanas[k]; if (w.v.deload === 'sim') c = 0; else if (w.fechada && aderencia(w).valida) c++; });
+    chaves().forEach(function (k) { if (ate && k > ate) return; var w = state.semanas[k]; if (w.v.deload === 'sim') c = 0; else if ((w.fechada || k < semanaAtual) && aderencia(w).valida) c++; });
     return c;
   }
   function sinais(k) {  // sistêmicos (Hub): 2 automáticos + 2 manuais
@@ -536,7 +542,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
     var h = '';
     h += sec('joelho', '#fbbf24', 'JOELHO — O PLACAR', 'de manhã, 0–10, dia a dia · segunda = «acordou na segunda» do D',
       fcard('c1', '1', 'Joelho de manhã',
-        '<div class="dias">' + DIAS.map(function (d) { return '<div><label>' + d[0] + '</label><input id="in_j_' + d[0] + '" type="number" inputmode="numeric" min="0" max="10" placeholder="' + esc(antVal('j_' + d[0], '–')) + '" value="' + esc(v('j_' + d[0])) + '"></div>'; }).join('') + '</div>' +
+        '<div class="dias">' + DIAS.map(function (d) { var hj = state.aberta === semanaAtual && d[0] === HOJE_DIA; return '<div' + (hj ? ' class="hoje"' : '') + '><label>' + d[0] + (hj ? ' ·' : '') + '</label><input id="in_j_' + d[0] + '" type="number" inputmode="numeric" min="0" max="10" placeholder="' + esc(antVal('j_' + d[0], '–')) + '" value="' + esc(v('j_' + d[0])) + '"></div>'; }).join('') + '</div>' +
         '<p class="media-j" id="mediaJ">' + (mj ? '<b>média ' + fmt1(mj.m) + '</b> · máx ' + mj.max + ' · ' + mj.c + ' dia' + (mj.c > 1 ? 's' : '') : 'sem nota ainda') + '</p>' +
         '<div class="crow"><label>Dor que não acalmou em 24 h?</label>' + seg('dor24', [['nao', 'Não'], ['sim', 'Sim']], 'row mini') + '</div>' +
         (v('dor24') === 'sim' ? txt('dor24_txt', 'Qual dia e o que cortou', 'ex.: qui · cortei os saltos de domingo') + '<div class="atencao">Regra das 24 h (sinal local): semana seguinte corta quadra primeiro — saltos de domingo &gt; praça de sexta &gt; plio de quarta (bloco C fica) &gt; volume de lower. Não é deload.</div>' : '') +
@@ -547,7 +553,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
       var nome = DIAS.filter(function (d) { return d[0] === dia.d; })[0][1];
       var x = '<div class="drow"><div class="dlab">' + nome + '</div><div class="tgs">' + dia.itens.map(function (it) { return tg(it[0], it[1]); }).join('') + (dia.opc || []).map(function (it) { return tg(it[0], it[1], true); }).join('') + '</div>';
       if (dia.extra === 'qua') x += '<div class="sel"><span class="antes">Plio:</span>' + seg('qua_rota', [['casa', 'casa'], ['atl', 'atlético']], 'row mini') + '<span class="antes">rodou com saltos?</span>' + seg('qua_saltos', [['sim', 'sim'], ['nao', 'não']], 'row mini') + '</div>';
-      if (dia.extra === 'dom') x += '<div class="sel"><span class="antes">D:</span>' + seg('dom_modo', [['normal', 'normal'], ['pre', 'pré-jogo'], ['pos', 'pós-jogo']], 'row mini') + '</div>' + (v('dom_jogo') ? '<div class="crow"><label>Jogo — nota (1–10)</label>' + inp('dom_jogo_nota', 10) + '</div>' : '');
+      if (dia.extra === 'dom') x += '<div class="sel"><span class="antes">D:</span>' + seg('dom_modo', [['normal', 'normal'], ['pre', 'pré-jogo'], ['pos', 'pós-jogo']], 'row mini') + '</div>' + ((v('dom_jogo') === 'ok' || v('dom_jogo') === 'adapt') ? '<div class="crow"><label>Jogo — nota (1–10)</label>' + inp('dom_jogo_nota', 10) + '</div>' : '');
       return x + '</div>';
     }).join('');
     h += sec('feita', '#38bdf8', 'SEMANA FEITA', 'toque cicla ✓ feito · ⤵ adaptado · ✗ não',
@@ -577,21 +583,22 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
         '<p class="cnota" id="cicloTxt">' + cicloTxt(c) + '</p>' +
         nota('<b>Ordem de corte (Hub):</b> dor local → saltos dom &gt; praça sex &gt; plio qua (bloco C fica) &gt; volume lower · sistêmico → plio &gt; FBs · o remédio nunca sai (matinais, Copenhagen, bloco C, extensora iso).')) +
       fcard('c9', '9', 'Saída do domingo', '<div class="saida">' + txt('enfase_prox', 'ÊNFASE DA PRÓXIMA SEMANA <span class="antes">— governa a terça (B) e a sexta (A)</span>', '3–5 palavras') + '</div>' +
-        '<button type="button" class="btn" id="fecharBtn2">' + (w.fechada ? '↺ Reabrir esta semana' : '✓ Fechar semana — abrir a próxima') + '</button>'));
+        '<button type="button" class="btn" id="fecharBtn2">' + (w.fechada ? '↺ Reabrir esta semana' : '✓ ' + rotFechar()) + '</button>'));
     document.getElementById('tela-semana').innerHTML = h;
     renderHead();
   }
   function aderTxt(ad) { return 'Aderência <b>' + ad.pts + '/' + PLANEJADOS + ' · ' + ad.pct + ' %</b> <small>· ' + (ad.valida ? 'semana válida pro deload' : (ad.marc ? 'abaixo de 80 % — não conta pro deload' : 'marca os treinos feitos')) + '</small>'; }
   function sinTxt(s) { return '<b>Sinais sistêmicos:</b> ' + (s.length ? s.join(' · ') + (s.length >= 2 ? ' — <b>2 ou mais = deload imediato pelo Hub</b>' : '') : 'nenhum detectado (energia e carga: 2 semanas seguidas; sono e FC: marcados acima)'); }
   function cicloTxt(c) { return '<b>' + c + ' semana' + (c === 1 ? '' : 's') + ' válida' + (c === 1 ? '' : 's') + '</b> fechada' + (c === 1 ? '' : 's') + ' desde o último deload · ciclo de ' + DELOAD_CICLO + (c >= DELOAD_CICLO ? ' — <b>hora de deload e de reformular o treino</b>' : ''); }
+  function rotFechar() { var ks = chaves(); return state.aberta === ks[ks.length - 1] ? 'Fechar semana — abrir a próxima' : 'Fechar esta semana'; }
   function renderHead() {
     var w = W(), ks = chaves(), i = ks.indexOf(state.aberta);
     document.getElementById('wkTxt').textContent = '· ' + rotulo(state.aberta) + (w.fechada ? ' ✓' : '');
     document.getElementById('wkPrev').disabled = i <= 0;
     document.getElementById('wkNext').disabled = i >= ks.length - 1;
-    document.getElementById('fecharBtn').textContent = w.fechada ? 'Reabrir esta semana' : 'Fechar semana — abrir a próxima';
+    document.getElementById('fecharBtn').textContent = w.fechada ? 'Reabrir esta semana' : rotFechar();
     var mj = mediaJ(w), ad = aderencia(w);
-    document.getElementById('refTxt').textContent = (state.aberta === semanaAtual ? 'semana atual' : (w.fechada ? 'semana fechada' : 'semana aberta')) + (mj ? ' · joelho médio ' + fmt1(mj.m) : '') + (ad.marc ? ' · aderência ' + ad.pct + ' %' : '') + ' · ' + ks.length + ' semana' + (ks.length > 1 ? 's' : '') + ' no log';
+    document.getElementById('refTxt').textContent = (state.aberta === semanaAtual ? 'semana atual' : (w.fechada ? 'semana fechada' : 'semana aberta')) + (mj ? ' · joelho médio ' + fmt1(mj.m) : '') + (ad.marc ? ' · aderência ' + ad.pct + ' %' : '') + ' · ciclo ' + ciclo(state.aberta) + '/' + DELOAD_CICLO + ' · ' + ks.length + ' semana' + (ks.length > 1 ? 's' : '') + ' no log';
     document.getElementById('subNav').hidden = state.tela !== 'semana';
     renderBanner();
   }
@@ -608,6 +615,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
   function linhaSemana(k) {
     var w = state.semanas[k], mj = mediaJ(w), ad = aderencia(w), b = [];
     if (mj) b.push('joelho ' + fmt1(mj.m) + ' (máx ' + mj.max + ')');
+    if (vw(w, 'dor24') === 'sim') b.push('dor > 24 h');
     if (ad.marc) b.push('aderência ' + ad.pct + ' %' + (ad.valida ? ' ✓' : ''));
     if (vw(w, 'peso')) b.push('peso ' + vw(w, 'peso'));
     if (vw(w, 'bench')) b.push('3PT ' + vw(w, 'bench') + '/25');
@@ -635,7 +643,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
       var d = '', last = null;
       sr.pts.forEach(function (p) { if (p.v == null) { last = null; return; } d += (last == null ? 'M' : 'L') + X(p.i).toFixed(1) + ' ' + Y(p.v).toFixed(1) + ' '; last = p; });
       if (d) s += '<path d="' + d + '" fill="none" stroke="' + sr.cor + '" stroke-width="2"/>';
-      sr.pts.forEach(function (p) { if (p.v == null) return; s += '<circle cx="' + X(p.i).toFixed(1) + '" cy="' + Y(p.v).toFixed(1) + '" r="3" fill="' + sr.cor + '"/>' + (p.lab != null ? '<text class="lab" x="' + X(p.i).toFixed(1) + '" y="' + (sr.abaixo ? Y(p.v) + 13 : Y(p.v) - 6).toFixed(1) + '" text-anchor="middle" fill="' + sr.cor + '">' + p.lab + '</text>' : ''); });
+      sr.pts.forEach(function (p) { if (p.v == null) return; s += '<circle cx="' + X(p.i).toFixed(1) + '" cy="' + Y(p.v).toFixed(1) + '" r="' + (sr.r || 3) + '" fill="' + sr.cor + '"' + (sr.r ? ' stroke="#101014" stroke-width="1.5"' : '') + '/>' + (p.lab != null ? '<text class="lab" x="' + X(p.i).toFixed(1) + '" y="' + (sr.abaixo ? Y(p.v) + 13 : Y(p.v) - 6).toFixed(1) + '" text-anchor="middle" fill="' + sr.cor + '">' + p.lab + '</text>' : ''); });
     });
     (o.xlabels || []).forEach(function (x) { s += '<text class="ax" x="' + X(x.i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="' + (x.a || 'middle') + '">' + x.t + '</text>'; });
     return s + '</svg>';
@@ -658,7 +666,8 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
     var pts = [], vl = [], xl = [];
     ks.forEach(function (k, wi) { var w = state.semanas[k]; if (wi) vl.push(wi * 7 - 0.5); xl.push({ i: wi * 7 + 3, t: fmtD(k) }); DIAS.forEach(function (d, di) { pts.push({ i: wi * 7 + di, v: temValor(w.v['j_' + d[0]]) ? +w.v['j_' + d[0]] : null }); }); });
     var temJ = pts.some(function (p) { return p.v != null; });
-    h += fcard('g1', '1', 'Joelho de manhã <span class="antes">· dia a dia · 0–10</span>', temJ ? svgLine([{ cor: '#fbbf24', pts: pts }], { n: ks.length * 7, max: 10, vlines: vl, xlabels: xl, ref: 3, h: 130 }) + nota('Linha tracejada em 3: acima disso o Treino A fecha o EXTRA e o D olha o modo do dia. Cada divisória é uma segunda-feira.') : '<p class="vazio">Sem nota de joelho ainda. Preenche as 7 células na SEMANA.</p>');
+    var medias = ks.map(function (k, wi) { var mj = mediaJ(state.semanas[k]); return { i: wi * 7 + 3, v: mj ? Math.round(mj.m * 10) / 10 : null, lab: mj ? fmt1(mj.m) : null }; });
+    h += fcard('g1', '1', 'Joelho de manhã <span class="antes">· dia a dia · 0–10</span>', temJ ? svgLine([{ cor: '#fbbf24', pts: pts }, { cor: '#fde68a', pts: medias, r: 5, abaixo: true }], { n: ks.length * 7, max: 10, vlines: vl, xlabels: xl, ref: 3, h: 130 }) + nota('Pontos pequenos = cada manhã; ponto grande = <b>média da semana</b>. Linha tracejada em 3: acima disso o Treino A fecha o EXTRA e o D olha o modo do dia. Cada divisória é uma segunda-feira.') : '<p class="vazio">Sem nota de joelho ainda. Preenche as 7 células na SEMANA.</p>');
     var bars = ks.map(function (k) { var w = state.semanas[k], ad = aderencia(w); return { v: ad.marc ? ad.pct : null, lab: ad.marc ? ad.pct + ' %' : '', ok: ad.valida, x: fmtD(k) }; });
     h += fcard('g2', '2', 'Aderência <span class="antes">· % da semana planejada · dourado = válida</span>', svgBars(bars, { max: 100, ref: VALIDA_PCT, unit: '' }) + nota('Linha em 80 %: semana válida soma 1 ponto pro ciclo de deload. ' + cicloTxt(ciclo(null)).replace(/<[^>]+>/g, '') + '.'));
     var pesos = ks.map(function (k, i) { var w = state.semanas[k]; return { i: i, v: temValor(w.v.peso) ? +w.v.peso : null, lab: temValor(w.v.peso) ? vw(w, 'peso') : null }; });
@@ -769,13 +778,29 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
   });
 
   // ---------- volta do background: se outra instância gravou, recarrega ----------
-  function rehidratar() { try { var raw = localStorage.getItem(KEY); if (raw && ultimoSalvo && raw !== ultimoSalvo) location.reload(); } catch (e) {} }
+  function rehidratar() {
+    if (segundaDe(hoje()) !== semanaAtual) { location.reload(); return; }  // atravessou a segunda com o app aberto: a semana nova nasce no reload
+    try { var raw = localStorage.getItem(KEY); if (raw && ultimoSalvo && raw !== ultimoSalvo) location.reload(); } catch (e) {}
+  }
   document.addEventListener('visibilitychange', function () { if (!document.hidden) rehidratar(); });
   window.addEventListener('pageshow', function (ev) { if (ev.persisted) rehidratar(); });
 
   save();
   if (state.tela === 'historico') renderHistorico(); else if (state.tela === 'grafico') renderGrafico(); else renderSemana();
   renderHead(); mostrarTela();
+})();
+
+// ---- comum a todos os apps (patch_geral 2026-09-14): número dentro de min/max · botão Copiar confirma no lugar ----
+document.addEventListener('input', function (ev) {
+  var el = ev.target; if (!el || el.tagName !== 'INPUT' || el.type !== 'number' || el.value === '') return;
+  if (el.max !== '' && +el.value > +el.max) el.value = el.max;
+  if (el.min !== '' && +el.value < +el.min) el.value = el.min;
+}, true);
+(function () {
+  var b = document.getElementById('copiarBtn'), m = document.getElementById('saveMsg');
+  if (!b || !m || !window.MutationObserver) return;
+  var t = b.textContent, h = null;
+  new MutationObserver(function () { if (/copiad/.test(m.textContent)) { b.textContent = '✓ copiado'; clearTimeout(h); h = setTimeout(function () { b.textContent = t; }, 2000); } }).observe(m, { childList: true, characterData: true, subtree: true });
 })();
 </script>
 </body>
