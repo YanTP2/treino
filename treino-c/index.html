@@ -144,6 +144,7 @@
 
   /* -------- formulário "como foi hoje" -------- */
   .frm { display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+  .frm input { max-width:100%; min-width:0; }
   .frow { display:flex; align-items:center; gap:8px; }
   .frow label { flex:1; font-size:13.5px; color:#aeaeb8; }
   .frow input[type=number], .frow input[type=text] {
@@ -365,6 +366,8 @@
   <div class="foot-btns">
     <button class="reset" id="resetBtn" type="button">Arquivar sessão — abrir a próxima</button>
     <button class="copiar" id="copiarBtn" type="button">Exportar (copiar resumo)</button>
+    <button class="copiar" id="limparBtn" type="button">Limpar marcações</button>
+    <button class="copiar" id="desfazerBtn" type="button" hidden>Desfazer limpeza</button>
   </div>
   <div class="savemsg" id="saveMsg"></div>
   <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
@@ -471,7 +474,7 @@ var TABELA = [
     if (raw) {
       var p = JSON.parse(raw);
       if (p && p.vals) {
-        state = { vals: p.vals || {}, blocos: p.blocos || {}, t0: p.t0 || null, av: p.av || {}, tela: p.tela === 'registro' ? 'registro' : 'treino' };
+        state = { vals: p.vals || {}, blocos: p.blocos || {}, t0: p.t0 || null, av: p.av || {}, tela: p.tela === 'registro' ? 'registro' : 'treino', desfazer: p.desfazer || null };
         ant = p.ant || ant;
         ultimoSalvo = raw;
       }
@@ -481,7 +484,7 @@ var TABELA = [
 
   function save() {
     try {
-      var txt = JSON.stringify({ vals: state.vals, blocos: state.blocos, t0: state.t0, av: state.av, tela: state.tela, ant: ant });
+      var txt = JSON.stringify({ vals: state.vals, blocos: state.blocos, t0: state.t0, av: state.av, tela: state.tela, ant: ant, desfazer: state.desfazer || null });
       localStorage.setItem(KEY, txt);
       ultimoSalvo = txt;
       var d = new Date();
@@ -858,6 +861,29 @@ var TABELA = [
     if (!save()) alert('NÃO SALVOU — confira Ajustes › Safari › "Bloquear todos os cookies". A sessão continua aberta.');
     location.reload();
   });
+
+  // ---------- limpar marcações de hoje (referência e histórico ficam) + desfazer (um nível, sobrevive ao reload) ----------
+  var KEEP_LIMPAR = ['data', 'b4_par'];
+  document.getElementById('limparBtn').addEventListener('click', function () {
+    var temAlgo = Object.keys(state.vals).some(function (k) { return KEEP_LIMPAR.indexOf(k) < 0 && temValor(state.vals[k]); }) || Object.keys(state.blocos).length > 0;
+    if (!temAlgo) { msg('nada pra limpar'); return; }
+    if (!confirm('Limpar as marcações de hoje?\n\nContadores, campos e timers voltam a zero. A data, o par escolhido do bloco 4, a referência cinza e o histórico ficam. Dá pra desfazer no botão que aparece no rodapé.')) return;
+    state.desfazer = { q: Date.now(), vals: Object.assign({}, state.vals), blocos: JSON.parse(JSON.stringify(state.blocos)), t0: state.t0, av: Object.assign({}, state.av) };
+    var mant = {}; KEEP_LIMPAR.forEach(function (k) { if (temValor(state.vals[k])) mant[k] = state.vals[k]; });
+    state.vals = mant; state.blocos = {}; state.t0 = null; state.av = {};
+    if (!save()) { alert('NÃO SALVOU — nada foi limpo.'); return; }
+    location.reload();
+  });
+  document.getElementById('desfazerBtn').addEventListener('click', function () {
+    var u = state.desfazer; if (!u) return;
+    var d = new Date(u.q);
+    if (!confirm('Desfazer a limpeza das ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + '?\n\nO que foi marcado depois dela se perde.')) return;
+    var mant = {}; KEEP_LIMPAR.forEach(function (k) { if (temValor(state.vals[k])) mant[k] = state.vals[k]; });
+    state.vals = Object.assign({}, u.vals, mant); state.blocos = u.blocos || {}; state.t0 = u.t0 || null; state.av = u.av || {}; state.desfazer = null;
+    if (!save()) { alert('NÃO SALVOU.'); return; }
+    location.reload();
+  });
+  document.getElementById('desfazerBtn').hidden = !state.desfazer;
 
   // ---------- volta do background: timers por timestamp já se corrigem; se outra instância gravou, recarrega ----------
   function rehidratar() {

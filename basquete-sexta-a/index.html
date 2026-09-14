@@ -309,6 +309,8 @@
   <div class="foot-btns">
     <button class="reset" id="resetBtn" type="button">Encerrar treino de hoje</button>
     <button class="copiar" id="copiarBtn" type="button">Copiar resumo</button>
+    <button class="copiar" id="limparBtn" type="button">Limpar marcações</button>
+    <button class="copiar" id="desfazerBtn" type="button" hidden>Desfazer limpeza</button>
   </div>
   <div class="savemsg" id="saveMsg"></div>
   <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
@@ -480,7 +482,7 @@ var FORM = [
   var DIA_CARREGADO = hoje();
   var DIA_SEMANA = new Date().getDay();  // congelado no load (a virada de dia recarrega a página)
   function modoPadrao() { return DIA_SEMANA === 1 ? 'segunda' : 'completa'; }
-  function estadoVazio() { return { d: hoje(), vals: {}, steps: {}, modo: modoPadrao(), t0: null, t1: null, av: {}, travOk: false }; }
+  function estadoVazio() { DESFAZER = null; return { d: hoje(), vals: {}, steps: {}, modo: modoPadrao(), t0: null, t1: null, av: {}, travOk: false }; }
   var state = estadoVazio();
   var ant = { d: null, vals: {} };
   var bench = { fiba: [], ref: [], sem: [] };  // histórico do benchmark, uma série por protocolo — nunca misturadas ('sem' = sem protocolo, fora da média)
@@ -623,6 +625,7 @@ var FORM = [
       if (p && p.d === hoje()) {
         state = { d: p.d, vals: p.vals || {}, steps: p.steps || {}, modo: MODOS[p.modo] ? p.modo : modoPadrao(), t0: p.t0 || null, t1: p.t1 || null, av: p.av || {}, travOk: !!p.travOk };
         ant = p.ant || ant;
+        DESFAZER = p.desfazer || null;  // só no mesmo dia: na virada a cópia morre com a sessão
       } else if (p) {
         // novo dia: sessão anterior vira referência + histórico; estado zera
         ant = p.ant || ant;
@@ -638,7 +641,7 @@ var FORM = [
   }
   function save() {
     try {
-      localStorage.setItem(KEY, JSON.stringify({ d: state.d, vals: state.vals, steps: state.steps, modo: state.modo, t0: state.t0, t1: state.t1, av: state.av, travOk: state.travOk, ant: ant, bench: bench, h2b: h2b, run: run ? { id: run.id, end: run.end, remaining: run.remaining } : null }));
+      localStorage.setItem(KEY, JSON.stringify({ d: state.d, vals: state.vals, steps: state.steps, modo: state.modo, t0: state.t0, t1: state.t1, av: state.av, travOk: state.travOk, ant: ant, bench: bench, h2b: h2b, run: run ? { id: run.id, end: run.end, remaining: run.remaining } : null, desfazer: DESFAZER || null }));
       var d = new Date();
       msg._fixo = '';  // salvou de novo = erro resolvido
       msg('salvo às ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2));
@@ -861,6 +864,7 @@ var FORM = [
 
   // ---------- motores ----------
   var run = null;      // timer de passos (aquecimento / Rio)
+  var DESFAZER;        // cópia das marcações antes de «Limpar» (um nível)
   var RUN_SALVO;  // run gravado no último save (retomado no fim do init) — sem inicializador: a declaração vem depois do load e não pode zerar o valor
   function fmt(s) { return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
   function card(id) { return document.getElementById(id); }
@@ -1262,6 +1266,29 @@ var FORM = [
     else { var restou = Math.ceil((RUN_SALVO.end - Date.now()) / 1000); if (restou > 0) startTimer(RUN_SALVO.id, restou); else completeStep(RUN_SALVO.id, true); }
   }
   RUN_SALVO = null;
+  // limpar marcações de hoje (cabeçalho, referência cinza e histórico ficam) + desfazer (um nível, sobrevive ao reload)
+  function hdrDe(vals) { var h = {}; Object.keys(vals).forEach(function (k) { if (k.indexOf('hdr_') === 0 && temValor(vals[k])) h[k] = vals[k]; }); return h; }
+  document.getElementById('limparBtn').addEventListener('click', function () {
+    var temAlgo = !!run || Object.keys(state.vals).some(function (k) { return k.indexOf('hdr_') !== 0 && temValor(state.vals[k]); }) || DATA.some(function (e) { return exDone(e.id) || stSteps(e.id).i > 0; });
+    if (!temAlgo) { msg('nada pra limpar'); return; }
+    if (!confirm('Limpar as marcações de hoje?\n\nPassos, contadores e campos voltam a zero e o timer para. Ênfase, feedback e joelho do topo, a referência cinza e o histórico ficam. Dá pra desfazer no botão que aparece no rodapé.')) return;
+    stopRun();
+    DESFAZER = { q: Date.now(), vals: Object.assign({}, state.vals), steps: JSON.parse(JSON.stringify(state.steps)), travOk: state.travOk };
+    state.vals = hdrDe(state.vals); state.steps = {}; state.travOk = false;
+    if (!save()) { alert('NÃO SALVOU — nada foi limpo.'); return; }
+    location.reload();
+  });
+  document.getElementById('desfazerBtn').addEventListener('click', function () {
+    if (!DESFAZER) return;
+    var d = new Date(DESFAZER.q);
+    if (!confirm('Desfazer a limpeza das ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + '?\n\nO que foi marcado depois dela se perde.')) return;
+    stopRun();
+    state.vals = Object.assign({}, DESFAZER.vals, hdrDe(state.vals)); state.steps = DESFAZER.steps || {}; state.travOk = !!DESFAZER.travOk; DESFAZER = null;
+    if (!save()) { alert('NÃO SALVOU.'); return; }
+    location.reload();
+  });
+  document.getElementById('desfazerBtn').hidden = !DESFAZER;
+
   // retomar onde parou
   var started = DATA.some(function (e) { return exDone(e.id) || stSteps(e.id).i > 0; }) ||
     Object.keys(state.vals).some(function (k) { return k.indexOf('hdr_') !== 0 && temValor(state.vals[k]); });

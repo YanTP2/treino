@@ -342,6 +342,8 @@
   <div class="foot-btns">
     <button class="reset" id="resetBtn" type="button">Nova semana — arquivar sessão</button>
     <button class="copiar" id="copiarBtn" type="button">Exportar (copiar resumo)</button>
+    <button class="copiar" id="limparBtn" type="button">Limpar marcações</button>
+    <button class="copiar" id="desfazerBtn" type="button" hidden>Desfazer limpeza</button>
   </div>
   <div class="savemsg" id="saveMsg"></div>
   <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
@@ -364,6 +366,7 @@ var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
   var KEY = 'treino_b_v1';
 
   var state = { d: null, vals: {}, tela: 'pauta' };
+  var DESFAZER;  // cópia das marcações antes de «Limpar» (um nível)
   var ant = { d: null, vals: {} };
   var hist = [];  // uma entrada por sessão arquivada (Nova semana)
   var ultimoSalvo = null;
@@ -427,6 +430,7 @@ var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
         state = { d: p.d || null, vals: p.vals || {}, tela: ['pauta', 'registro', 'hist'].indexOf(p.tela) >= 0 ? p.tela : 'pauta' };
         ant = p.ant || ant;
         hist = p.hist || [];
+        DESFAZER = p.desfazer || null;
         ultimoSalvo = raw;
       }
     }
@@ -435,7 +439,7 @@ var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
 
   function save() {
     try {
-      var txt = JSON.stringify({ d: state.d, vals: state.vals, tela: state.tela, ant: ant, hist: hist });
+      var txt = JSON.stringify({ d: state.d, vals: state.vals, tela: state.tela, ant: ant, hist: hist, desfazer: DESFAZER || null });
       localStorage.setItem(KEY, txt);
       ultimoSalvo = txt;
       var d = new Date();
@@ -710,7 +714,7 @@ var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
     arquivar(vals, state.d);
     var keep = {};
     KEEP.forEach(function (k) { if (temValor(vals[k])) keep[k] = vals[k]; });
-    state = { d: null, vals: keep, tela: 'pauta' };
+    state = { d: null, vals: keep, tela: 'pauta' }; DESFAZER = null;
     if (!save()) alert('NÃO SALVOU — confira Ajustes › Safari › "Bloquear todos os cookies". A sessão continua aberta.');
     location.reload();
   });
@@ -719,6 +723,27 @@ var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
   function rehidratar() {
     try { var raw = localStorage.getItem(KEY); if (raw && ultimoSalvo && raw !== ultimoSalvo) location.reload(); } catch (e) {}
   }
+  // limpar marcações da sessão (ênfase, par, origem e URL ficam; histórico e referência também) + desfazer (um nível, sobrevive ao reload)
+  function keepDe(vals) { var k2 = {}; KEEP.forEach(function (k) { if (temValor(vals[k])) k2[k] = vals[k]; }); return k2; }
+  document.getElementById('limparBtn').addEventListener('click', function () {
+    var temAlgo = Object.keys(state.vals).some(function (k) { return KEEP.indexOf(k) < 0 && temValor(state.vals[k]); });
+    if (!temAlgo) { msg('nada pra limpar'); return; }
+    if (!confirm('Limpar as marcações desta sessão?\n\nJoelho, registro (R1–R6) e campos de hoje voltam a vazio. Ênfase, par, origem e URL ficam; histórico e referência cinza também. Dá pra desfazer no botão que aparece no rodapé.')) return;
+    DESFAZER = { q: Date.now(), vals: Object.assign({}, state.vals), d: state.d };
+    state.vals = keepDe(state.vals); state.d = null;
+    if (!save()) { alert('NÃO SALVOU — nada foi limpo.'); return; }
+    location.reload();
+  });
+  document.getElementById('desfazerBtn').addEventListener('click', function () {
+    if (!DESFAZER) return;
+    var d = new Date(DESFAZER.q);
+    if (!confirm('Desfazer a limpeza das ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + '?\n\nO que foi marcado depois dela se perde.')) return;
+    state.vals = Object.assign({}, DESFAZER.vals, keepDe(state.vals)); state.d = DESFAZER.d || state.d; DESFAZER = null;
+    if (!save()) { alert('NÃO SALVOU.'); return; }
+    location.reload();
+  });
+  document.getElementById('desfazerBtn').hidden = !DESFAZER;
+
   document.addEventListener('visibilitychange', function () { if (!document.hidden) rehidratar(); });
   window.addEventListener('pageshow', function (ev) { if (ev.persisted) rehidratar(); });
 
