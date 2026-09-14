@@ -356,7 +356,7 @@
 
 <details class="notas">
   <summary>Notas &amp; regras do log</summary>
-  <p><strong>O que é:</strong> registro manual da semana, colado no Notes com «Copiar tudo». Nenhum app é lido; tu digita o que cada export já te mostrou. Placeholder cinza = semana anterior.</p>
+  <p><strong>O que é:</strong> registro manual da semana. «Copiar esta semana» gera o bloco da semana aberta pra colar na nota do mês no Notes; «Copiar tudo» gera o histórico inteiro (mais recente no topo) pra reconstruir a nota quando quiser. Nenhum app é lido; tu digita o que cada export já te mostrou. Placeholder cinza = semana anterior.</p>
   <p><strong>Joelho de manhã, dia a dia:</strong> é o placar do checkpoint (Hub: «placar = curva de dor do joelho no log»). A célula de <strong>segunda</strong> é o «acordou na segunda» do Treino D. Dor que não acalmou em 24 h é sinal local: <strong>semana seguinte corta quadra primeiro</strong> (saltos de dom &gt; praça sex &gt; plio qua; bloco C fica &gt; volume de lower). Não é deload.</p>
   <p><strong>Semana feita:</strong> toque cicla ✓ feito → ⤵ adaptado (versão curta, joelho, tempo) → ✗ não → vazio. Aderência = (✓ = 1 · ⤵ = 0,5) sobre os 16 itens planejados; atlética e jogo ficam fora da conta. <strong>Semana válida = 80 % ou mais.</strong></p>
   <p><strong>Deload:</strong> cada semana válida <strong>fechada</strong> soma 1 ponto; a semana marcada como deload zera o contador. Com <strong>8 pontos</strong>, o app avisa: hora de descarregar (Hub: 50–60 % da carga, mesmo volume) <strong>e reformular o treino</strong> pra ter estímulo novo. Semana pela metade não conta — nela tu descansou.</p>
@@ -372,7 +372,8 @@
 <div class="foot">
   <div class="foot-btns">
     <button class="reset" id="fecharBtn" type="button">Fechar semana — abrir a próxima</button>
-    <button class="copiar" id="copiarBtn" type="button">Copiar tudo (todas as semanas)</button>
+    <button class="copiar" id="copiarBtn" type="button">Copiar esta semana</button>
+    <button class="copiar" id="copiarTudoBtn" type="button">Copiar tudo (histórico)</button>
   </div>
   <div class="savemsg" id="saveMsg"></div>
   <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
@@ -774,14 +775,19 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
     if (x('enfase_prox')) L.push('ÊNFASE DA PRÓXIMA SEMANA: ' + x('enfase_prox'));
     return L.join('\n\n');
   }
-  document.getElementById('copiarBtn').addEventListener('click', function () {
+  function copiar(txt2, okMsg, btn) {
     var box = document.getElementById('resumoBox');
-    var ks = chaves().slice().reverse();
-    var txt2 = ks.map(textoSemana).join('\n\n————————————\n\n');
     copiarTexto(txt2, function (ok) {
-      if (ok) { box.hidden = true; msg('log copiado (' + ks.length + ' semana' + (ks.length > 1 ? 's' : '') + ') — cola no Notes'); }
+      if (ok) { box.hidden = true; msg(okMsg); if (btn) { var t = btn.textContent; btn.textContent = '✓ copiado'; setTimeout(function () { btn.textContent = t; }, 2000); } }
       else { box.value = txt2; box.hidden = false; box.focus(); box.select(); msg('não consegui copiar — segura no texto e escolhe Selecionar tudo'); }
     });
+  }
+  document.getElementById('copiarBtn').addEventListener('click', function () {  // a semana aberta (um bloco pra colar na nota do mês)
+    copiar(textoSemana(state.aberta), 'semana ' + rotulo(state.aberta) + ' copiada — cola no Notes');
+  });
+  document.getElementById('copiarTudoBtn').addEventListener('click', function () {  // todas as semanas, mais recente no topo
+    var ks = chaves().slice().reverse();
+    copiar(ks.map(textoSemana).join('\n\n————————————\n\n'), 'histórico de ' + ks.length + ' semana' + (ks.length > 1 ? 's' : '') + ' no clipboard — cola no Notes', this);
   });
 
   // ---------- volta do background: se outra instância gravou, recarrega ----------
