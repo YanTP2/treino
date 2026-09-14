@@ -144,6 +144,7 @@
 
   /* -------- formulário "como foi hoje" -------- */
   .frm { display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+  .frm input { max-width:100%; min-width:0; }
   .frow { display:flex; align-items:center; gap:8px; }
   .frow label { flex:1; font-size:13.5px; color:#aeaeb8; }
   .frow input[type=number], .frow input[type=text] {
@@ -360,7 +361,7 @@
   <p><strong>Semana feita:</strong> toque cicla ✓ feito → ⤵ adaptado (versão curta, joelho, tempo) → ✗ não → vazio. Aderência = (✓ = 1 · ⤵ = 0,5) sobre os 16 itens planejados; atlética e jogo ficam fora da conta. <strong>Semana válida = 80 % ou mais.</strong></p>
   <p><strong>Deload:</strong> cada semana válida <strong>fechada</strong> soma 1 ponto; a semana marcada como deload zera o contador. Com <strong>8 pontos</strong>, o app avisa: hora de descarregar (Hub: 50–60 % da carga, mesmo volume) <strong>e reformular o treino</strong> pra ter estímulo novo. Semana pela metade não conta — nela tu descansou.</p>
   <p><strong>Sinais sistêmicos (Hub):</strong> dois o app detecta nos teus números — energia abaixo de 4 em duas semanas seguidas e carga caindo em duas semanas seguidas em qualquer linha de força; dois tu marca — sono abaixo de 6 h vários dias e FC de repouso alta 3+ dias. <strong>Dois ou mais juntos = deload imediato</strong> (ordem sistêmica: plio &gt; volume dos FBs; o remédio nunca sai). O app mostra, tu decide.</p>
-  <p><strong>Semana:</strong> começa na segunda e vira sozinha. «Fechar semana» marca e já abre a próxima, se tu terminou antes. Semanas antigas continuam editáveis pelas setas ‹ › e pelo HISTÓRICO.</p>
+  <p><strong>Semana:</strong> começa na segunda e vira sozinha. «Fechar semana» marca e já abre a próxima, se tu terminou antes. Semanas antigas continuam editáveis pelas setas ‹ › e pelo HISTÓRICO. <strong>Registro atrasado:</strong> na primeira semana do log, a seta ‹ cria a semana anterior.</p>
   <p><strong>Gráfico:</strong> últimas 5 semanas (um mês + a atual): joelho diário, aderência, peso, quadra (3PT e enterrada). Desenhado pelo app, sem biblioteca.</p>
 </details>
 
@@ -594,7 +595,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
   function renderHead() {
     var w = W(), ks = chaves(), i = ks.indexOf(state.aberta);
     document.getElementById('wkTxt').textContent = '· ' + rotulo(state.aberta) + (w.fechada ? ' ✓' : '');
-    document.getElementById('wkPrev').disabled = i <= 0;
+    document.getElementById('wkPrev').disabled = false;  // na primeira semana, ‹ cria a anterior
     document.getElementById('wkNext').disabled = i >= ks.length - 1;
     document.getElementById('fecharBtn').textContent = w.fechada ? 'Reabrir esta semana' : rotFechar();
     var mj = mediaJ(w), ad = aderencia(w);
@@ -708,7 +709,13 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
     var sc = ev.target.closest('#subNav .chip');
     if (sc) { var s2 = document.getElementById('sec_' + sc.dataset.s); if (s2) s2.scrollIntoView({ behavior: 'smooth' }); }
   });
-  document.getElementById('wkPrev').addEventListener('click', function () { var ks = chaves(), i = ks.indexOf(state.aberta); if (i > 0) { state.aberta = ks[i - 1]; save(); renderSemana(); window.scrollTo(0, 0); } });
+  document.getElementById('wkPrev').addEventListener('click', function () {
+    var ks = chaves(), i = ks.indexOf(state.aberta);
+    if (i > 0) { state.aberta = ks[i - 1]; save(); renderSemana(); window.scrollTo(0, 0); return; }
+    var nk = addDays(state.aberta, -7);  // antes da primeira semana do log: cria a anterior pra registrar atrasado
+    if (!confirm('Abrir a semana ' + rotulo(nk) + ' pra registrar?\n\nEla entra no histórico e no ciclo de deload como uma semana que já terminou.')) return;
+    sem(nk); state.aberta = nk; save(); renderSemana(); window.scrollTo(0, 0);
+  });
   document.getElementById('wkNext').addEventListener('click', function () { var ks = chaves(), i = ks.indexOf(state.aberta); if (i < ks.length - 1) { state.aberta = ks[i + 1]; save(); renderSemana(); window.scrollTo(0, 0); } });
   function fechar() {
     var w = W(), k = state.aberta, ks = chaves();
