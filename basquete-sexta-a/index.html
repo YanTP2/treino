@@ -1331,7 +1331,7 @@ var FORM = [
     L2.push('Ajuste que funcionou: ' + v('hj_ajuste'));
     L2.push('Dificuldade principal: ' + v('hj_dificuldade'));
     L2.push('Ênfase pra próxima: ' + v('hj_proxima'));
-    return { txt: L2.join('\n'), hoje: usaHoje, d: d };
+    return { txt: L2.filter(function (l) { return l !== ''; }).join('\n\n'), hoje: usaHoje, d: d };
   }
   function copiarTexto(txt, cb) {
     var fallback = function () {

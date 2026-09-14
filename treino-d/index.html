@@ -937,7 +937,7 @@ var CAUSAS = ['mão de lado', 'aproximação', 'recolhida', 'conclusão', 'outro
     if (x('personal')) L.push('Levar ao personal: ' + x('personal'));
     if (x('jogo')) L.push('Situação pra tentar no jogo: ' + x('jogo'));
     if (!nr) { L.push('ÊNFASE DA SEMANA: ' + q('enfase')); L.push('Log semanal (nota 06): ' + (x('log_ok') === 'sim' ? 'fechado' : '–')); }
-    return { txt: L.join('\n'), hoje: usaHoje, d: d, enfase: x('enfase'), log: x('log_ok') === 'sim', nr: nr };
+    return { txt: L.filter(function (l) { return l !== ''; }).join('\n\n'), hoje: usaHoje, d: d, enfase: x('enfase'), log: x('log_ok') === 'sim', nr: nr };
   }
   document.getElementById('copiarBtn').addEventListener('click', function () {
     var box = document.getElementById('resumoBox');

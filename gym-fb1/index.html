@@ -1007,7 +1007,7 @@ var FORM = [
     });
     if (hj.length) linhas.push('Como foi hoje: ' + hj.join(' · '));
     obs.forEach(function (o) { linhas.push(o); });
-    return { txt: linhas.join('\n'), hoje: usaHoje, d: d };
+    return { txt: linhas.filter(function (l) { return l !== ''; }).join('\n\n'), hoje: usaHoje, d: d };
   }
   function copiarTexto(txt, cb) {
     var fallback = function () {

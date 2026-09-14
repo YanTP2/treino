@@ -680,7 +680,7 @@ var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
     L.push('FEEDBACK:  funcionou: ' + x('r5_funcionou'));
     L.push('           correção: ' + x('r5_correcao'));
     L.push('TAREFA PRO C DE QUINTA: ' + x('r5_tarefa_c'));
-    return { txt: L.join('\n'), hoje: temHoje, d: d };
+    return { txt: L.filter(function (l) { return l !== ''; }).join('\n\n'), hoje: temHoje, d: d };
   }
 
   document.getElementById('copiarBtn').addEventListener('click', function () {

@@ -827,7 +827,7 @@ var TABELA = [
     if (x('perdeu')) L.push('Perdeu organização: ' + x('perdeu'));
     if (x('correcao')) L.push('Correção pro próximo C: ' + x('correcao'));
     L.push('PAR DE MOVIMENTOS PRA TERÇA: ' + q('par'));
-    return { txt: L.join('\n'), hoje: usaHoje, d: d, par: x('par') };
+    return { txt: L.filter(function (l) { return l !== ''; }).join('\n\n'), hoje: usaHoje, d: d, par: x('par') };
   }
   document.getElementById('copiarBtn').addEventListener('click', function () {
     var box = document.getElementById('resumoBox');
