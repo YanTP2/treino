@@ -866,9 +866,10 @@ var TABELA = [
   // ---------- limpar marcações de hoje (referência e histórico ficam) + desfazer (um nível, sobrevive ao reload) ----------
   var KEEP_LIMPAR = ['data', 'b4_par'];
   document.getElementById('limparBtn').addEventListener('click', function () {
-    var temAlgo = Object.keys(state.vals).some(function (k) { return KEEP_LIMPAR.indexOf(k) < 0 && temValor(state.vals[k]); }) || Object.keys(state.blocos).length > 0;
+    var temAlgo = Object.keys(state.vals).some(function (k) { return KEEP_LIMPAR.indexOf(k) < 0 && temValor(state.vals[k]); }) || Object.keys(state.blocos).some(function (k) { var b = state.blocos[k]; return !!(b && (b.t0 || b.acc || b.done)); });
     if (!temAlgo) { msg('nada pra limpar'); return; }
     if (!confirm('Limpar as marcações de hoje?\n\nContadores, campos e timers voltam a zero. A data, o par escolhido do bloco 4, a referência cinza e o histórico ficam. Dá pra desfazer no botão que aparece no rodapé.')) return;
+    BLOCOS.forEach(function (o) { var ob = bl(o.id); if (ob.t0) { ob.acc = (ob.acc || 0) + (Date.now() - ob.t0); ob.t0 = null; } });  // pausa antes da cópia: o tempo «limpo» não entra na duração ao desfazer
     state.desfazer = { q: Date.now(), vals: Object.assign({}, state.vals), blocos: JSON.parse(JSON.stringify(state.blocos)), t0: state.t0, av: Object.assign({}, state.av) };
     var mant = {}; KEEP_LIMPAR.forEach(function (k) { if (temValor(state.vals[k])) mant[k] = state.vals[k]; });
     state.vals = mant; state.blocos = {}; state.t0 = null; state.av = {};

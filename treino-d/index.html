@@ -988,9 +988,10 @@ var CAUSAS = ['mão de lado', 'aproximação', 'recolhida', 'conclusão', 'outro
   // ---------- limpar marcações de hoje (Bloco 0, referência e histórico ficam) + desfazer (um nível, sobrevive ao reload) ----------
   var KEEP_LIMPAR = ['data', 'joelho_antes', 'regra24', 'modo', 'pernas', 'recente', 'correcao', 'acordou_seg'];
   document.getElementById('limparBtn').addEventListener('click', function () {
-    var temAlgo = Object.keys(state.vals).some(function (k) { return KEEP_LIMPAR.indexOf(k) < 0 && temValor(state.vals[k]); }) || Object.keys(state.blocos).length > 0;
+    var temAlgo = Object.keys(state.vals).some(function (k) { return KEEP_LIMPAR.indexOf(k) < 0 && temValor(state.vals[k]); }) || Object.keys(state.blocos).some(function (k) { var b = state.blocos[k]; return !!(b && (b.t0 || b.acc || b.done)); });
     if (!temAlgo) { msg('nada pra limpar'); return; }
     if (!confirm('Limpar as marcações de hoje?\n\nContadores, campos e timers voltam a zero. O Bloco 0 (joelho, regra das 24 h, modo, pernas, correção), a referência cinza e o histórico ficam. Dá pra desfazer no botão que aparece no rodapé.')) return;
+    pausarTudo();  // pausa antes da cópia: o tempo «limpo» não entra na duração ao desfazer
     state.desfazer = { q: Date.now(), vals: Object.assign({}, state.vals), blocos: JSON.parse(JSON.stringify(state.blocos)), t0: state.t0, av: Object.assign({}, state.av) };
     var mant = {}; KEEP_LIMPAR.forEach(function (k) { if (temValor(state.vals[k])) mant[k] = state.vals[k]; });
     state.vals = mant; state.blocos = {}; state.t0 = null; state.av = {};

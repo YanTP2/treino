@@ -619,7 +619,6 @@ var FORM = [
     var raw = localStorage.getItem(KEY);
     if (raw) {
       var p = JSON.parse(raw);
-        RUN_SALVO = p && p.run ? p.run : null;
       if (p && p.ex) throw 0; // formato de outro app — ignora
       if (p && p.bench && p.bench.fiba && p.bench.ref) { bench = p.bench; if (!bench.sem) bench.sem = []; }
       if (p && p.h2b) h2b = p.h2b;
@@ -627,6 +626,7 @@ var FORM = [
         state = { d: p.d, vals: p.vals || {}, steps: p.steps || {}, modo: MODOS[p.modo] ? p.modo : modoPadrao(), t0: p.t0 || null, t1: p.t1 || null, av: p.av || {}, travOk: !!p.travOk };
         ant = p.ant || ant;
         DESFAZER = p.desfazer || null;  // só no mesmo dia: na virada a cópia morre com a sessão
+        RUN_SALVO = p.run || null;
       } else if (p) {
         // novo dia: sessão anterior vira referência + histórico; estado zera
         ant = p.ant || ant;
@@ -702,6 +702,7 @@ var FORM = [
     try {
       var AC = window.AudioContext || window.webkitAudioContext;
       beep.ctx = beep.ctx || new AC();
+      if (beep.ctx.state !== 'running') throw 0;  // sem gesto: não enfileira som pra tocar fora de hora
       var t0 = beep.ctx.currentTime;
       for (var k = 0; k < times; k++) {
         var o = beep.ctx.createOscillator(), g = beep.ctx.createGain();
@@ -1263,7 +1264,7 @@ var FORM = [
 
   // timer de passos sobrevive a um reload (iOS matando a página em segundo plano)
   if (RUN_SALVO && RUN_SALVO.id && byId[RUN_SALVO.id] && !exDone(RUN_SALVO.id) && visivel(byId[RUN_SALVO.id])) {
-    if (RUN_SALVO.remaining != null) { startTimer(RUN_SALVO.id, RUN_SALVO.remaining); run.remaining = RUN_SALVO.remaining; wakeOff(); renderGo(RUN_SALVO.id); }
+    if (RUN_SALVO.remaining != null) { startTimer(RUN_SALVO.id, RUN_SALVO.remaining); run.remaining = RUN_SALVO.remaining; wakeOff(); save(); renderGo(RUN_SALVO.id); }
     else { var restou = Math.ceil((RUN_SALVO.end - Date.now()) / 1000); if (restou > 0) startTimer(RUN_SALVO.id, restou); else completeStep(RUN_SALVO.id, true); }
   }
   RUN_SALVO = null;
@@ -1274,8 +1275,8 @@ var FORM = [
     if (!temAlgo) { msg('nada pra limpar'); return; }
     if (!confirm('Limpar as marcações de hoje?\n\nPassos, contadores e campos voltam a zero e o timer para. Ênfase, feedback e joelho do topo, a referência cinza e o histórico ficam. Dá pra desfazer no botão que aparece no rodapé.')) return;
     stopRun();
-    DESFAZER = { q: Date.now(), vals: Object.assign({}, state.vals), steps: JSON.parse(JSON.stringify(state.steps)), travOk: state.travOk };
-    state.vals = hdrDe(state.vals); state.steps = {}; state.travOk = false;
+    DESFAZER = { q: Date.now(), vals: Object.assign({}, state.vals), steps: JSON.parse(JSON.stringify(state.steps)), travOk: state.travOk, t0: state.t0, t1: state.t1 };
+    state.vals = hdrDe(state.vals); state.steps = {}; state.travOk = false; state.t0 = null; state.t1 = null;  // a sessão recomeça do zero, inclusive a duração automática
     if (!save()) { alert('NÃO SALVOU — nada foi limpo.'); return; }
     location.reload();
   });
@@ -1284,7 +1285,7 @@ var FORM = [
     var d = new Date(DESFAZER.q);
     if (!confirm('Desfazer a limpeza das ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + '?\n\nO que foi marcado depois dela se perde.')) return;
     stopRun();
-    state.vals = Object.assign({}, DESFAZER.vals, hdrDe(state.vals)); state.steps = DESFAZER.steps || {}; state.travOk = !!DESFAZER.travOk; DESFAZER = null;
+    state.vals = Object.assign({}, DESFAZER.vals, hdrDe(state.vals)); state.steps = DESFAZER.steps || {}; state.travOk = !!DESFAZER.travOk; state.t0 = DESFAZER.t0 || null; state.t1 = DESFAZER.t1 || null; DESFAZER = null;
     if (!save()) { alert('NÃO SALVOU.'); return; }
     location.reload();
   });

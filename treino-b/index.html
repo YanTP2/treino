@@ -542,7 +542,7 @@ var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
     });
     document.getElementById('btnFrase').addEventListener('click', function () {
       var t = 'Hoje quero trabalhar ' + (acao || '______') + ' com defesa de verdade. Vamos ajustar o movimento e depois variar a marcação pra eu precisar decidir.';
-      copiarTexto(t, function (ok) { msg(ok ? 'frase copiada' : 'não consegui copiar — seleciona o texto'); });
+      copiarTexto(t, function (ok) { msg(ok ? 'frase pronta no clipboard — cola pro personal' : 'não consegui copiar — seleciona o texto'); });
     });
     avisoJoelho();
   }
@@ -728,7 +728,7 @@ var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
   // limpar marcações da sessão (ênfase, par, origem e URL ficam; histórico e referência também) + desfazer (um nível, sobrevive ao reload)
   function keepDe(vals) { var k2 = {}; KEEP.forEach(function (k) { if (temValor(vals[k])) k2[k] = vals[k]; }); return k2; }
   document.getElementById('limparBtn').addEventListener('click', function () {
-    var temAlgo = Object.keys(state.vals).some(function (k) { return KEEP.indexOf(k) < 0 && temValor(state.vals[k]); });
+    var temAlgo = !!state.d || Object.keys(state.vals).some(function (k) { return KEEP.indexOf(k) < 0 && temValor(state.vals[k]); });  // sessão com data mas sem valor também limpa
     if (!temAlgo) { msg('nada pra limpar'); return; }
     if (!confirm('Limpar as marcações desta sessão?\n\nJoelho, registro (R1–R6) e campos de hoje voltam a vazio. Ênfase, par, origem e URL ficam; histórico e referência cinza também. Dá pra desfazer no botão que aparece no rodapé.')) return;
     DESFAZER = { q: Date.now(), vals: Object.assign({}, state.vals), d: state.d };

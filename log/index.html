@@ -495,10 +495,10 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
   function sem(k) { if (!state.semanas[k]) state.semanas[k] = { v: {}, fechada: false }; return state.semanas[k]; }
   var semanaAtual = segundaDe(hoje());
   if (!state.semanas[semanaAtual]) {  // vira sozinha na segunda; a anterior com dado fica marcada como fechada
-    chaves().forEach(function (k) { var w = state.semanas[k]; if (k < semanaAtual && !w.fechada && Object.keys(w.v).length) w.fechada = true; });
+    chaves().forEach(function (k) { var w = state.semanas[k]; if (k < semanaAtual && !w.fechada && (Object.keys(w.v).length || (w.x || []).length)) w.fechada = true; });
     sem(semanaAtual); state.aberta = semanaAtual;
   }
-  var HOJE_DIA = DIAS[(new Date().getDay() + 6) % 7][0];
+  var HOJE_ISO = hoje(), HOJE_DIA = DIAS[(new Date().getDay() + 6) % 7][0];
   if (!state.aberta || !state.semanas[state.aberta]) state.aberta = semanaAtual;
   function W() { return sem(state.aberta); }
   function anterior(k) { var ks = chaves(), i = ks.indexOf(k); return i > 0 ? state.semanas[ks[i - 1]] : null; }
@@ -538,19 +538,21 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
     return c;
   }
   function sinais(k) {  // sistêmicos (Hub): 2 automáticos + 2 manuais
-    var ks = chaves(), i = ks.indexOf(k), w = state.semanas[k], w1 = i > 0 ? state.semanas[ks[i - 1]] : null, w2 = i > 1 ? state.semanas[ks[i - 2]] : null, out = [];
+    // «2 semanas seguidas» é calendário: as semanas de 7 e 14 dias antes (se não existirem, não há sinal)
+    var w = state.semanas[k], w1 = state.semanas[addDays(k, -7)] || null, w2 = state.semanas[addDays(k, -14)] || null, out = [];
     if (w1 && temValor(w.v.energia) && temValor(w1.v.energia) && +w.v.energia < 4 && +w1.v.energia < 4) out.push('energia abaixo de 4 há 2 semanas');
-    if (w1 && w2) { var caiu = FORCA.filter(function (f) { var a = w.v[f[0] + '_kg'], b = w1.v[f[0] + '_kg'], c = w2.v[f[0] + '_kg']; return temValor(a) && temValor(b) && temValor(c) && +a < +b && +b < +c; }).map(function (f) { return f[1].toLowerCase(); }); if (caiu.length) out.push('carga caindo há 2 semanas (' + caiu.join(', ') + ')'); }
+    if (w1 && w2) { var caiu = FORCA.filter(function (f) { var a = w.v[f[0] + '_kg'], b = w1.v[f[0] + '_kg'], c = w2.v[f[0] + '_kg']; if (!temValor(a) || !temValor(b) || !temValor(c)) return false; return f[0] === 'grav' ? (+a > +b && +b > +c) : (+a < +b && +b < +c); }).map(function (f) { return f[1].toLowerCase(); }); if (caiu.length) out.push('carga caindo há 2 semanas (' + caiu.join(', ') + ')'); }  // Graviton: assistência subindo = carga caindo
     if (w.v.s_sono === 'sim') out.push('sono abaixo de 6 h vários dias');
     if (w.v.s_fc === 'sim') out.push('FC de repouso alta 3+ dias');
     return out;
   }
   function renderBanner() {
-    var ban = document.getElementById('banner'), k = state.aberta, c = ciclo(k), s = sinais(k), q = null, t = '';
-    if (s.length >= 2) { q = 'sin_' + k; t = s.length + ' sinais sistêmicos esta semana (' + s.join(' · ') + ') — pelo Hub, deload imediato: plio primeiro, depois volume dos FBs. O remédio nunca sai.'; }
-    else if (c >= DELOAD_CICLO) { q = 'del_' + k; t = c + ' semanas válidas desde o último deload — hora de descarregar (50–60 % da carga, mesmo volume) e reformular o treino pra ter estímulo novo. Marca «deload» na semana em que fizer.'; }
-    else if (c === DELOAD_CICLO - 1) { q = 'pre_' + k; t = c + ' semanas válidas — a próxima semana válida fecha o ciclo de ' + DELOAD_CICLO + '. Já pensa na reformulação.'; }
-    if (q && !state.av[q]) { ban.dataset.q = q; document.getElementById('banTxt').textContent = t; ban.hidden = false; } else ban.hidden = true;
+    var ban = document.getElementById('banner'), k = state.aberta, c = ciclo(k), s = sinais(k), cs = [];
+    if (s.length >= 2) cs.push(['sin_' + k, s.length + ' sinais sistêmicos esta semana (' + s.join(' · ') + ') — pelo Hub, deload imediato: plio primeiro, depois volume dos FBs. O remédio nunca sai.']);
+    if (c >= DELOAD_CICLO) cs.push(['del_' + k, c + ' semanas válidas desde o último deload — hora de descarregar (50–60 % da carga, mesmo volume) e reformular o treino pra ter estímulo novo. Marca «deload» na semana em que fizer.']);
+    else if (c === DELOAD_CICLO - 1) cs.push(['pre_' + k, c + ' semanas válidas — a próxima semana válida fecha o ciclo de ' + DELOAD_CICLO + '. Já pensa na reformulação.']);
+    var pend = cs.filter(function (x) { return !state.av[x[0]]; })[0];  // dispensar um aviso mostra o próximo, se houver
+    if (pend) { ban.dataset.q = pend[0]; document.getElementById('banTxt').textContent = pend[1]; ban.hidden = false; } else ban.hidden = true;
   }
   document.getElementById('banOk').addEventListener('click', function () { var q = document.getElementById('banner').dataset.q; if (q) state.av[q] = true; save(); renderBanner(); });
 
@@ -658,7 +660,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
     if (vw(w, 'bench')) b.push('3PT ' + vw(w, 'bench') + '/25');
     if (vw(w, 'ent_t')) b.push('enterrada ' + (vw(w, 'ent_c') || '–') + '/' + vw(w, 'ent_t'));
     if (vw(w, 'deload') === 'sim') b.push('DELOAD');
-    if (vw(w, 'enfase_prox')) b.push('ênfase → ' + vw(w, 'enfase_prox'));
+    if (vw(w, 'enfase_prox')) b.push('ênfase → ' + esc(vw(w, 'enfase_prox')));
     return b;
   }
   function renderHistorico() {
@@ -769,7 +771,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
   document.getElementById('wkNext').addEventListener('click', function () { var ks = chaves(), i = ks.indexOf(state.aberta); if (i < ks.length - 1) { state.aberta = ks[i + 1]; save(); renderSemana(); window.scrollTo(0, 0); } });
   function fechar() {
     var w = W(), k = state.aberta, ks = chaves();
-    if (w.fechada) { if (!confirm('Reabrir a semana ' + rotulo(k) + '?')) return; w.fechada = false; save(); renderSemana(); return; }
+    if (w.fechada) { if (!confirm('Reabrir a semana ' + rotulo(k) + '?')) return; w.fechada = false; save(); renderSemana(); if (state.tela === 'historico') renderHistorico(); renderHead(); return; }
     var ad = aderencia(w), falta = [];
     if (!ad.marc) falta.push('nenhum treino marcado em SEMANA FEITA'); if (!v('enfase_prox')) falta.push('ÊNFASE DA PRÓXIMA SEMANA vazia');
     if (!confirm('Fechar a semana ' + rotulo(k) + '?' + (falta.length ? '\n\nAtenção: ' + falta.join(' · ') + '.' : '') + '\n\nAderência ' + ad.pct + ' %' + (ad.valida ? ' — semana válida, soma 1 ponto pro ciclo de deload.' : ' — abaixo de 80 %, não soma ponto.') + (k === ks[ks.length - 1] ? '\nA próxima semana abre agora.' : ''))) return;
@@ -842,7 +844,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
 
   // ---------- volta do background: se outra instância gravou, recarrega ----------
   function rehidratar() {
-    if (segundaDe(hoje()) !== semanaAtual) { location.reload(); return; }  // atravessou a segunda com o app aberto: a semana nova nasce no reload
+    if (hoje() !== HOJE_ISO) { location.reload(); return; }  // virou o dia com o app aberto: célula de hoje e semana nova nascem no reload
     try { var raw = localStorage.getItem(KEY); if (raw && ultimoSalvo && raw !== ultimoSalvo) location.reload(); } catch (e) {}
   }
   document.addEventListener('visibilitychange', function () { if (!document.hidden) rehidratar(); });
