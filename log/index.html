@@ -12,6 +12,7 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <title>Log semanal — Treino</title>
 <style>
+  * { touch-action:manipulation; }  /* patch_touch 2026-09-15: sem zoom no toque duplo; pinça continua */
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html { background:#101014; }
   body {
@@ -299,6 +300,18 @@
   .tg.adapt { border-color:#fbbf24; color:#e8e8ec; } .tg.adapt::before { content:"⤵ "; color:#fbbf24; }
   .tg.nao { border-color:#f87171; color:#8e8e96; text-decoration:line-through; } .tg.nao::before { content:"✗ "; color:#f87171; }
   .tg.opc { border-style:dashed; }
+  .xw { display:inline-flex; align-items:stretch; }
+  .xw .tg.x { border-radius:10px 0 0 10px; border-right:0; }
+  .xdel { width:36px; min-height:44px; border-radius:0 10px 10px 0; border:1.5px solid #2a2a33; background:transparent; color:#8e8e96; font-size:18px; font-weight:800; cursor:pointer; }
+  .xadd { min-height:44px; padding:8px 12px; border-radius:10px; border:1.5px dashed #6b6b78; background:transparent; color:#8e8e96; font-size:13px; font-weight:700; cursor:pointer; }
+  .addx { margin-top:8px; padding:8px 10px; border:1px dashed #3a3a45; border-radius:10px; }
+  .addx .tgs { margin-bottom:8px; }
+  .xchip { min-height:40px; padding:7px 12px; border-radius:10px; border:1.5px solid #fbbf24; background:transparent; color:#fde68a; font-size:13px; font-weight:700; cursor:pointer; }
+  .xchip::before { content:"+ "; }
+  .xrow { display:flex; gap:8px; align-items:center; }
+  .xrow input.tx { flex:1; min-width:0; width:auto; min-height:44px; padding:10px; font-size:16px; background:#101014; border:1px solid #2a2a33; border-radius:8px; color:#e8e8ec; font-family:inherit; }
+  .xrow input.tx:focus { outline:none; border-color:#fbbf24; }
+  .xok { min-height:44px; padding:8px 14px; border-radius:10px; border:1.5px solid #fbbf24; background:#fbbf24; color:#101014; font-size:14px; font-weight:800; cursor:pointer; }
   .sel { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:6px; }
   .sel .antes { flex:none; }
   .seg.stack { flex-direction:column; align-items:stretch; }
@@ -358,7 +371,8 @@
   <summary>Notas &amp; regras do log</summary>
   <p><strong>O que é:</strong> registro manual da semana. «Copiar esta semana» gera o bloco da semana aberta pra colar na nota do mês no Notes; «Copiar tudo» gera o histórico inteiro (mais recente no topo) pra reconstruir a nota quando quiser. Nenhum app é lido; tu digita o que cada export já te mostrou. Placeholder cinza = semana anterior.</p>
   <p><strong>Joelho de manhã, dia a dia:</strong> é o placar do checkpoint (Hub: «placar = curva de dor do joelho no log»). A célula de <strong>segunda</strong> é o «acordou na segunda» do Treino D. Dor que não acalmou em 24 h é sinal local: <strong>semana seguinte corta quadra primeiro</strong> (saltos de dom &gt; praça sex &gt; plio qua; bloco C fica &gt; volume de lower). Não é deload.</p>
-  <p><strong>Semana feita:</strong> toque cicla ✓ feito → ⤵ adaptado (versão curta, joelho, tempo) → ✗ não → vazio. Aderência = (✓ = 1 · ⤵ = 0,5) sobre os 16 itens planejados; atlética e jogo ficam fora da conta. <strong>Semana válida = 80 % ou mais.</strong></p>
+  <p><strong>Semana feita:</strong> toque cicla ✓ feito → ⤵ adaptado (versão curta, joelho, tempo) → ✗ não → vazio. Aderência = (✓ = 1 · ⤵ = 0,5) sobre os 16 itens planejados. <strong>«+ atividade»</strong> em cada dia registra o que não estava no plano (Pilates, atlética, natação, jogo de rua): entra já como ✓, vale ponto igual, e os nomes que tu já usou aparecem como sugestão de um toque. Atlética e jogo de liga também valem ponto. O total fica em 16 e o percentual trava em 100 %. <strong>Semana válida = 80 % ou mais.</strong></p>
+  <p><strong>Escalas:</strong> onde é dor ou esforço (joelho, fáscia, extensora), 0 = nenhuma e 10 = a pior. Onde é qualidade (sono, energia, stamina, explosão, nota do jogo), 1 = péssimo e 10 = ótimo.</p>
   <p><strong>Deload:</strong> cada semana válida <strong>fechada</strong> soma 1 ponto; a semana marcada como deload zera o contador. Com <strong>8 pontos</strong>, o app avisa: hora de descarregar (Hub: 50–60 % da carga, mesmo volume) <strong>e reformular o treino</strong> pra ter estímulo novo. Semana pela metade não conta — nela tu descansou.</p>
   <p><strong>Sinais sistêmicos (Hub):</strong> dois o app detecta nos teus números — energia abaixo de 4 em duas semanas seguidas e carga caindo em duas semanas seguidas em qualquer linha de força; dois tu marca — sono abaixo de 6 h vários dias e FC de repouso alta 3+ dias. <strong>Dois ou mais juntos = deload imediato</strong> (ordem sistêmica: plio &gt; volume dos FBs; o remédio nunca sai). O app mostra, tu decide.</p>
   <p><strong>Semana:</strong> começa na segunda e vira sozinha. «Fechar semana» marca e já abre a próxima, se tu terminou antes. Semanas antigas continuam editáveis pelas setas ‹ › e pelo HISTÓRICO. <strong>Registro atrasado:</strong> na primeira semana do log, a seta ‹ cria a semana anterior.</p>
@@ -497,11 +511,26 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
   // ---------- contas (só aritmética sobre o que foi digitado) ----------
   function mediaJ(w) { var s = 0, c = 0; DIAS.forEach(function (d) { if (temValor(w.v['j_' + d[0]])) { s += +w.v['j_' + d[0]]; c++; } }); return c ? { m: s / c, max: Math.max.apply(null, DIAS.filter(function (d) { return temValor(w.v['j_' + d[0]]); }).map(function (d) { return +w.v['j_' + d[0]]; })), c: c } : null; }
   function fmt1(x) { return String(Math.round(x * 10) / 10).replace('.', ','); }
-  function aderencia(w) {
+  function ptsDe(s) { return s === 'ok' ? 1 : (s === 'adapt' ? 0.5 : 0); }
+  function aderencia(w) {  // planejados (16) + opcionais (atlética, jogo) + extras: tudo vale ponto; o total fixo é 16 e o % trava em 100
     var pts = 0, marc = 0;
-    FEITA.forEach(function (dia) { dia.itens.forEach(function (it) { var s = w.v[it[0]]; if (s === 'ok') pts += 1; else if (s === 'adapt') pts += 0.5; if (s) marc++; }); });
-    var pct = Math.round(pts / PLANEJADOS * 100);
+    FEITA.forEach(function (dia) { dia.itens.concat(dia.opc || []).forEach(function (it) { var s = w.v[it[0]]; pts += ptsDe(s); if (s) marc++; }); });
+    (w.x || []).forEach(function (e) { pts += ptsDe(e.s); marc++; });
+    var pct = Math.min(100, Math.round(pts / PLANEJADOS * 100));
     return { pts: pts, pct: pct, valida: pct >= VALIDA_PCT, marc: marc };
+  }
+  function normX(t) { return String(t || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+  function sugestoesX(w, d) {  // nomes já usados em qualquer semana, mais recentes primeiro, sem os que já estão nesse dia
+    var out = [], visto = {};
+    ((w.x || []).filter(function (e) { return e.d === d; })).forEach(function (e) { visto[normX(e.t)] = 1; });
+    chaves().slice().reverse().forEach(function (k) { (state.semanas[k].x || []).slice().reverse().forEach(function (e) { var n2 = normX(e.t); if (n2 && !visto[n2]) { visto[n2] = 1; out.push(e.t.trim()); } }); });
+    return out.slice(0, 8);
+  }
+  function addX(d, t) {
+    var w = W(), n2 = normX(t); if (!n2) return false;
+    w.x = w.x || [];
+    if (w.x.some(function (e) { return e.d === d && normX(e.t) === n2; })) { msg('«' + t.trim() + '» já está nesse dia'); return false; }
+    w.x.push({ d: d, t: t.trim().slice(0, 40), s: 'ok' }); return true;
   }
   function ciclo(ate) {  // semanas válidas que já TERMINARAM (ou fechadas à mão) desde o último deload (a semana de deload zera)
     var c = 0;
@@ -542,29 +571,34 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
   function renderSemana() {
     var w = W(), mj = mediaJ(w), ad = aderencia(w), c = ciclo(state.aberta), s = sinais(state.aberta);
     var h = '';
-    h += sec('joelho', '#fbbf24', 'JOELHO — O PLACAR', 'de manhã, 0–10, dia a dia · segunda = «acordou na segunda» do D',
+    h += sec('joelho', '#fbbf24', 'JOELHO — O PLACAR', 'de manhã, dia a dia · 0 = sem dor · 10 = pior dor · segunda = «acordou na segunda» do D',
       fcard('c1', '1', 'Joelho de manhã',
         '<div class="dias">' + DIAS.map(function (d) { var hj = state.aberta === semanaAtual && d[0] === HOJE_DIA; return '<div' + (hj ? ' class="hoje"' : '') + '><label>' + d[0] + (hj ? ' ·' : '') + '</label><input id="in_j_' + d[0] + '" type="number" inputmode="numeric" min="0" max="10" placeholder="' + esc(antVal('j_' + d[0], '–')) + '" value="' + esc(v('j_' + d[0])) + '"></div>'; }).join('') + '</div>' +
         '<p class="media-j" id="mediaJ">' + (mj ? '<b>média ' + fmt1(mj.m) + '</b> · máx ' + mj.max + ' · ' + mj.c + ' dia' + (mj.c > 1 ? 's' : '') : 'sem nota ainda') + '</p>' +
         '<div class="crow"><label>Dor que não acalmou em 24 h?</label>' + seg('dor24', [['nao', 'Não'], ['sim', 'Sim']], 'row mini') + '</div>' +
         (v('dor24') === 'sim' ? txt('dor24_txt', 'Qual dia e o que cortou', 'ex.: qui · cortei os saltos de domingo') + '<div class="atencao">Regra das 24 h (sinal local): semana seguinte corta quadra primeiro — saltos de domingo &gt; praça de sexta &gt; plio de quarta (bloco C fica) &gt; volume de lower. Não é deload.</div>' : '') +
-        num('fascia', 'Fáscia plantar (1–10)', '1–10', 10)));
+        num('fascia', 'Fáscia plantar <span class="antes">· 0 sem dor · 10 pior</span>', '0–10', 10)));
     h += sec('corpo', '#9aa3c7', 'CORPO', 'uma nota por semana · cinza = semana anterior',
-      fcard('c2', '2', 'Corpo', num('peso', 'Peso (kg)', antVal('peso', 'kg'), 300, '0.1') + num('sono', 'Sono (1–10)', '1–10', 10) + num('energia', 'Energia (1–10)', '1–10', 10) + num('fc', 'FC de repouso (bpm) <span class="antes">· opcional</span>', antVal('fc', 'bpm'), 250)));
+      fcard('c2', '2', 'Corpo', num('peso', 'Peso (kg)', antVal('peso', 'kg'), 300, '0.1') + num('sono', 'Sono <span class="antes">· 1 péssimo · 10 ótimo</span>', '1–10', 10) + num('energia', 'Energia <span class="antes">· 1 péssima · 10 ótima</span>', '1–10', 10) + num('fc', 'FC de repouso (bpm) <span class="antes">· opcional</span>', antVal('fc', 'bpm'), 250)));
     var fe = FEITA.map(function (dia) {
       var nome = DIAS.filter(function (d) { return d[0] === dia.d; })[0][1];
-      var x = '<div class="drow"><div class="dlab">' + nome + '</div><div class="tgs">' + dia.itens.map(function (it) { return tg(it[0], it[1]); }).join('') + (dia.opc || []).map(function (it) { return tg(it[0], it[1], true); }).join('') + '</div>';
+      var xs = (w.x || []).map(function (e, i) { return { e: e, i: i }; }).filter(function (o) { return o.e.d === dia.d; });
+      var x = '<div class="drow"><div class="dlab">' + nome + '</div><div class="tgs">' + dia.itens.map(function (it) { return tg(it[0], it[1]); }).join('') + (dia.opc || []).map(function (it) { return tg(it[0], it[1], true); }).join('') +
+        xs.map(function (o) { return '<span class="xw"><button type="button" class="tg x ' + o.e.s + '" data-x="' + o.i + '">' + esc(o.e.t) + '</button><button type="button" class="xdel" data-x="' + o.i + '" aria-label="tirar">×</button></span>'; }).join('') +
+        '<button type="button" class="xadd" data-d="' + dia.d + '">+ atividade</button></div>' +
+        '<div class="addx" id="addx_' + dia.d + '" hidden>' + (function () { var sg = sugestoesX(w, dia.d); return sg.length ? '<div class="tgs">' + sg.map(function (t) { return '<button type="button" class="xchip" data-d="' + dia.d + '" data-t="' + esc(t) + '">' + esc(t) + '</button>'; }).join('') + '</div>' : ''; })() +
+        '<div class="xrow"><input class="tx nx" id="nx_' + dia.d + '" data-d="' + dia.d + '" type="text" placeholder="ex.: Pilates, Atlética, Corrida leve" maxlength="40"><button type="button" class="xok" data-d="' + dia.d + '">OK</button></div></div>';
       if (dia.extra === 'qua') x += '<div class="sel"><span class="antes">Plio:</span>' + seg('qua_rota', [['casa', 'casa'], ['atl', 'atlético']], 'row mini') + '<span class="antes">rodou com saltos?</span>' + seg('qua_saltos', [['sim', 'sim'], ['nao', 'não']], 'row mini') + '</div>';
-      if (dia.extra === 'dom') x += '<div class="sel"><span class="antes">D:</span>' + seg('dom_modo', [['normal', 'normal'], ['pre', 'pré-jogo'], ['pos', 'pós-jogo']], 'row mini') + '</div>' + ((v('dom_jogo') === 'ok' || v('dom_jogo') === 'adapt') ? '<div class="crow"><label>Jogo — nota (1–10)</label>' + inp('dom_jogo_nota', 10) + '</div>' : '');
+      if (dia.extra === 'dom') x += '<div class="sel"><span class="antes">D:</span>' + seg('dom_modo', [['normal', 'normal'], ['pre', 'pré-jogo'], ['pos', 'pós-jogo']], 'row mini') + '</div>' + ((v('dom_jogo') === 'ok' || v('dom_jogo') === 'adapt') ? '<div class="crow"><label>Jogo — nota <span class="antes">· 1 ruim · 10 excelente</span></label>' + inp('dom_jogo_nota', 10) + '</div>' : '');
       return x + '</div>';
     }).join('');
     h += sec('feita', '#38bdf8', 'SEMANA FEITA', 'toque cicla ✓ feito · ⤵ adaptado · ✗ não',
-      fcard('c3', '3', 'Aderência', fe + '<p class="ader' + (ad.valida ? ' ok' : '') + '" id="aderTxt">' + aderTxt(ad) + '</p>' + nota('Atlética e jogo não entram na conta. <b>Semana válida = 80 % ou mais</b> — é o que soma ponto pro ciclo de deload.')));
+      fcard('c3', '3', 'Aderência', fe + '<p class="ader' + (ad.valida ? ' ok' : '') + '" id="aderTxt">' + aderTxt(ad) + '</p>' + nota('Cada ✓ vale 1 ponto e cada ⤵ vale meio, sobre os <b>16 planejados</b>. Atlética, jogo e atividades extras («+ atividade») também valem ponto — são carga de verdade — mas o total fica em 16 e o percentual trava em 100 %. <b>Semana válida = 80 % ou mais</b>: é o que soma ponto pro ciclo de deload.')));
     h += sec('forca', '#fb7185', 'FORÇA', 'carga máxima da semana, com cadência · cinza = semana anterior',
       fcard('c4', '4', 'Kg × reps',
         FORCA.map(function (f) { return '<div class="crow"><label>' + f[1] + ' <span class="antes">· ' + f[2] + '</span></label><span class="cin">' + inp(f[0] + '_kg', 999, 'w') + '<span class="x">×</span>' + inp(f[0] + '_r', 99) + '</span></div>'; }).join('') +
         '<div class="crow"><label>Cadência 3 s segurou nos dois FBs?</label>' + seg('cad', [['sim', 'sim'], ['nao', 'não']], 'row mini') + '</div>' +
-        num('ext_dor', 'Extensora isométrica — dor nos 45 s (0–10)', '0–10', 10) +
+        num('ext_dor', 'Extensora isométrica — dor nos 45 s <span class="antes">· 0 sem dor · 10 pior</span>', '0–10', 10) +
         nota('Subiu / manteve / caiu: compara com o cinza. O app não decide progressão — o Hub decide (topo da faixa com cadência em 2 sessões = sobe; cadência quebrada = não subiu).')));
     h += sec('quadra', '#c084fc', 'QUADRA — O LOOP', 'ênfase (D) → terça (B) → quinta (C) → sexta (A) → domingo',
       fcard('c5', '5', 'Quadra',
@@ -573,7 +607,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
         '<div class="crow"><label>Enterrada de domingo <span class="antes">· convertidas / tentativas</span></label><span class="cin">' + inp('ent_c', 9) + '<span class="x">/</span>' + inp('ent_t', 9) + '</span></div>' +
         '<div class="crow"><label>Saltos máximos <span class="antes">· domingo · terça (contados)</span></label><span class="cin">' + inp('saltos_dom', 30) + '<span class="x">·</span>' + inp('saltos_ter', 30) + '</span></div>' +
         txt('personal', 'Personal viu (terça)') + txt('par', 'Par pra terça (saída do C)') +
-        num('stamina', 'Stamina (1–10)', '1–10', 10) + num('explosao', 'Explosão (1–10)', '1–10', 10)));
+        num('stamina', 'Stamina <span class="antes">· 1 ruim · 10 excelente</span>', '1–10', 10) + num('explosao', 'Explosão <span class="antes">· 1 ruim · 10 excelente</span>', '1–10', 10)));
     h += sec('leitura', '#4ade80', 'LEITURA DA SEMANA', 'fechar no domingo · saídas pra próxima',
       fcard('c6', '6', 'Leitura', area('func', 'O que funcionou') + area('nfunc', 'O que não funcionou') + area('ajuste', 'Ajuste pra semana que vem')) +
       fcard('c7', '7', 'Revisão do jogo — 3 perguntas', txt('rev1', '1 · O que me custou mais posses/pontos?') + txt('rev2', '2 · O que funcionou e eu mantenho?') + txt('rev3', '3 · Qual UMA melhoria teria o maior impacto? <span class="antes">→ vira a ênfase</span>')) +
@@ -589,7 +623,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
     document.getElementById('tela-semana').innerHTML = h;
     renderHead();
   }
-  function aderTxt(ad) { return 'Aderência <b>' + ad.pts + '/' + PLANEJADOS + ' · ' + ad.pct + ' %</b> <small>· ' + (ad.valida ? 'semana válida pro deload' : (ad.marc ? 'abaixo de 80 % — não conta pro deload' : 'marca os treinos feitos')) + '</small>'; }
+  function aderTxt(ad) { return 'Aderência <b>' + String(ad.pts).replace('.', ',') + '/' + PLANEJADOS + ' · ' + ad.pct + ' %</b> <small>· ' + (ad.valida ? 'semana válida pro deload' : (ad.marc ? 'abaixo de 80 % — não conta pro deload' : 'marca os treinos feitos')) + '</small>'; }
   function sinTxt(s) { return '<b>Sinais sistêmicos:</b> ' + (s.length ? s.join(' · ') + (s.length >= 2 ? ' — <b>2 ou mais = deload imediato pelo Hub</b>' : '') : 'nenhum detectado (energia e carga: 2 semanas seguidas; sono e FC: marcados acima)'); }
   function cicloTxt(c) { return '<b>' + c + ' semana' + (c === 1 ? '' : 's') + ' válida' + (c === 1 ? '' : 's') + '</b> fechada' + (c === 1 ? '' : 's') + ' desde o último deload · ciclo de ' + DELOAD_CICLO + (c >= DELOAD_CICLO ? ' — <b>hora de deload e de reformular o treino</b>' : ''); }
   function rotFechar() { var ks = chaves(); return state.aberta === ks[ks.length - 1] ? 'Fechar semana — abrir a próxima' : 'Fechar esta semana'; }
@@ -619,6 +653,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
     if (mj) b.push('joelho ' + fmt1(mj.m) + ' (máx ' + mj.max + ')');
     if (vw(w, 'dor24') === 'sim') b.push('dor > 24 h');
     if (ad.marc) b.push('aderência ' + ad.pct + ' %' + (ad.valida ? ' ✓' : ''));
+    if ((w.x || []).length) b.push('+' + w.x.length + ' extra' + (w.x.length > 1 ? 's' : ''));
     if (vw(w, 'peso')) b.push('peso ' + vw(w, 'peso'));
     if (vw(w, 'bench')) b.push('3PT ' + vw(w, 'bench') + '/25');
     if (vw(w, 'ent_t')) b.push('enterrada ' + (vw(w, 'ent_c') || '–') + '/' + vw(w, 'ent_t'));
@@ -687,6 +722,10 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
     var el = ev.target; if (!el.id || el.id.indexOf('in_') !== 0) return;
     setVal(el.id.slice(3), el.value); save(); refreshCalc();
   });
+  document.addEventListener('keydown', function (ev) {  // Enter no campo da atividade extra = OK
+    var el = ev.target; if (ev.key !== 'Enter' || !el.classList || !el.classList.contains('nx')) return;
+    ev.preventDefault(); if (addX(el.dataset.d, el.value)) { save(); renderSemana(); }
+  });
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest('.seg[data-k] button[data-v]');
     if (b) {
@@ -696,6 +735,16 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
       if (k === 'dor24' || k === 'deload') renderSemana(); else { box.querySelectorAll('button').forEach(function (x) { x.classList.toggle('on', x.dataset.v === v(k)); }); refreshCalc(); }
       return;
     }
+    var xa = ev.target.closest('.xadd[data-d]');
+    if (xa) { var pn = document.getElementById('addx_' + xa.dataset.d); pn.hidden = !pn.hidden; if (!pn.hidden) { var ii = pn.querySelector('input'); if (ii && !pn.querySelector('.xchip')) ii.focus(); } return; }
+    var xc = ev.target.closest('.xchip[data-d]');
+    if (xc) { if (addX(xc.dataset.d, xc.dataset.t)) { save(); renderSemana(); } return; }
+    var xo = ev.target.closest('.xok[data-d]');
+    if (xo) { var inx = document.getElementById('nx_' + xo.dataset.d); if (addX(xo.dataset.d, inx.value)) { save(); renderSemana(); } else if (!normX(inx.value)) inx.focus(); return; }
+    var xd = ev.target.closest('.xdel[data-x]');
+    if (xd) { var wx = W(), ex = (wx.x || [])[+xd.dataset.x]; if (ex && confirm('Tirar «' + ex.t + '» de ' + ex.d + '?')) { wx.x.splice(+xd.dataset.x, 1); save(); renderSemana(); } return; }
+    var xt = ev.target.closest('.tg[data-x]');
+    if (xt) { var wx2 = W(), ex2 = (wx2.x || [])[+xt.dataset.x]; if (ex2) { var ord2 = ['ok', 'adapt', 'nao']; ex2.s = ord2[(ord2.indexOf(ex2.s) + 1) % ord2.length]; save(); xt.className = 'tg x ' + ex2.s; refreshCalc(); } return; }
     var t = ev.target.closest('.tg[data-tg]');
     if (t) {
       var k2 = t.dataset.tg, ordem = ['', 'ok', 'adapt', 'nao'], cur = v(k2), nx = ordem[(ordem.indexOf(cur) + 1) % ordem.length];
@@ -749,7 +798,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
     var co = []; if (x('peso')) co.push('peso ' + x('peso')); if (x('sono')) co.push('sono ' + x('sono')); if (x('energia')) co.push('energia ' + x('energia')); if (x('fascia')) co.push('fáscia ' + x('fascia')); if (x('fc')) co.push('FC repouso ' + x('fc'));
     if (co.length) L.push('Corpo: ' + co.join(' · '));
     if (ad.marc) {
-      L.push('Feita: aderência ' + ad.pts + '/' + PLANEJADOS + ' · ' + ad.pct + ' %' + (ad.valida ? ' · semana válida' : ' · não conta pro deload'));
+      L.push('Feita: aderência ' + String(ad.pts).replace('.', ',') + '/' + PLANEJADOS + ' · ' + ad.pct + ' %' + (ad.valida ? ' · semana válida' : ' · não conta pro deload'));
       var SIM = { ok: '✓', adapt: '⤵', nao: '✗' };
       FEITA.forEach(function (dia) {
         var its = dia.itens.concat(dia.opc || []).filter(function (it) { return x(it[0]); }).map(function (it) { return it[1] + ' ' + SIM[x(it[0])]; });
@@ -757,6 +806,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
         if (dia.extra === 'qua' && x('qua_saltos')) its.push('rodou com saltos: ' + x('qua_saltos'));
         if (dia.extra === 'dom' && x('dom_modo')) its.push('D ' + NOME_MODO[x('dom_modo')]);
         if (dia.extra === 'dom' && x('dom_jogo_nota')) its.push('jogo nota ' + x('dom_jogo_nota'));
+        (w.x || []).filter(function (e) { return e.d === dia.d; }).forEach(function (e) { its.push('+' + e.t + ' ' + (SIM[e.s] || '✓')); });
         if (its.length) L.push(dia.d + ': ' + its.join(' · '));
       });
     }
