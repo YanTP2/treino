@@ -839,7 +839,7 @@ var FORM = [
     var inner = FORM.map(function (f) {
       var fid = 'hj_' + f.id;
       var v = state.vals[fid] != null ? esc(state.vals[fid]) : '';
-      if (f.k === 'num') return '<div class="frow"><label>' + f.t + '</label><input type="number" inputmode="numeric" id="' + fid + '" placeholder="' + esc(antVal(fid, '–')) + '" value="' + v + '"></div>';
+      if (f.k === 'num') return '<div class="frow"><label>' + f.t + '</label><input type="number" inputmode="numeric"' + (/10\)/.test(f.t) ? ' min=\"0\" max=\"10\"' : '') + ' id="' + fid + '" placeholder="' + esc(antVal(fid, '–')) + '" value="' + v + '"></div>';
       if (f.k === 'txt') return '<div class="frow"><label>' + f.t + '</label><input type="text" id="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '" value="' + v + '"></div>';
       if (f.k === 'area') return '<div><label style="font-size:13.5px;color:#aeaeb8">' + f.t + '</label><textarea id="' + fid + '" placeholder="' + esc(antVal(fid, '')) + '">' + v + '</textarea></div>';
       var antes = antVal(fid, '');
