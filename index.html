@@ -764,10 +764,20 @@ var DATA = [
   state.minima = !!state.minima;
   state.rio = !!state.rio;
   // regra do Rio (só terça): o card com stepsRio troca as 2 séries por 5× 45 s de isometria
-  if (DIA_SEMANA === 2 && state.rio) DATA.forEach(function (e) { if (e.stepsRio) e.steps = e.stepsRio; });
+  if (DIA_SEMANA === 2 && state.rio) DATA.forEach(function (e) { if (e.stepsRio) { e.steps = e.stepsRio; chipsDoDia(e, ['5× 45 s iso', 'regra do Rio']); } });
+  // os cards já estão montados: troca os chips de dose no DOM (o chip de equipamento .eq fica)
+  function chipsDoDia(e, chips) {
+    var dose = document.querySelector('#ex' + e.n + ' .dose');
+    if (!dose) return;
+    dose.querySelectorAll('span:not(.eq)').forEach(function (sp) { sp.remove(); });
+    dose.insertAdjacentHTML('afterbegin', chips.map(function (c) { return '<span>' + c + '</span>'; }).join(''));
+  }
   // versão mínima: nos cards que marcam passos c:true (os ★), só esses passos valem hoje
   if (state.minima) DATA.forEach(function (e) {
-    if (e.minima && e.steps.some(function (s) { return s.c; })) e.steps = e.steps.filter(function (s) { return s.c; });
+    if (e.minima && e.steps.some(function (s) { return s.c; })) {
+      e.steps = e.steps.filter(function (s) { return s.c; });
+      chipsDoDia(e, ['só E · 30 s']);
+    }
   });
 
   function st(id) {
