@@ -371,7 +371,7 @@
   <summary>Notas &amp; regras do log</summary>
   <p><strong>O que é:</strong> registro manual da semana. «Copiar esta semana» gera o bloco da semana aberta pra colar na nota do mês no Notes; «Copiar tudo» gera o histórico inteiro (mais recente no topo) pra reconstruir a nota quando quiser. Nenhum app é lido; tu digita o que cada export já te mostrou. Placeholder cinza = semana anterior.</p>
   <p><strong>Joelho de manhã, dia a dia:</strong> é o placar do checkpoint (Hub: «placar = curva de dor do joelho no log»). A célula de <strong>segunda</strong> é o «acordou na segunda» do Treino D. Dor que não acalmou em 24 h é sinal local: <strong>semana seguinte corta quadra primeiro</strong> (saltos de dom &gt; praça sex &gt; plio qua; bloco C fica &gt; volume de lower). Não é deload.</p>
-  <p><strong>Semana feita:</strong> toque cicla ✓ feito → ⤵ adaptado (versão curta, joelho, tempo) → ✗ não → vazio. Aderência = (✓ = 1 · ⤵ = 0,5) sobre os 16 itens planejados. <strong>«+ atividade»</strong> em cada dia registra o que não estava no plano (Pilates, atlética, natação, jogo de rua): entra já como ✓, vale ponto igual, e os nomes que tu já usou aparecem como sugestão de um toque. Atlética e jogo de liga também valem ponto. O total fica em 16 e o percentual trava em 100 %. <strong>Semana válida = 80 % ou mais.</strong></p>
+  <p><strong>Semana feita:</strong> toque cicla ✓ feito → ⤵ adaptado (versão curta, joelho, tempo) → ✗ não → vazio. Aderência = (✓ = 1 · ⤵ = 0,5) sobre os itens planejados da semana: 16 até a semana de 28/09; 14 a partir da de 05/10 (Mobilidade vD.1: sem matinal na segunda e na sexta). <strong>«+ atividade»</strong> em cada dia registra o que não estava no plano (Pilates, atlética, natação, jogo de rua): entra já como ✓, vale ponto igual, e os nomes que tu já usou aparecem como sugestão de um toque. Atlética e jogo de liga também valem ponto. O total fica no planejado da semana e o percentual trava em 100 %. <strong>Semana válida = 80 % ou mais.</strong></p>
   <p><strong>Escalas:</strong> onde é dor ou esforço (joelho, fáscia, extensora), 0 = nenhuma e 10 = a pior. Onde é qualidade (sono, energia, stamina, explosão, nota do jogo), 1 = péssimo e 10 = ótimo.</p>
   <p><strong>Deload:</strong> cada semana válida <strong>fechada</strong> soma 1 ponto; a semana marcada como deload zera o contador. Com <strong>8 pontos</strong>, o app avisa: hora de descarregar (Hub: 50–60 % da carga, mesmo volume) <strong>e reformular o treino</strong> pra ter estímulo novo. Semana pela metade não conta — nela tu descansou.</p>
   <p><strong>Sinais sistêmicos (Hub):</strong> dois o app detecta nos teus números — energia abaixo de 4 em duas semanas seguidas e carga caindo em duas semanas seguidas em qualquer linha de força; dois tu marca — sono abaixo de 6 h vários dias e FC de repouso alta 3+ dias. <strong>Dois ou mais juntos = deload imediato</strong> (ordem sistêmica: plio &gt; volume dos FBs; o remédio nunca sai). O app mostra, tu decide.</p>
@@ -392,14 +392,17 @@
   <div class="savemsg" id="saveMsg"></div>
   <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
   <div>Log semanal v1 — o Notes continua o arquivo · o placar é o joelho</div>
-  <div>Matinal: <a href="../dia-a/">Dia A</a> · <a href="../dia-b/">Dia B</a> · <a href="../">Completa</a> · GYM: <a href="../gym-fb1/">FB1</a> · <a href="../quarta/">Quarta</a> · <a href="../gym-fb2/">FB2</a></div>
+  <div><a href="../">Mobilidade</a> · GYM: <a href="../gym-fb1/">FB1</a> · <a href="../quarta/">Quarta</a> · <a href="../gym-fb2/">FB2</a></div>
   <div>Basquete: <a href="../treino-b/">Treino B (ter)</a> · <a href="../treino-c/">Treino C (qui)</a> · <a href="../basquete-sexta-a/">Treino A (sex)</a> · <a href="../treino-d/">Treino D (dom)</a></div>
 </div>
 
 <script>
 // ===================== DADOS =====================
 var DIAS = [['seg', 'Segunda'], ['ter', 'Terça'], ['qua', 'Quarta'], ['qui', 'Quinta'], ['sex', 'Sexta'], ['sab', 'Sábado'], ['dom', 'Domingo']];
-var FEITA = [
+// Grade da semana. Até a semana de 28/09: a antiga (matinais vC.12, 16 itens) — semanas antigas abrem e exportam
+// como eram. A partir da semana de 05/10: a da Mobilidade vD.1 (14 itens, sem matinal na seg e na sex). Mesmos ids:
+// o que foi marcado antes da troca continua valendo.
+var FEITA_V1 = [
   { d: 'seg', itens: [['seg_matA', 'Matinal A'], ['seg_muay', 'Muay'], ['seg_fb1', 'GYM FB1']] },
   { d: 'ter', itens: [['ter_matB', 'Matinal B + Copenhagen'], ['ter_b', 'Treino B (personal)']] },
   { d: 'qua', itens: [['qua_matA', 'Matinal A'], ['qua_plio', 'Plio']], extra: 'qua' },
@@ -408,7 +411,19 @@ var FEITA = [
   { d: 'sab', itens: [['sab_completa', 'Completa']] },
   { d: 'dom', itens: [['dom_matB', 'Matinal B'], ['dom_d', 'Treino D']], extra: 'dom', opc: [['dom_jogo', 'Jogo de liga']] }
 ];
-var PLANEJADOS = 16, VALIDA_PCT = 80, DELOAD_CICLO = 8, GRAF_SEMANAS = 5;
+var FEITA = [
+  { d: 'seg', itens: [['seg_muay', 'Muay'], ['seg_fb1', 'GYM FB1']] },
+  { d: 'ter', itens: [['ter_matB', 'Mobilidade + Copenhagen'], ['ter_b', 'Treino B (personal)']] },
+  { d: 'qua', itens: [['qua_matA', 'Mobilidade'], ['qua_plio', 'Plio']], extra: 'qua' },
+  { d: 'qui', itens: [['qui_matB', 'Mobilidade + Copenhagen'], ['qui_c', 'Treino C']], opc: [['qui_atl', 'Atlética']] },
+  { d: 'sex', itens: [['sex_a', 'Treino A'], ['sex_fb2', 'GYM FB2'], ['sex_fisio', 'Fisio']] },
+  { d: 'sab', itens: [['sab_completa', 'Mobilidade + Copenhagen']] },
+  { d: 'dom', itens: [['dom_matB', 'Mobilidade'], ['dom_d', 'Treino D']], extra: 'dom', opc: [['dom_jogo', 'Jogo de liga']] }
+];
+var GRADE_NOVA_DESDE = '2026-10-05';
+function grade(k) { return k < GRADE_NOVA_DESDE ? FEITA_V1 : FEITA; }  // k = segunda da semana, AAAA-MM-DD
+function planejados(k) { var n = 0; grade(k).forEach(function (dia) { n += dia.itens.length; }); return n; }
+var VALIDA_PCT = 80, DELOAD_CICLO = 8, GRAF_SEMANAS = 5;
 var FORCA = [['ag', 'Agachamento livre', 'sex · FB2 · cadência 3 s'], ['rdl', 'RDL', 'sex · FB2'], ['ht', 'Hip thrust', 'sex · FB2'],
   ['bul', 'Búlgaro', 'seg · FB1 · por perna'], ['sup', 'Supino inclinado halteres', 'seg · FB1'], ['grav', 'Barra fixa / Graviton', 'seg · FB1 · assistência kg — menor é melhor']];
 var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
@@ -512,12 +527,12 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
   function mediaJ(w) { var s = 0, c = 0; DIAS.forEach(function (d) { if (temValor(w.v['j_' + d[0]])) { s += +w.v['j_' + d[0]]; c++; } }); return c ? { m: s / c, max: Math.max.apply(null, DIAS.filter(function (d) { return temValor(w.v['j_' + d[0]]); }).map(function (d) { return +w.v['j_' + d[0]]; })), c: c } : null; }
   function fmt1(x) { return String(Math.round(x * 10) / 10).replace('.', ','); }
   function ptsDe(s) { return s === 'ok' ? 1 : (s === 'adapt' ? 0.5 : 0); }
-  function aderencia(w) {  // planejados (16) + opcionais (atlética, jogo) + extras: tudo vale ponto; o total fixo é 16 e o % trava em 100
+  function aderencia(w, k) {  // planejados da semana k (16 na grade antiga, 14 na nova) + opcionais (atlética, jogo) + extras: tudo vale ponto; o total é o planejado e o % trava em 100
     var pts = 0, marc = 0;
-    FEITA.forEach(function (dia) { dia.itens.concat(dia.opc || []).forEach(function (it) { var s = w.v[it[0]]; pts += ptsDe(s); if (s) marc++; }); });
+    grade(k).forEach(function (dia) { dia.itens.concat(dia.opc || []).forEach(function (it) { var s = w.v[it[0]]; pts += ptsDe(s); if (s) marc++; }); });
     (w.x || []).forEach(function (e) { pts += ptsDe(e.s); marc++; });
-    var pct = Math.min(100, Math.round(pts / PLANEJADOS * 100));
-    return { pts: pts, pct: pct, valida: pct >= VALIDA_PCT, marc: marc };
+    var plan = planejados(k), pct = Math.min(100, Math.round(pts / plan * 100));
+    return { pts: pts, pct: pct, valida: pct >= VALIDA_PCT, marc: marc, plan: plan };
   }
   function normX(t) { return String(t || '').trim().toLowerCase().replace(/\s+/g, ' '); }
   function sugestoesX(w, d) {  // nomes já usados em qualquer semana, mais recentes primeiro, sem os que já estão nesse dia
@@ -534,7 +549,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
   }
   function ciclo(ate) {  // semanas válidas que já TERMINARAM (ou fechadas à mão) desde o último deload (a semana de deload zera)
     var c = 0;
-    chaves().forEach(function (k) { if (ate && k > ate) return; var w = state.semanas[k]; if (w.v.deload === 'sim') c = 0; else if ((w.fechada || k < semanaAtual) && aderencia(w).valida) c++; });
+    chaves().forEach(function (k) { if (ate && k > ate) return; var w = state.semanas[k]; if (w.v.deload === 'sim') c = 0; else if ((w.fechada || k < semanaAtual) && aderencia(w, k).valida) c++; });
     return c;
   }
   function sinais(k) {  // sistêmicos (Hub): 2 automáticos + 2 manuais
@@ -571,7 +586,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
 
   // ---------- TELA SEMANA ----------
   function renderSemana() {
-    var w = W(), mj = mediaJ(w), ad = aderencia(w), c = ciclo(state.aberta), s = sinais(state.aberta);
+    var w = W(), mj = mediaJ(w), ad = aderencia(w, state.aberta), c = ciclo(state.aberta), s = sinais(state.aberta);
     var h = '';
     h += sec('joelho', '#fbbf24', 'JOELHO — O PLACAR', 'de manhã, dia a dia · 0 = sem dor · 10 = pior dor · segunda = «acordou na segunda» do D',
       fcard('c1', '1', 'Joelho de manhã',
@@ -582,7 +597,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
         num('fascia', 'Fáscia plantar <span class="antes">· 0 sem dor · 10 pior</span>', '0–10', 10)));
     h += sec('corpo', '#9aa3c7', 'CORPO', 'uma nota por semana · cinza = semana anterior',
       fcard('c2', '2', 'Corpo', num('peso', 'Peso (kg)', antVal('peso', 'kg'), 300, '0.1') + num('sono', 'Sono <span class="antes">· 1 péssimo · 10 ótimo</span>', '1–10', 10) + num('energia', 'Energia <span class="antes">· 1 péssima · 10 ótima</span>', '1–10', 10) + num('fc', 'FC de repouso (bpm) <span class="antes">· opcional</span>', antVal('fc', 'bpm'), 250)));
-    var fe = FEITA.map(function (dia) {
+    var fe = grade(state.aberta).map(function (dia) {
       var nome = DIAS.filter(function (d) { return d[0] === dia.d; })[0][1];
       var xs = (w.x || []).map(function (e, i) { return { e: e, i: i }; }).filter(function (o) { return o.e.d === dia.d; });
       var x = '<div class="drow"><div class="dlab">' + nome + '</div><div class="tgs">' + dia.itens.map(function (it) { return tg(it[0], it[1]); }).join('') + (dia.opc || []).map(function (it) { return tg(it[0], it[1], true); }).join('') +
@@ -595,7 +610,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
       return x + '</div>';
     }).join('');
     h += sec('feita', '#38bdf8', 'SEMANA FEITA', 'toque cicla ✓ feito · ⤵ adaptado · ✗ não',
-      fcard('c3', '3', 'Aderência', fe + '<p class="ader' + (ad.valida ? ' ok' : '') + '" id="aderTxt">' + aderTxt(ad) + '</p>' + nota('Cada ✓ vale 1 ponto e cada ⤵ vale meio, sobre os <b>16 planejados</b>. Atlética, jogo e atividades extras («+ atividade») também valem ponto — são carga de verdade — mas o total fica em 16 e o percentual trava em 100 %. <b>Semana válida = 80 % ou mais</b>: é o que soma ponto pro ciclo de deload.')));
+      fcard('c3', '3', 'Aderência', fe + '<p class="ader' + (ad.valida ? ' ok' : '') + '" id="aderTxt">' + aderTxt(ad) + '</p>' + nota('Cada ✓ vale 1 ponto e cada ⤵ vale meio, sobre os <b>' + ad.plan + ' planejados</b> da semana. Atlética, jogo e atividades extras («+ atividade») também valem ponto — são carga de verdade — mas o total fica em ' + ad.plan + ' e o percentual trava em 100 %. <b>Semana válida = 80 % ou mais</b>: é o que soma ponto pro ciclo de deload.')));
     h += sec('forca', '#fb7185', 'FORÇA', 'carga máxima da semana, com cadência · cinza = semana anterior',
       fcard('c4', '4', 'Kg × reps',
         FORCA.map(function (f) { return '<div class="crow"><label>' + f[1] + ' <span class="antes">· ' + f[2] + '</span></label><span class="cin">' + inp(f[0] + '_kg', 999, 'w') + '<span class="x">×</span>' + inp(f[0] + '_r', 99) + '</span></div>'; }).join('') +
@@ -619,13 +634,13 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
         '<p class="cnota" id="sinTxt">' + sinTxt(s) + '</p>' +
         '<div class="crow"><label>Esta semana foi deload?</label>' + seg('deload', [['nao', 'não'], ['sim', 'sim']], 'row mini') + '</div>' +
         '<p class="cnota" id="cicloTxt">' + cicloTxt(c) + '</p>' +
-        nota('<b>Ordem de corte (Hub):</b> dor local → saltos dom &gt; praça sex &gt; plio qua (bloco C fica) &gt; volume lower · sistêmico → plio &gt; FBs · o remédio nunca sai (matinais, Copenhagen, bloco C, extensora iso).')) +
+        nota('<b>Ordem de corte (Hub):</b> dor local → saltos dom &gt; praça sex &gt; plio qua (bloco C fica) &gt; volume lower · sistêmico → plio &gt; FBs · o remédio nunca sai (Mobilidade, Copenhagen, bloco C, extensora iso).')) +
       fcard('c9', '9', 'Saída do domingo', '<div class="saida">' + txt('enfase_prox', 'ÊNFASE DA PRÓXIMA SEMANA <span class="antes">— governa a terça (B) e a sexta (A)</span>', '3–5 palavras') + '</div>' +
         '<button type="button" class="btn" id="fecharBtn2">' + (w.fechada ? '↺ Reabrir esta semana' : '✓ ' + rotFechar()) + '</button>'));
     document.getElementById('tela-semana').innerHTML = h;
     renderHead();
   }
-  function aderTxt(ad) { return 'Aderência <b>' + String(ad.pts).replace('.', ',') + '/' + PLANEJADOS + ' · ' + ad.pct + ' %</b> <small>· ' + (ad.valida ? 'semana válida pro deload' : (ad.marc ? 'abaixo de 80 % — não conta pro deload' : 'marca os treinos feitos')) + '</small>'; }
+  function aderTxt(ad) { return 'Aderência <b>' + String(ad.pts).replace('.', ',') + '/' + ad.plan + ' · ' + ad.pct + ' %</b> <small>· ' + (ad.valida ? 'semana válida pro deload' : (ad.marc ? 'abaixo de 80 % — não conta pro deload' : 'marca os treinos feitos')) + '</small>'; }
   function sinTxt(s) { return '<b>Sinais sistêmicos:</b> ' + (s.length ? s.join(' · ') + (s.length >= 2 ? ' — <b>2 ou mais = deload imediato pelo Hub</b>' : '') : 'nenhum detectado (energia e carga: 2 semanas seguidas; sono e FC: marcados acima)'); }
   function cicloTxt(c) { return '<b>' + c + ' semana' + (c === 1 ? '' : 's') + ' válida' + (c === 1 ? '' : 's') + '</b> fechada' + (c === 1 ? '' : 's') + ' desde o último deload · ciclo de ' + DELOAD_CICLO + (c >= DELOAD_CICLO ? ' — <b>hora de deload e de reformular o treino</b>' : ''); }
   function rotFechar() { var ks = chaves(); return state.aberta === ks[ks.length - 1] ? 'Fechar semana — abrir a próxima' : 'Fechar esta semana'; }
@@ -635,13 +650,13 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
     document.getElementById('wkPrev').disabled = false;  // na primeira semana, ‹ cria a anterior
     document.getElementById('wkNext').disabled = i >= ks.length - 1;
     document.getElementById('fecharBtn').textContent = w.fechada ? 'Reabrir esta semana' : rotFechar();
-    var mj = mediaJ(w), ad = aderencia(w);
+    var mj = mediaJ(w), ad = aderencia(w, state.aberta);
     document.getElementById('refTxt').textContent = (state.aberta === semanaAtual ? 'semana atual' : (w.fechada ? 'semana fechada' : 'semana aberta')) + (mj ? ' · joelho médio ' + fmt1(mj.m) : '') + (ad.marc ? ' · aderência ' + ad.pct + ' %' : '') + ' · ciclo ' + ciclo(state.aberta) + '/' + DELOAD_CICLO + ' · ' + ks.length + ' semana' + (ks.length > 1 ? 's' : '') + ' no log';
     document.getElementById('subNav').hidden = state.tela !== 'semana';
     renderBanner();
   }
   function refreshCalc() {
-    var w = W(), mj = mediaJ(w), ad = aderencia(w), el;
+    var w = W(), mj = mediaJ(w), ad = aderencia(w, state.aberta), el;
     if ((el = document.getElementById('mediaJ'))) el.innerHTML = mj ? '<b>média ' + fmt1(mj.m) + '</b> · máx ' + mj.max + ' · ' + mj.c + ' dia' + (mj.c > 1 ? 's' : '') : 'sem nota ainda';
     if ((el = document.getElementById('aderTxt'))) { el.innerHTML = aderTxt(ad); el.classList.toggle('ok', ad.valida); }
     if ((el = document.getElementById('sinTxt'))) el.innerHTML = sinTxt(sinais(state.aberta));
@@ -651,7 +666,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
 
   // ---------- TELA HISTÓRICO ----------
   function linhaSemana(k) {
-    var w = state.semanas[k], mj = mediaJ(w), ad = aderencia(w), b = [];
+    var w = state.semanas[k], mj = mediaJ(w), ad = aderencia(w, k), b = [];
     if (mj) b.push('joelho ' + fmt1(mj.m) + ' (máx ' + mj.max + ')');
     if (vw(w, 'dor24') === 'sim') b.push('dor > 24 h');
     if (ad.marc) b.push('aderência ' + ad.pct + ' %' + (ad.valida ? ' ✓' : ''));
@@ -707,7 +722,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
     var temJ = pts.some(function (p) { return p.v != null; });
     var medias = ks.map(function (k, wi) { var mj = mediaJ(state.semanas[k]); return { i: wi * 7 + 3, v: mj ? Math.round(mj.m * 10) / 10 : null, lab: mj ? fmt1(mj.m) : null }; });
     h += fcard('g1', '1', 'Joelho de manhã <span class="antes">· dia a dia · 0–10</span>', temJ ? svgLine([{ cor: '#fbbf24', pts: pts }, { cor: '#fde68a', pts: medias, r: 5, abaixo: true }], { n: ks.length * 7, max: 10, vlines: vl, xlabels: xl, ref: 3, h: 130 }) + nota('Pontos pequenos = cada manhã; ponto grande = <b>média da semana</b>. Linha tracejada em 3: acima disso o Treino A fecha o EXTRA e o D olha o modo do dia. Cada divisória é uma segunda-feira.') : '<p class="vazio">Sem nota de joelho ainda. Preenche as 7 células na SEMANA.</p>');
-    var bars = ks.map(function (k) { var w = state.semanas[k], ad = aderencia(w); return { v: ad.marc ? ad.pct : null, lab: ad.marc ? ad.pct + ' %' : '', ok: ad.valida, x: fmtD(k) }; });
+    var bars = ks.map(function (k) { var w = state.semanas[k], ad = aderencia(w, k); return { v: ad.marc ? ad.pct : null, lab: ad.marc ? ad.pct + ' %' : '', ok: ad.valida, x: fmtD(k) }; });
     h += fcard('g2', '2', 'Aderência <span class="antes">· % da semana planejada · dourado = válida</span>', svgBars(bars, { max: 100, ref: VALIDA_PCT, unit: '' }) + nota('Linha em 80 %: semana válida soma 1 ponto pro ciclo de deload. ' + cicloTxt(ciclo(null)).replace(/<[^>]+>/g, '') + '.'));
     var pesos = ks.map(function (k, i) { var w = state.semanas[k]; return { i: i, v: temValor(w.v.peso) ? +w.v.peso : null, lab: temValor(w.v.peso) ? vw(w, 'peso') : null }; });
     var pv = pesos.filter(function (p) { return p.v != null; }).map(function (p) { return p.v; });
@@ -772,7 +787,7 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
   function fechar() {
     var w = W(), k = state.aberta, ks = chaves();
     if (w.fechada) { if (!confirm('Reabrir a semana ' + rotulo(k) + '?')) return; w.fechada = false; save(); renderSemana(); if (state.tela === 'historico') renderHistorico(); renderHead(); return; }
-    var ad = aderencia(w), falta = [];
+    var ad = aderencia(w, k), falta = [];
     if (!ad.marc) falta.push('nenhum treino marcado em SEMANA FEITA'); if (!v('enfase_prox')) falta.push('ÊNFASE DA PRÓXIMA SEMANA vazia');
     if (!confirm('Fechar a semana ' + rotulo(k) + '?' + (falta.length ? '\n\nAtenção: ' + falta.join(' · ') + '.' : '') + '\n\nAderência ' + ad.pct + ' %' + (ad.valida ? ' — semana válida, soma 1 ponto pro ciclo de deload.' : ' — abaixo de 80 %, não soma ponto.') + (k === ks[ks.length - 1] ? '\nA próxima semana abre agora.' : ''))) return;
     w.fechada = true;
@@ -793,16 +808,16 @@ var NOME_MODO = { normal: 'normal', pre: 'pré-jogo', pos: 'pós-jogo' };
   // ---------- Copiar tudo (formato pro Notes, linha em branco entre as linhas) ----------
   function textoSemana(k) {
     var w = state.semanas[k], x = function (kk) { return temValor(w.v[kk]) ? String(w.v[kk]).trim() : null; }, q = function (kk) { return x(kk) || '–'; };
-    var L = [], mj = mediaJ(w), ad = aderencia(w), p = k.split('-');
+    var L = [], mj = mediaJ(w), ad = aderencia(w, k), p = k.split('-');
     L.push('LOG · ' + fmtD(k) + ' a ' + fmtD(addDays(k, 6)) + '/' + p[0] + (w.fechada ? ' · fechada' : ' · aberta'));
     if (mj) L.push('Joelho de manhã: ' + DIAS.map(function (d) { return d[0] + ' ' + q('j_' + d[0]); }).join(' · ') + ' · média ' + fmt1(mj.m) + ' · máx ' + mj.max);
     if (x('dor24')) L.push('Dor que não acalmou em 24 h: ' + (x('dor24') === 'sim' ? 'sim — ' + q('dor24_txt') : 'não'));
     var co = []; if (x('peso')) co.push('peso ' + x('peso')); if (x('sono')) co.push('sono ' + x('sono')); if (x('energia')) co.push('energia ' + x('energia')); if (x('fascia')) co.push('fáscia ' + x('fascia')); if (x('fc')) co.push('FC repouso ' + x('fc'));
     if (co.length) L.push('Corpo: ' + co.join(' · '));
     if (ad.marc) {
-      L.push('Feita: aderência ' + String(ad.pts).replace('.', ',') + '/' + PLANEJADOS + ' · ' + ad.pct + ' %' + (ad.valida ? ' · semana válida' : ' · não conta pro deload'));
+      L.push('Feita: aderência ' + String(ad.pts).replace('.', ',') + '/' + ad.plan + ' · ' + ad.pct + ' %' + (ad.valida ? ' · semana válida' : ' · não conta pro deload'));
       var SIM = { ok: '✓', adapt: '⤵', nao: '✗' };
-      FEITA.forEach(function (dia) {
+      grade(k).forEach(function (dia) {
         var its = dia.itens.concat(dia.opc || []).filter(function (it) { return x(it[0]); }).map(function (it) { return it[1] + ' ' + SIM[x(it[0])]; });
         if (dia.extra === 'qua' && x('qua_rota')) its.push('plio ' + (x('qua_rota') === 'atl' ? 'atlético' : 'casa'));
         if (dia.extra === 'qua' && x('qua_saltos')) its.push('rodou com saltos: ' + x('qua_saltos'));

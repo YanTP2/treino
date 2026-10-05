@@ -275,7 +275,7 @@
   <div class="savemsg" id="saveMsg"></div>
   <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
   <div>QUA · Plio Casa v3 / Atlético Academia v3 — se técnica cair, PARA</div>
-  <div>Matinal: <a href="../dia-b/">Dia B</a> · GYM: <a href="../gym-fb1/">FB1</a> · <a href="../">Completa</a></div>
+  <div><a href="../">Mobilidade</a> · GYM: <a href="../gym-fb1/">FB1</a></div>
 </div>
 
 <div class="restbar" id="restbar">
@@ -291,11 +291,11 @@
   <div class="regra"><strong>Portão das 24h (de manhã):</strong> passou → qualquer rota completa. Não passou → no Atlético: box jump fica, trap bar jump e Bloco B saem, o tempo vai pro Bloco D (+1 série em cada). Joelho reclamando ou semana pesada de quadra → o padrão é o Atlético.</div>
   <button class="rota-btn casa" type="button" data-rota="casa">
     <div class="rt1">PLIO CASA</div>
-    <div class="rt2">~65–70 min · bola, miniband, degrau · ~100 contatos · single-leg primeiro</div>
+    <div class="rt2">~60–65 min · bola, miniband, degrau · ~100 contatos · single-leg primeiro</div>
   </button>
   <button class="rota-btn gym" type="button" data-rota="gym">
     <div class="rt1">ATLÉTICO — Academia</div>
-    <div class="rt2">~65 min · rack, caixa, KB, med ball · ~40 contatos · potência + absorção + remédio + intrínseco</div>
+    <div class="rt2">~60 min · rack, caixa, KB, med ball · ~40 contatos · potência + absorção + remédio + intrínseco</div>
   </button>
 </div>
 
@@ -310,7 +310,7 @@ var BLOCOS_CASA = [
   { id:'caq', cor:'#94a3b8', nav:'Aquec',       titulo:'AQUECIMENTO + ATIVAÇÃO',                     sub:'~10 min' },
   { id:'cA',  cor:'#a3e635', nav:'A · Single',  titulo:'BLOCO A — SINGLE LEG / UNILATERAL',          sub:'4 exercícios · ~18 min · objetivo: takeoff de 1 perna (ponto fraco) · faz FRESCO, concentração máxima' },
   { id:'cB',  cor:'#22d3ee', nav:'B · Bilateral',titulo:'BLOCO B — BILATERAL + REATIVIDADE',         sub:'4 exercícios · ~12 min · objetivo: potência máxima de 2 pernas + velocidade de contato' },
-  { id:'cC',  cor:'#ef4444', nav:'C · Iso',     titulo:'BLOCO C — ISOMETRIA + EQUILÍBRIO INFERIOR · INTOCÁVEL', sub:'4 exercícios · ~8 min · objetivo: estabilidade single-leg + rigidez tendínea · DEPOIS do explosivo (não compete com o estímulo neural)' },
+  { id:'cC',  cor:'#ef4444', nav:'C · Iso',     titulo:'BLOCO C — ISOMETRIA · INTOCÁVEL', sub:'2 exercícios · ~5 min · objetivo: estabilidade single-leg + rigidez tendínea · DEPOIS do explosivo (não compete com o estímulo neural)' },
   { id:'cS',  cor:'#fb923c', nav:'Superior',    titulo:'SUPERIOR — EXPLOSÃO',                        sub:'4 exercícios · ~12 min' },
   { id:'cR',  cor:'#eab308', nav:'Core',        titulo:'CORE REATIVO',                               sub:'3 exercícios' },
   { id:'chj', cor:'#94a3b8', nav:'Hoje',        titulo:'COMO FOI HOJE',                              sub:'preenche no fim — vira referência da próxima vez nesta rota' }
@@ -320,7 +320,7 @@ var BLOCOS_GYM = [
   { id:'gaq', cor:'#94a3b8', nav:'Aquec',       titulo:'AQUECIMENTO',                                sub:'~8 min' },
   { id:'gA',  cor:'#a3e635', nav:'A · Potência',titulo:'BLOCO A — POTÊNCIA (fresco)',                sub:'4 exercícios' },
   { id:'gB',  cor:'#22d3ee', nav:'B · Absorção',titulo:'BLOCO B — ABSORÇÃO',                         sub:'2 exercícios' },
-  { id:'gC',  cor:'#ef4444', nav:'C · Iso',     titulo:'BLOCO C — ISOMETRIA + EQUILÍBRIO · INTOCÁVEL', sub:'4 exercícios · descanso 0:45' },
+  { id:'gC',  cor:'#ef4444', nav:'C · Iso',     titulo:'BLOCO C — ISOMETRIA · INTOCÁVEL', sub:'2 exercícios · ~5 min · descanso 0:45' },
   { id:'gD',  cor:'#c084fc', nav:'D · Intrínseco', titulo:'BLOCO D — INTRÍNSECO COM CARGA',          sub:'3 exercícios' },
   { id:'gE',  cor:'#fb923c', nav:'E · Upper',   titulo:'BLOCO E — POTÊNCIA UPPER',                   sub:'5 exercícios' },
   { id:'ghj', cor:'#94a3b8', nav:'Hoje',        titulo:'COMO FOI HOJE',                              sub:'preenche no fim — vira referência da próxima vez nesta rota' }
@@ -333,6 +333,7 @@ var DATA_CASA = [
   chips:['~10 min','8 itens'], eq:null,
   cue:'Skipping, carioca, mobilidade, glute bridge iso, pogos leves e saltos submáximos.',
   steps:[{t:'Skipping progressivo · 2× 20 m'},{t:'Carioca · 2× 20 m'},{t:'Leg swings · 10 cada'},{t:'Mob. dinâmica quadril · 2× 8'},{t:'Glute bridge iso · S1',s:20},{t:'Glute bridge iso · S2',s:20},{t:'SL pogos leves · 2× 6 cada'},{t:'3–5 saltos submáximos'}],
+  tip:'<strong>Fez a Mobilidade antes?</strong> Faz só os pogos e os 3 saltos submáximos.',
   desc:'Skipping progressivo 2× 20 m · Carioca 2× 20 m · Leg swings (frente/lado) 10 cada · Mobilidade dinâmica quadril 2× 8.<br><strong>Miniband glute bridge isométrico 2× 20 s:</strong> band acima dos joelhos, quadril alto, empurra os joelhos pra fora contra a band. Aperta o glúteo no topo e segura. Ativa o glúteo médio antes dos saltos.<br><strong>Single leg pogos LEVES 2× 6 cada:</strong> joelho quase travado, só o tornozelo trabalha. Contato rápido e leve com o chão.<br>3–5 saltos submáximos (2 pernas + 1 perna alternando).',
   links:[] },
 
@@ -409,21 +410,6 @@ var DATA_CASA = [
   desc:'Costas na parede, desce até ~90° em 1 perna só. A outra perna fica levantada (joelho a 90°). Se muito difícil: começa com ângulo mais alto (45–60°). Fortalece quadríceps e tendão patelar de forma isométrica (pouco estresse articular). <em>Fonte: Phoenix Suns S&amp;C program, NBSCA.</em>',
   links:[{t:'Single Leg Wall Sit', u:YT('lpTsOjxkFOc')}] },
 
-{ id:'c11', b:'cC', num:'11', name:'Single leg RDL com band', img:IMG('Zfr6wizR8rs'), fid:'bcq_slrdl',
-  chips:['2× 8','cada perna'], eq:'descanso 0:45', rest:45,
-  cue:'Dobra no <b>quadril</b> (não na lombar), perna de trás como contrapeso, sobe apertando o glúteo.',
-  sets:[{t:'S1',k:'ed'},{t:'S2',k:'ed'}],
-  desc:'Pisa na band com 1 pé, segura a outra ponta. Inclina o tronco pra frente dobrando no quadril (não na lombar), a perna de trás sobe reta como contrapeso. Desce controlado, sobe apertando o glúteo. Trabalha equilíbrio + posterior (glúteo/isquiotibiais) em single leg.',
-  links:[{t:'Single-Leg RDL (Squat University)', u:YT('Zfr6wizR8rs')}] },
-
-{ id:'c12', b:'cC', num:'12', name:'Single leg balance — olhos fechados', img:IMG('4HtOeds_vyw'), fid:'bcq_bal',
-  chips:['2× 20–30 s','cada perna'], eq:null,
-  cue:'Uma perna, <b>fecha os olhos</b>, tenta não mexer — desafia muito a propriocepção.',
-  sets:[{t:'S1',k:'sec_ed'},{t:'S2',k:'sec_ed'}],
-  steps:[{t:'S1 · Perna E',s:30},{t:'S1 · Perna D',s:30},{t:'S2 · Perna E',s:30},{t:'S2 · Perna D',s:30}],
-  desc:'Fica em 1 perna, fecha os olhos, tenta não mexer. Parece fácil mas desafia MUITO a propriocepção. Progressão: semana 1–2 olhos abertos → semana 3+ olhos fechados. <em>Fonte: estudo PMC 2013 — 12 semanas de balance training = +8–13% salto vertical.</em>',
-  links:[{t:'Single Leg Balance with Eyes Closed', u:YT('4HtOeds_vyw')}] },
-
 { id:'c13', b:'cS', num:'13', name:'Flexões explosivas', img:IMG('GR0ZL7f7u18'),
   chips:['4× 5'], eq:'mãos saem do chão · descanso 1:30', rest:90,
   cue:'Desce controlado, <b>EXPLODE</b> até as mãos saírem do chão.',
@@ -479,6 +465,7 @@ var DATA_GYM = [
   chips:['~8 min','5 itens'], eq:null,
   cue:'Bike, skipping + carioca, mobilidade dinâmica, pogos leves e saltos submáximos.',
   steps:[{t:'Bike leve · 3 min',s:180},{t:'Skipping + carioca · 2× 15 m'},{t:'Mob. dinâmica quadril/tornozelo/torácica'},{t:'SL pogos leves · 2× 6 cada'},{t:'3 saltos submáximos'}],
+  tip:'<strong>Fez a Mobilidade antes?</strong> Faz só os pogos e os 3 saltos submáximos.',
   desc:'Bike leve 3 min · Skipping + carioca 2× 15 m num corredor · Mobilidade dinâmica quadril / tornozelo / torácica · Single leg pogos LEVES 2× 6 cada · 3 saltos submáximos.',
   links:[] },
 
@@ -539,21 +526,6 @@ var DATA_GYM = [
   steps:[{t:'S1 · Perna E',s:30},{t:'S1 · Perna D',s:30},{t:'Descanso',s:45},{t:'S2 · Perna E',s:30},{t:'S2 · Perna D',s:30}],
   desc:'2× 20–30 s cada perna, costas na parede, outra perna levantada a 90°.',
   links:[{t:'Single Leg Wall Sit', u:YT('lpTsOjxkFOc')}] },
-
-{ id:'g9', b:'gC', num:'9', name:'Single leg RDL com halter leve', img:IMG('Zfr6wizR8rs'), fid:'bcq_slrdl',
-  chips:['2× 8','cada perna'], eq:'descanso 0:45', rest:45,
-  cue:'Halter na mão oposta ao pé de apoio — dobra no <b>quadril</b>, sobe apertando o glúteo.',
-  sets:[{t:'S1',k:'kg_ed'},{t:'S2',k:'ed'}],
-  desc:'Halter na mão oposta ao pé de apoio. Dobra no quadril (não na lombar), perna de trás como contrapeso. Desce controlado, sobe apertando o glúteo. Equilíbrio + posterior em single leg.',
-  links:[{t:'Single-Leg RDL (Squat University)', u:YT('Zfr6wizR8rs')}] },
-
-{ id:'g10', b:'gC', num:'10', name:'Equilíbrio de olhos fechados', img:IMG('4HtOeds_vyw'), fid:'bcq_bal',
-  chips:['2× 20–30 s','cada perna'], eq:null,
-  cue:'Uma perna, <b>olhos fechados</b>, tenta não mexer.',
-  sets:[{t:'S1',k:'sec_ed'},{t:'S2',k:'sec_ed'}],
-  steps:[{t:'S1 · Perna E',s:30},{t:'S1 · Perna D',s:30},{t:'S2 · Perna E',s:30},{t:'S2 · Perna D',s:30}],
-  desc:'2× 20–30 s cada perna, olhos fechados.',
-  links:[{t:'Single Leg Balance with Eyes Closed', u:YT('4HtOeds_vyw')}] },
 
 { id:'g11', b:'gD', num:'11', name:'Hip thrust unilateral', img:IMG('L4nTaesNm0E'),
   chips:['3× 8–10','cada perna'], eq:'ombros no banco · halter na virilha · descanso 1:00', rest:60,
@@ -916,8 +888,8 @@ var NOTAS_REGISTRO = '<p><strong>Registro:</strong> anota as reps E/D (ou kg, cm
     document.getElementById('chooser').classList.remove('show');
     document.getElementById('h1t').textContent = r === 'gym' ? 'QUA · Atlético' : 'QUA · Plio Casa';
     document.getElementById('subT').textContent = r === 'gym'
-      ? 'Potência com carga + absorção + remédio + intrínseco · ~65 min · decolagem sim, aterrissagem dura não'
-      : 'Plio completa · ~65–70 min · se técnica cair, PARA · qualidade > quantidade';
+      ? 'Potência com carga + absorção + remédio + intrínseco · ~60 min · decolagem sim, aterrissagem dura não'
+      : 'Plio completa · ~60–65 min · se técnica cair, PARA · qualidade > quantidade';
     nav.innerHTML = '';
     blocosAtivos().forEach(function (b) {
       var a = document.createElement('a');
