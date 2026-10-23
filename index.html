@@ -207,11 +207,18 @@
   section.bloco { scroll-margin-top:calc(118px + env(safe-area-inset-top)); }  /* o topo tem ~105 px com o botão Histórico */
   .top-r { display:flex; align-items:center; gap:10px; }
   .hbtn {
-    background:#161b22; border:1px solid #2b3442; border-radius:999px; color:#a8b3c1;
+    background:#fbbf241a; border:1px solid #fbbf24; border-radius:999px; color:#fbbf24;
     font-size:12.5px; font-weight:700; padding:5px 12px; min-height:32px; cursor:pointer;
   }
+  body.hv .hbtn { background:#fbbf24; color:#0d1117; }
+  .foot .encerrar {
+    display:block; width:100%; max-width:340px; min-height:48px; margin:0 auto 12px; border-radius:12px;
+    background:#22c55e1a; border:1.5px solid #22c55e; color:#22c55e; font-size:15.5px; font-weight:800; cursor:pointer;
+  }
+  .sub.encerrada { color:#22c55e; font-weight:700; }
+  .sub.encerrada[hidden] { display:none; }
   body.hv #app, body.hv .sub, body.hv .toggle-row, body.hv .gate, body.hv details.notas,
-  body.hv .semsessao, body.hv .chips-nav, body.hv .foot .reset { display:none !important; }
+  body.hv .semsessao, body.hv .chips-nav, body.hv .foot .reset, body.hv .foot .encerrar { display:none !important; }
   #histView { padding-top:14px; }
   .hv-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
   .hv-tit { font-size:15px; font-weight:800; text-align:center; }
@@ -282,6 +289,7 @@
 
 <p class="sub">Roda em: <strong>TER · QUA · QUI · SÁB · DOM</strong> — seg e sex sem sessão</p>
 <p class="sub">~43 min · <span id="nEx">35</span> exercícios · Todos = a sessão inteira, na sequência · as abas mostram um grupo por vez</p>
+<p class="sub encerrada" id="encerradaTxt" hidden></p>
 <div class="semsessao" id="semSessao" hidden><strong>Hoje não tem sessão</strong> (seg/sex: o aquecimento do treino cobre). Se quiser fazer mesmo assim, segue normal.</div>
 <div class="toggle-row"><button type="button" class="tg" id="minimaBtn">Versão mínima</button></div>
 <div class="gate" id="gate" hidden><strong>Portão das 24 h (QUA e DOM):</strong> joelho de manhã, 0–10. <strong>&gt; 3 → saltos submáximos hoje.</strong><div class="grow"><label>Joelho hoje <input type="number" inputmode="numeric" min="0" max="10" data-log="joelho"></label><span class="log-hist always" id="gateHist"></span></div></div>
@@ -343,7 +351,7 @@
   · Aterrissar com mais flexão de tronco/quadril reduz força no tendão (Scattone Silva 2017).<br>
   · Pistola fora do pescoço: relato de dissecção vertebral (2022).<br>
   · Vídeos do Instagram: catálogo completo no doc 10 do projeto (varredura de 08/10).</p>
-  <p><strong>Progresso:</strong> as marcações valem por hoje — amanhã o app começa zerado sozinho (o histórico ANOTA fica). O resumo de cada dia vai pro <strong>Histórico</strong> (botão no topo): a semana de segunda a domingo, com as medidas do ANOTA e «Copiar esta semana». Dia esquecido: toca nele no Histórico e anota.</p>
+  <p><strong>Progresso:</strong> as marcações valem por hoje — amanhã o app começa zerado sozinho (o histórico ANOTA fica). Terminou? <strong>«Encerrar a sessão de hoje»</strong> (no fim da página) guarda o dia no Histórico e limpa as marcações — se fizer mais coisa no mesmo dia, soma no mesmo registro. <strong>«Zerar o dia»</strong> é o contrário: apaga as marcações e o registro de hoje (pra quando marcou errado). O resumo de cada dia vai pro <strong>Histórico</strong> (botão no topo): a semana de segunda a domingo, com as medidas do ANOTA e «Copiar esta semana». Dia esquecido: toca nele no Histórico e anota.</p>
   <p><strong>Abas:</strong> «Todos» mostra a sessão inteira, na sequência; tocar num grupo (Libera, Abre, Alonga, Força, Equilíbrio, Mãos) mostra só os cards dele. Cada aba conta o progresso dela; o número do topo é o total do dia. A aba escolhida fica até o fim do dia; amanhã o app abre em «Todos».</p>
   <p><strong>Errou um toque?</strong> Toca no <strong>número</strong> do exercício pra voltar um passo; o ✓ do canto desmarca o exercício inteiro. Num card já feito, o botão «✓ feito hoje — refazer» pergunta antes de zerar.</p>
 </details>
@@ -364,6 +372,7 @@
 </div>
 
 <div class="foot">
+  <button class="encerrar" id="encerrarBtn">Encerrar a sessão de hoje</button>
   <button class="reset" id="resetBtn">Zerar o dia (tirar marcações)</button>
   <div class="savemsg" id="saveMsg"></div>
   <div>vD.3.1 — Mobilidade (ter · qua · qui · sáb · dom · ~43 min) · <a href="arquivo/vC12/completa/">arquivo vC.12</a></div>
@@ -954,7 +963,7 @@ var DATA = [
     return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
   }
   DIA_CARREGADO = hoje();
-  var state = { d: hoje(), ex: {}, minima: false, rio: false, filtro: null, hist: {}, dias: {} };
+  var state = { d: hoje(), ex: {}, minima: false, rio: false, filtro: null, feitos: [], encerrada: null, hist: {}, dias: {} };
   try {
     var raw = localStorage.getItem(KEY);
     if (raw) {
@@ -969,6 +978,7 @@ var DATA = [
   } catch (e) {}
   if (!state.hist) state.hist = {};
   if (!state.dias) state.dias = {};
+  if (!state.feitos) state.feitos = [];  // cards já guardados por «Encerrar a sessão de hoje» (somam com as marcações)
   if (!state.filtro || !BLOCOS.some(function (b) { return b.id === state.filtro; })) state.filtro = null;
   // dia em que o histórico semanal começou a gravar (antes dele: «sem registro», nunca «não fez»)
   if (!state.diasDesde) { state.diasDesde = DIA_CARREGADO; try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
@@ -1117,17 +1127,23 @@ var DATA = [
       var bd = blocoDone[b.id];
       chip.textContent = (bd.total > 0 && bd.done >= bd.total) ? base + ' ✓' : (bd.done > 0 ? base + ' ' + bd.done + '/' + bd.total : base);
     });
-    // histórico semanal: resumo do dia (feitos/total, por grupo, mínima, Rio); dia sem nenhum card feito não fica registrado
-    var antes = JSON.stringify(state.dias[DIA_CARREGADO] || null);
-    if (d > 0) {
-      var g = {};
-      BLOCOS.forEach(function (b) { g[b.id] = [blocoDone[b.id].done, blocoDone[b.id].total]; });
-      state.dias[DIA_CARREGADO] = { f: d, t: ativos.length, m: state.minima ? 1 : 0, r: (DIA_SEMANA === 2 && state.rio) ? 1 : 0, g: g };
+    // histórico semanal: resumo do dia (feitos/total, por grupo, mínima, Rio); dia sem nenhum card feito não fica registrado.
+    // Feito = marcado agora OU guardado num «Encerrar» de hoje (encerrar e continuar soma no mesmo dia).
+    var antes = JSON.stringify(state.dias[DIA_CARREGADO] || null), rf = 0, g = {};
+    BLOCOS.forEach(function (b) { g[b.id] = [0, 0]; });
+    ativos.forEach(function (e) {
+      var id = 'ex' + e.n;
+      g[e.b][1]++;
+      if (st(id).done || state.feitos.indexOf(id) >= 0) { rf++; g[e.b][0]++; }
+    });
+    if (rf > 0) {
+      state.dias[DIA_CARREGADO] = { f: rf, t: ativos.length, m: state.minima ? 1 : 0, r: (DIA_SEMANA === 2 && state.rio) ? 1 : 0, g: g };
       var ks = Object.keys(state.dias).sort();
       while (ks.length > 190) delete state.dias[ks.shift()];  // ~6 meses
     } else delete state.dias[DIA_CARREGADO];
     // mudou o resumo (Zerar, versão mínima, Rio, carga da página): grava já — senão o dia velho fica no histórico
     if (JSON.stringify(state.dias[DIA_CARREGADO] || null) !== antes) { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+    mostraEncerrada();
   }
 
   function setDone(id, done) {
@@ -1357,11 +1373,11 @@ var DATA = [
   if (started && !allDone) advance();
 
   document.getElementById('resetBtn').addEventListener('click', function () {
-    if (!confirm('Zerar as marcações de hoje?')) return;
+    if (!confirm('Zerar o dia? Apaga as marcações E o registro de hoje no Histórico — nada fica salvo. (Pra guardar a sessão e limpar a tela, use «Encerrar a sessão de hoje».)')) return;
     // se o calendário virou desde o load, o wiring (dia congelado) está velho: recarrega
     if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
     stopRun();
-    state = { d: hoje(), ex: {}, minima: state.minima, rio: state.rio, filtro: state.filtro, hist: state.hist, dias: state.dias, diasDesde: state.diasDesde };  // históricos e as escolhas do dia ficam
+    state = { d: hoje(), ex: {}, minima: state.minima, rio: state.rio, filtro: state.filtro, feitos: [], encerrada: null, hist: state.hist, dias: state.dias, diasDesde: state.diasDesde };  // zera o dia (marcações + registro de hoje); históricos e as escolhas do dia ficam
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
     DATA.forEach(function (e) {
       var id = 'ex' + e.n;
@@ -1605,6 +1621,38 @@ var DATA = [
       if (ok) { box.hidden = true; msg('semana copiada — cola no Notes'); }
       else { box.value = txt; box.hidden = false; box.focus(); box.select(); msg('não consegui copiar — segura no texto e escolhe Selecionar tudo'); }
     });
+  });
+
+  // ===================== ENCERRAR A SESSÃO DE HOJE (vD.3.1) =====================
+  // guarda os cards feitos em state.feitos (o registro do dia soma eles com as marcações) e limpa a tela; o «Zerar» descarta
+  function mostraEncerrada() {
+    var el = document.getElementById('encerradaTxt'), e = state.dias[DIA_CARREGADO];
+    if (!el) return;
+    el.hidden = !(state.encerrada && e);
+    if (!el.hidden) el.textContent = 'Sessão de hoje encerrada às ' + state.encerrada + ' · ' + e.f + '/' + e.t + ' no Histórico — se fizer mais, soma';
+  }
+  document.getElementById('encerrarBtn').addEventListener('click', function () {
+    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
+    var ativos = DATA.filter(ativo), marcados = DATA.filter(function (e) { return st('ex' + e.n).done; });
+    if (!marcados.length) { msg(state.encerrada ? 'nada marcado desde o último encerramento' : 'nada marcado hoje ainda'); return; }
+    var n = ativos.filter(function (e) { var id = 'ex' + e.n; return st(id).done || state.feitos.indexOf(id) >= 0; }).length;
+    if (!confirm('Encerrar a sessão de hoje? ' + n + ' de ' + ativos.length + ' exercícios vão pro Histórico e as marcações zeram.')) return;
+    stopRun();
+    marcados.forEach(function (e) { var id = 'ex' + e.n; if (state.feitos.indexOf(id) < 0) state.feitos.push(id); });
+    var h = new Date();
+    state.encerrada = ('0' + h.getHours()).slice(-2) + ':' + ('0' + h.getMinutes()).slice(-2);
+    state.ex = {};
+    DATA.forEach(function (e) {  // mesma limpeza visual do «Zerar o dia»
+      var id = 'ex' + e.n;
+      card(id).classList.remove('is-done');
+      var db = card(id).querySelector('.done-btn');
+      db.setAttribute('aria-pressed', 'false'); db.setAttribute('aria-label', 'marcar feito');
+      renderGo(id);
+    });
+    progress();
+    save();
+    msg('sessão guardada no Histórico');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 })();
 
