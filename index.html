@@ -223,7 +223,7 @@
   .hv-nav:disabled { opacity:.3; cursor:default; }
   .hv-dias { background:#161b22; border:1px solid #2b3442; border-radius:12px; overflow:hidden; }
   .hv-dia {
-    display:grid; grid-template-columns:76px 20px 1fr; gap:6px; align-items:baseline;
+    display:grid; grid-template-columns:76px 20px 1fr 14px; gap:6px; align-items:baseline;
     padding:10px 12px; border-top:1px solid #21283a; font-size:14px; line-height:1.4;
   }
   .hv-dia:first-child { border-top:0; }
@@ -235,6 +235,23 @@
   .hv-dia.par .hv-m { color:#eab308; }
   .hv-dia.no .hv-m { color:#ef4444; }
   .hv-dia.off .hv-m, .hv-dia.off .hv-t { color:#6e7681; }
+  .hv-dia.ed { cursor:pointer; }
+  .hv-dia.aberto { background:#1c2330; }
+  .hv-e { color:#6e7681; font-size:13px; text-align:right; }
+  .hv-ed { padding:10px 12px 12px; border-top:1px solid #21283a; background:#11161d; }
+  .hv-ed-t { font-size:13.5px; font-weight:800; color:#e6edf3; margin-bottom:8px; }
+  .hv-ed-k { font-size:12.5px; color:#8b949e; margin:10px 0 6px; }
+  .hv-ed-row { display:flex; flex-wrap:wrap; gap:8px; }
+  .hv-ed-row + .hv-ed-row, .hv-ed-g + .hv-ed-row { margin-top:10px; }
+  .hv-ed button {
+    min-height:42px; padding:8px 12px; border-radius:10px; background:#161b22; border:1px solid #2b3442;
+    color:#e6edf3; font-size:14px; font-weight:700; cursor:pointer;
+  }
+  .hv-ed-row > button { flex:1 1 auto; }
+  .hv-ed .pri { border-color:#22c55e; color:#22c55e; }
+  .hv-ed .del { color:#c96a6a; }
+  .hv-ed-g { display:flex; flex-wrap:wrap; gap:6px; }
+  .hv-ed-g button.on { background:#58a6ff; border-color:#58a6ff; color:#0d1117; }
   .hv-box {
     background:#161b22; border:1px solid #2b3442; border-radius:12px; padding:10px 12px; margin-top:10px;
     font-size:14px; color:#c9d1d9; line-height:1.5;
@@ -326,7 +343,7 @@
   · Aterrissar com mais flexão de tronco/quadril reduz força no tendão (Scattone Silva 2017).<br>
   · Pistola fora do pescoço: relato de dissecção vertebral (2022).<br>
   · Vídeos do Instagram: catálogo completo no doc 10 do projeto (varredura de 08/10).</p>
-  <p><strong>Progresso:</strong> as marcações valem por hoje — amanhã o app começa zerado sozinho (o histórico ANOTA fica). O resumo de cada dia vai pro <strong>Histórico</strong> (botão no topo): a semana de segunda a domingo, com as medidas do ANOTA e «Copiar esta semana».</p>
+  <p><strong>Progresso:</strong> as marcações valem por hoje — amanhã o app começa zerado sozinho (o histórico ANOTA fica). O resumo de cada dia vai pro <strong>Histórico</strong> (botão no topo): a semana de segunda a domingo, com as medidas do ANOTA e «Copiar esta semana». Dia esquecido: toca nele no Histórico e anota.</p>
   <p><strong>Abas:</strong> «Todos» mostra a sessão inteira, na sequência; tocar num grupo (Libera, Abre, Alonga, Força, Equilíbrio, Mãos) mostra só os cards dele. Cada aba conta o progresso dela; o número do topo é o total do dia. A aba escolhida fica até o fim do dia; amanhã o app abre em «Todos».</p>
   <p><strong>Errou um toque?</strong> Toca no <strong>número</strong> do exercício pra voltar um passo; o ✓ do canto desmarca o exercício inteiro. Num card já feito, o botão «✓ feito hoje — refazer» pergunta antes de zerar.</p>
 </details>
@@ -343,7 +360,7 @@
   <div id="hvBody"></div>
   <button type="button" class="hv-copy" id="copiarBtn">Copiar esta semana</button>
   <textarea class="hv-text" id="histBox" readonly hidden></textarea>
-  <p class="hv-nota">Todo dia com pelo menos 1 card feito entra aqui sozinho: ✓ inteira · ◐ parcial (com os grupos feitos) · ✗ dia de sessão sem nada feito · — seg e sex sem sessão. As medidas vêm do ANOTA. O histórico é deste ícone.</p>
+  <p class="hv-nota">Todo dia com pelo menos 1 card feito entra aqui sozinho: ✓ inteira · ◐ parcial (com os grupos feitos) · ✗ dia de sessão sem nada feito · — seg e sex sem sessão. Esqueceu de marcar? Toca num dia que já passou (✎) e anota: inteira, mínima ou só alguns grupos — fica «anotado». As medidas vêm do ANOTA. O histórico é deste ícone.</p>
 </div>
 
 <div class="foot">
@@ -1414,18 +1431,19 @@ var DATA = [
   function primeiraSemana() {
     var min = state.diasDesde;
     Object.keys(state.hist).forEach(function (k) { (state.hist[k] || []).forEach(function (x) { if (x.d < min) min = x.d; }); });
+    Object.keys(state.dias).forEach(function (k) { if (k < min) min = k; });
     return segundaDe(min);
   }
   function diaTxt(iso) {
     var e = state.dias[iso], dow = dataDe(iso).getDay();
     if (e) {
-      var base = (e.m ? 'mínima ' : '') + e.f + '/' + e.t + (e.r ? ' · Rio' : '');
-      if (e.f >= e.t) return { m: '✓', c: 'ok', t: base };
+      var base = (e.m ? 'mínima ' : '') + e.f + '/' + e.t + (e.r ? ' · Rio' : ''), anot = e.a ? ' · anotado' : '';
+      if (e.f >= e.t) return { m: '✓', c: 'ok', t: base + anot };
       var gs = BLOCOS.filter(function (b) { return e.g[b.id] && e.g[b.id][0] > 0; }).map(function (b) {
         var g = e.g[b.id];
         return b.nav + (g[0] >= g[1] ? ' ✓' : ' ' + g[0] + '/' + g[1]);
       });
-      return { m: '◐', c: 'par', t: base + ' · ' + gs.join(' · ') };
+      return { m: '◐', c: 'par', t: base + ' · ' + gs.join(' · ') + anot };
     }
     if (DIAS_SESSAO.indexOf(dow) < 0) return { m: '—', c: 'off', t: 'sem sessão' };
     if (iso < state.diasDesde) return { m: '·', c: 'off', t: 'sem registro' };
@@ -1439,10 +1457,11 @@ var DATA = [
       var iso = somaDias(seg, i);
       dias.push(iso);
       if (state.dias[iso]) ent.push(state.dias[iso]);
-      if (DIAS_SESSAO.indexOf(dataDe(iso).getDay()) >= 0 && iso >= state.diasDesde) plan++;
+      // planejados = dias de sessão que o histórico conhece (desde o início da gravação ou anotados depois)
+      if (DIAS_SESSAO.indexOf(dataDe(iso).getDay()) >= 0 && (iso >= state.diasDesde || state.dias[iso])) plan++;
     }
     var fim = dias[6], linhas = [];
-    if (fim < state.diasDesde) linhas.push('Sessões: sem registro — o histórico das sessões começa em ' + fmtRef(state.diasDesde));
+    if (fim < state.diasDesde && !ent.length) linhas.push('Sessões: sem registro — o histórico das sessões começa em ' + fmtRef(state.diasDesde));
     else {
       var inteiras = 0, minimas = 0, parciais = 0;
       ent.forEach(function (e) { if (e.f < e.t) parciais++; else if (e.m) minimas++; else inteiras++; });
@@ -1468,6 +1487,34 @@ var DATA = [
     return { dias: dias, linhas: linhas, med: med };
   }
   var hv = document.getElementById('histView'), histBtn = document.getElementById('histBtn'), hvSeg = null, voltaY = 0;
+  // registro à mão de um dia que já passou (esqueceu de marcar / corrigir): Inteira · Mínima · só alguns grupos · apagar
+  var hvEdit = null, hvSel = [];
+  function cardsDoDia(dow, minima) {
+    return DATA.filter(function (e) { return (!e.dias || e.dias.indexOf(dow) >= 0) && (!minima || e.minima); });
+  }
+  function registroManual(iso, tipo, grupos) {
+    var cs = cardsDoDia(dataDe(iso).getDay(), tipo === 'minima'), g = {}, f = 0;
+    BLOCOS.forEach(function (b) {
+      var tot = cs.filter(function (e) { return e.b === b.id; }).length;
+      var feito = (tipo !== 'grupos' || grupos.indexOf(b.id) >= 0) ? tot : 0;
+      g[b.id] = [feito, tot]; f += feito;
+    });
+    return { f: f, t: cs.length, m: tipo === 'minima' ? 1 : 0, r: 0, g: g, a: 1 };
+  }
+  function editorHtml(iso) {
+    var dow = dataDe(iso).getDay(), e = state.dias[iso];
+    return '<div class="hv-ed"><div class="hv-ed-t">Registrar ' + fmtRef(iso) + '</div>' +
+      '<div class="hv-ed-row"><button type="button" class="pri" data-a="inteira">Inteira (' + cardsDoDia(dow, false).length + ')</button>' +
+      '<button type="button" class="pri" data-a="minima">Mínima (' + cardsDoDia(dow, true).length + ')</button></div>' +
+      '<div class="hv-ed-k">Só alguns grupos — toca nos que fez:</div><div class="hv-ed-g">' + BLOCOS.map(function (b) {
+        return '<button type="button" data-g="' + b.id + '"' + (hvSel.indexOf(b.id) >= 0 ? ' class="on"' : '') + '>' + b.nav + '</button>';
+      }).join('') + '</div>' +
+      '<div class="hv-ed-row"><button type="button" data-a="grupos">Salvar os grupos</button>' +
+      (e ? '<button type="button" class="del" data-a="apagar">Apagar o registro</button>' : '') + '</div></div>';
+  }
+  function gravaDias(txt) {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); msg(txt); } catch (e) { msg(''); }
+  }
   function renderHist() {
     var s = semana(hvSeg), atual = segundaDe(DIA_CARREGADO);
     document.getElementById('hvTit').innerHTML = 'Semana ' + ddmm(hvSeg) + ' – ' + ddmm(s.dias[6]) + (hvSeg === atual ? '<small>esta semana</small>' : '');
@@ -1475,9 +1522,11 @@ var DATA = [
     document.getElementById('hvNext').disabled = hvSeg >= atual;
     document.getElementById('hvBody').innerHTML =
       '<div class="hv-dias">' + s.dias.map(function (iso) {
-        var x = diaTxt(iso);
-        return '<div class="hv-dia ' + x.c + (iso === DIA_CARREGADO ? ' hoje' : '') + '"><span class="hv-d">' + fmtRef(iso) +
-          '</span><span class="hv-m">' + x.m + '</span><span class="hv-t">' + esc(x.t) + '</span></div>';
+        var x = diaTxt(iso), ed = iso < DIA_CARREGADO;  // hoje = marcar os cards; só dia que já passou se anota à mão
+        return '<div class="hv-dia ' + x.c + (iso === DIA_CARREGADO ? ' hoje' : '') + (ed ? ' ed' : '') + (iso === hvEdit ? ' aberto' : '') + '"' +
+          (ed ? ' data-iso="' + iso + '"' : '') + '><span class="hv-d">' + fmtRef(iso) +
+          '</span><span class="hv-m">' + x.m + '</span><span class="hv-t">' + esc(x.t) + '</span><span class="hv-e">' + (ed ? '✎' : '') + '</span></div>' +
+          (iso === hvEdit ? editorHtml(iso) : '');
       }).join('') + '</div>' +
       '<div class="hv-box">' + s.linhas.map(function (l) { return '<div>' + esc(l) + '</div>'; }).join('') + '</div>' +
       '<div class="hv-box"><div class="hv-k">Medidas da semana (ANOTA)</div>' +
@@ -1488,7 +1537,7 @@ var DATA = [
     if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
     stopRun();  // os cards somem da tela
     voltaY = window.scrollY;
-    hvSeg = segundaDe(DIA_CARREGADO);
+    hvSeg = segundaDe(DIA_CARREGADO); hvEdit = null;
     document.body.classList.add('hv'); hv.hidden = false; histBtn.textContent = '← Sessão';
     renderHist();
     window.scrollTo(0, 0);
@@ -1498,8 +1547,37 @@ var DATA = [
     window.scrollTo(0, voltaY);
   }
   histBtn.addEventListener('click', function () { if (hv.hidden) abreHist(); else fechaHist(); });
-  document.getElementById('hvPrev').addEventListener('click', function () { hvSeg = somaDias(hvSeg, -7); renderHist(); });
-  document.getElementById('hvNext').addEventListener('click', function () { hvSeg = somaDias(hvSeg, 7); renderHist(); });
+  document.getElementById('hvPrev').addEventListener('click', function () { hvSeg = somaDias(hvSeg, -7); hvEdit = null; renderHist(); });
+  document.getElementById('hvNext').addEventListener('click', function () { hvSeg = somaDias(hvSeg, 7); hvEdit = null; renderHist(); });
+  document.getElementById('hvBody').addEventListener('click', function (ev) {
+    var row = ev.target.closest('[data-iso]'), gb = ev.target.closest('[data-g]'), ab = ev.target.closest('[data-a]');
+    if (row) {  // abre/fecha o registro do dia; os grupos já completos vêm marcados
+      hvEdit = hvEdit === row.dataset.iso ? null : row.dataset.iso;
+      var e = hvEdit && state.dias[hvEdit];
+      hvSel = e ? BLOCOS.filter(function (b) { var g = e.g[b.id]; return g && g[1] > 0 && g[0] >= g[1]; }).map(function (b) { return b.id; }) : [];
+      renderHist();
+      return;
+    }
+    if (gb) {
+      var i = hvSel.indexOf(gb.dataset.g);
+      if (i >= 0) hvSel.splice(i, 1); else hvSel.push(gb.dataset.g);
+      gb.classList.toggle('on', i < 0);
+      return;
+    }
+    if (!ab || !hvEdit) return;
+    var iso = hvEdit, a = ab.dataset.a;
+    if (a === 'apagar') {
+      if (!confirm('Apagar o registro de ' + fmtRef(iso) + '?')) return;
+      delete state.dias[iso];
+      gravaDias(fmtRef(iso) + ' sem registro');
+    } else {
+      if (a === 'grupos' && !hvSel.length) { msg('toca em pelo menos 1 grupo'); return; }
+      state.dias[iso] = registroManual(iso, a, hvSel);
+      gravaDias(fmtRef(iso) + ' anotado');
+    }
+    hvEdit = null;
+    renderHist();
+  });
   function semanaTexto() {
     var s = semana(hvSeg), l = ['Mobilidade · semana ' + ddmm(hvSeg) + ' – ' + ddmm(s.dias[6])];
     s.dias.forEach(function (iso) { var x = diaTxt(iso); l.push(fmtRef(iso) + ' ' + x.m + (x.t ? ' ' + x.t : '')); });
