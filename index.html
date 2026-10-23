@@ -202,6 +202,54 @@
   .semsessao strong { color:#e6edf3; }
   .rio-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 12px; margin:0 0 10px; font-size:13.5px; color:#e6edf3; }
   .semsessao[hidden], .rio-row[hidden] { display:none; }
+  /* vD.3.1: abas = filtro · botão e tela do Histórico semanal */
+  section.bloco[hidden], #histView[hidden], .hv-text[hidden] { display:none; }
+  section.bloco { scroll-margin-top:calc(118px + env(safe-area-inset-top)); }  /* o topo tem ~105 px com o botão Histórico */
+  .top-r { display:flex; align-items:center; gap:10px; }
+  .hbtn {
+    background:#161b22; border:1px solid #2b3442; border-radius:999px; color:#a8b3c1;
+    font-size:12.5px; font-weight:700; padding:5px 12px; min-height:32px; cursor:pointer;
+  }
+  body.hv #app, body.hv .sub, body.hv .toggle-row, body.hv .gate, body.hv details.notas,
+  body.hv .semsessao, body.hv .chips-nav, body.hv .foot .reset { display:none !important; }
+  #histView { padding-top:14px; }
+  .hv-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+  .hv-tit { font-size:15px; font-weight:800; text-align:center; }
+  .hv-tit small { display:block; font-size:12px; font-weight:600; color:#8b949e; }
+  .hv-nav {
+    width:44px; height:44px; flex-shrink:0; border-radius:12px; background:#161b22; border:1px solid #2b3442;
+    color:#e6edf3; font-size:22px; font-weight:700; cursor:pointer;
+  }
+  .hv-nav:disabled { opacity:.3; cursor:default; }
+  .hv-dias { background:#161b22; border:1px solid #2b3442; border-radius:12px; overflow:hidden; }
+  .hv-dia {
+    display:grid; grid-template-columns:76px 20px 1fr; gap:6px; align-items:baseline;
+    padding:10px 12px; border-top:1px solid #21283a; font-size:14px; line-height:1.4;
+  }
+  .hv-dia:first-child { border-top:0; }
+  .hv-dia.hoje { background:#1c2330; }
+  .hv-d { color:#a8b3c1; font-weight:700; font-variant-numeric:tabular-nums; }
+  .hv-m { font-weight:800; text-align:center; }
+  .hv-t { color:#e6edf3; min-width:0; }
+  .hv-dia.ok .hv-m { color:#22c55e; }
+  .hv-dia.par .hv-m { color:#eab308; }
+  .hv-dia.no .hv-m { color:#ef4444; }
+  .hv-dia.off .hv-m, .hv-dia.off .hv-t { color:#6e7681; }
+  .hv-box {
+    background:#161b22; border:1px solid #2b3442; border-radius:12px; padding:10px 12px; margin-top:10px;
+    font-size:14px; color:#c9d1d9; line-height:1.5;
+  }
+  .hv-box div + div { margin-top:5px; }
+  .hv-k { font-size:12px; font-weight:800; color:#8b949e; text-transform:uppercase; letter-spacing:.04em; }
+  .hv-copy {
+    display:block; width:100%; min-height:48px; margin-top:12px; border-radius:12px; border:1.5px solid #58a6ff;
+    background:transparent; color:#58a6ff; font-size:15.5px; font-weight:800; cursor:pointer;
+  }
+  .hv-text {
+    display:block; width:100%; min-height:180px; margin-top:10px; padding:10px; border-radius:12px;
+    background:#0d1117; border:1px solid #2b3442; color:#e6edf3; font-size:16px; box-sizing:border-box;
+  }
+  .hv-nota { font-size:12.5px; color:#8b949e; margin:12px 0 0; line-height:1.5; }
 </style>
 </head>
 <body>
@@ -209,22 +257,22 @@
 <div class="top">
   <div class="top-row">
     <h1>Mobilidade</h1>
-    <span class="prog-txt" id="progTxt">0/0</span>
+    <span class="top-r"><button type="button" class="hbtn" id="histBtn">Histórico</button><span class="prog-txt" id="progTxt">0/0</span></span>
   </div>
   <nav class="chips-nav" id="chipsNav"></nav>
   <div class="pbar"><i id="pbar"></i></div>
 </div>
 
 <p class="sub">Roda em: <strong>TER · QUA · QUI · SÁB · DOM</strong> — seg e sex sem sessão</p>
-<p class="sub">~43 min · <span id="nEx">35</span> exercícios · sempre a sessão inteira, sempre na mesma ordem</p>
+<p class="sub">~43 min · <span id="nEx">35</span> exercícios · Todos = a sessão inteira, na sequência · as abas mostram um grupo por vez</p>
 <div class="semsessao" id="semSessao" hidden><strong>Hoje não tem sessão</strong> (seg/sex: o aquecimento do treino cobre). Se quiser fazer mesmo assim, segue normal.</div>
 <div class="toggle-row"><button type="button" class="tg" id="minimaBtn">Versão mínima</button></div>
 <div class="gate" id="gate" hidden><strong>Portão das 24 h (QUA e DOM):</strong> joelho de manhã, 0–10. <strong>&gt; 3 → saltos submáximos hoje.</strong><div class="grow"><label>Joelho hoje <input type="number" inputmode="numeric" min="0" max="10" data-log="joelho"></label><span class="log-hist always" id="gateHist"></span></div></div>
 
 <details class="notas">
   <summary>Notas &amp; regras</summary>
-  <p><strong>Onde:</strong> pátio de casa ou academia do condomínio (na quarta, pode ser na própria academia, antes do atlético). <strong>Tempo:</strong> ~43 min (~40 sem o Bloco 5, que é temporário) · sempre a sessão inteira, sempre na mesma ordem, igual todo dia (só o Copenhagen muda: ter · qui · sáb). <strong>Material:</strong> bola de tênis, rolo, band longa (posterior e chute em 4 direções), band forte + poste (Spanish squat e mobilização de tornozelo), mini band (eversão), degrau, toalha, tapete, banco ou cadeira, um tênis (obstáculo do lift-over), halter leve (SL RDL + airplane, quando for na academia do condomínio), elástico leve pros polegares (elástico de dinheiro ou mini band). vD.3 fechada em 22/10/2026 (substitui a vD.2 de 08/10).</p>
-  <p><strong>O que mudou da vD.2 (21–22/10, depois da entorse do tornozelo E de 18/10):</strong> Bloco 2: cat-cow no lugar do child's pose (<a class="xref" href="#ex16">#16</a>) · novo no Bloco 3: eversão com mini band, logo depois do lift-over (<a class="xref" href="#ex25">#25</a>) · Bloco 4: o SL RDL ganha o airplane e o E ganha a série extra (<a class="xref" href="#ex30">#30</a>) · novo no Bloco 4: chute com elástico em 4 direções (<a class="xref" href="#ex32">#32</a>), depois do apoio de olhos fechados · Bloco 4 sobe de ~3 pra ~6 min; fica pelo menos até o reteste de ~01/12, aí decide se encolhe · versão mínima: + apoio numa perna, só o E (<a class="xref" href="#ex31">#31</a>) → 9 cards, ~12 min · log: a regra dos ★ 45 s passa a contar da volta sem dor do tornozelo E (no reteste de ~03/11 ela não vale) · imagens novas nos cards <a class="xref" href="#ex5">#5</a>, <a class="xref" href="#ex13">#13</a>, 16, 25, 30 e 32 · o selo NOVO sai dos exercícios da vD.2 (8, 10, 22, 24 e polegares): as 2 semanas submáximas já passaram.</p>
+  <p><strong>Onde:</strong> pátio de casa ou academia do condomínio (na quarta, pode ser na própria academia, antes do atlético). <strong>Tempo:</strong> ~43 min (~40 sem as Mãos, que são temporárias) · sempre a sessão inteira, sempre na mesma ordem, igual todo dia (só o Copenhagen muda: ter · qui · sáb). <strong>Material:</strong> bola de tênis, rolo, band longa (posterior e chute em 4 direções), band forte + poste (Spanish squat e mobilização de tornozelo), mini band (eversão), degrau, toalha, tapete, banco ou cadeira, um tênis (obstáculo do lift-over), halter leve (SL RDL + airplane, quando for na academia do condomínio), elástico leve pros polegares (elástico de dinheiro ou mini band). vD.3 fechada em 22/10/2026 (substitui a vD.2 de 08/10).</p>
+  <p><strong>O que mudou da vD.2 (21–22/10, depois da entorse do tornozelo E de 18/10):</strong> Alonga: cat-cow no lugar do child's pose (<a class="xref" href="#ex16">#16</a>) · novo na Força: eversão com mini band, logo depois do lift-over (<a class="xref" href="#ex25">#25</a>) · Equilíbrio: o SL RDL ganha o airplane e o E ganha a série extra (<a class="xref" href="#ex30">#30</a>) · novo no Equilíbrio: chute com elástico em 4 direções (<a class="xref" href="#ex32">#32</a>), depois do apoio de olhos fechados · o Equilíbrio sobe de ~3 pra ~6 min; fica pelo menos até o reteste de ~01/12, aí decide se encolhe · versão mínima: + apoio numa perna, só o E (<a class="xref" href="#ex31">#31</a>) → 9 cards, ~12 min · log: a regra dos ★ 45 s passa a contar da volta sem dor do tornozelo E (no reteste de ~03/11 ela não vale) · imagens novas nos cards <a class="xref" href="#ex5">#5</a>, <a class="xref" href="#ex13">#13</a>, 16, 25, 30 e 32 · o selo NOVO sai dos exercícios da vD.2 (8, 10, 22, 24 e polegares): as 2 semanas submáximas já passaram.</p>
   <p><strong>Dias e horários</strong> (sessão ~5 min mais longa que na vD.2)<br>
   TER · 8h30 acorda → 8h45 café → 9h05–9h50 sessão → personal 11h<br>
   QUA · 8h30 acorda → 8h45 café → 9h00–9h45 sessão → treino 10h · do aquecimento do app: só pogos + 3 saltos submáximos · Bloco C = só lunge isométrico + single leg wall sit<br>
@@ -245,7 +293,7 @@
   · Entorse do tornozelo E (18/10): tudo que carrega o E (mobilização de tornozelo, eversão, SL RDL + airplane, apoio numa perna e o chute com apoio no E) vai só até onde não dói. O que a fisio disser sobre o tornozelo manda.<br>
   · Equilíbrio sempre no chão firme: nada de prancha instável, rolo ou bosu (joelho).<br>
   · Mobilização de tornozelo: beliscão na frente do tornozelo = diminui a amplitude ou afrouxa o elástico. Nunca forçar dor.<br>
-  · Polegares (Bloco 5): trabalha na faixa do meio, sem dor; nunca forçar o polegar pra trás. O teste é o JOINHA, 1×/semana (sábado): quando o joinha não doer em 2 sábados seguidos, o Bloco 5 sai do app.<br>
+  · Polegares (Mãos): trabalha na faixa do meio, sem dor; nunca forçar o polegar pra trás. O teste é o JOINHA, 1×/semana (sábado): quando o joinha não doer em 2 sábados seguidos, as Mãos saem do app.<br>
   · Fáscia: se a dor do 1º passo voltar 2 dias seguidos, o alongamento de fáscia volta a ser diário (2 min).<br>
   · Isometria no aquecimento da quadra (ter/sex/dom): só se o joelho estiver sensível.</p>
   <p><strong>Versão mínima (~12 min, dia ruim):</strong> ★ só no lado E + mobilização de tornozelo (só a 1ª série do E) + calf raise excêntrico + Spanish squat + prancha lateral com abdução + apoio numa perna (só o E). Toca em «Versão mínima» no topo: o app mostra só esses 9 cards; cada ★ vira um passo E de 30 s, a mobilização fica só com «E · série 1» e o apoio numa perna só com «Pé E» (40 s).</p>
@@ -262,8 +310,8 @@
   · Eversão: 2 sessões fáceis → mini band mais forte (ou segura 2 s no fim)<br>
   · SL RDL + airplane: 2 sessões fáceis sem tocar o poste → segura 2 s aberto<br>
   · Chute em 4 direções: 2 sessões fáceis → +2 por direção (teto 10) → band mais forte<br>
-  · Bloco 4: fica com ~6 min pelo menos até o reteste de ~01/12; aí decide se encolhe<br>
-  · Bloco 5: joinha sem dor em 2 sábados seguidos → sai</p>
+  · Equilíbrio: fica com ~6 min pelo menos até o reteste de ~01/12; aí decide se encolhe<br>
+  · Mãos: joinha sem dor em 2 sábados seguidos → sai</p>
   <p><strong>Por que (resumo)</strong><br>
   · Alongamento: ≥ 5 min/semana por músculo em ≥ 5 dias (Thomas 2018) — o E fecha 5 min/semana; D em manutenção (Rancour 2009).<br>
   · Não ir no limite (Muanjai 2017).<br>
@@ -278,8 +326,9 @@
   · Aterrissar com mais flexão de tronco/quadril reduz força no tendão (Scattone Silva 2017).<br>
   · Pistola fora do pescoço: relato de dissecção vertebral (2022).<br>
   · Vídeos do Instagram: catálogo completo no doc 10 do projeto (varredura de 08/10).</p>
-  <p><strong>Progresso:</strong> as marcações valem por hoje — amanhã o app começa zerado sozinho (o histórico ANOTA fica).</p>
-  <p><strong>Errou um toque?</strong> Toca no <strong>número</strong> do exercício pra voltar um passo; o ✓ do canto desmarca o exercício inteiro.</p>
+  <p><strong>Progresso:</strong> as marcações valem por hoje — amanhã o app começa zerado sozinho (o histórico ANOTA fica). O resumo de cada dia vai pro <strong>Histórico</strong> (botão no topo): a semana de segunda a domingo, com as medidas do ANOTA e «Copiar esta semana».</p>
+  <p><strong>Abas:</strong> «Todos» mostra a sessão inteira, na sequência; tocar num grupo (Libera, Abre, Alonga, Força, Equilíbrio, Mãos) mostra só os cards dele. Cada aba conta o progresso dela; o número do topo é o total do dia. A aba escolhida fica até o fim do dia; amanhã o app abre em «Todos».</p>
+  <p><strong>Errou um toque?</strong> Toca no <strong>número</strong> do exercício pra voltar um passo; o ✓ do canto desmarca o exercício inteiro. Num card já feito, o botão «✓ feito hoje — refazer» pergunta antes de zerar.</p>
 </details>
 
 <details class="notas">
@@ -289,10 +338,18 @@
 
 <div id="app"></div>
 
+<div id="histView" hidden>
+  <div class="hv-head"><button type="button" class="hv-nav" id="hvPrev" aria-label="semana anterior">‹</button><div class="hv-tit" id="hvTit"></div><button type="button" class="hv-nav" id="hvNext" aria-label="próxima semana">›</button></div>
+  <div id="hvBody"></div>
+  <button type="button" class="hv-copy" id="copiarBtn">Copiar esta semana</button>
+  <textarea class="hv-text" id="histBox" readonly hidden></textarea>
+  <p class="hv-nota">Todo dia com pelo menos 1 card feito entra aqui sozinho: ✓ inteira · ◐ parcial (com os grupos feitos) · ✗ dia de sessão sem nada feito · — seg e sex sem sessão. As medidas vêm do ANOTA. O histórico é deste ícone.</p>
+</div>
+
 <div class="foot">
   <button class="reset" id="resetBtn">Zerar o dia (tirar marcações)</button>
   <div class="savemsg" id="saveMsg"></div>
-  <div>vD.3 — Mobilidade (ter · qua · qui · sáb · dom · ~43 min) · <a href="arquivo/vC12/completa/">arquivo vC.12</a></div>
+  <div>vD.3.1 — Mobilidade (ter · qua · qui · sáb · dom · ~43 min) · <a href="arquivo/vC12/completa/">arquivo vC.12</a></div>
   <div><a href="log/">Log semanal</a> · Basquete: <a href="basquete-sexta-a/">Treino A</a> (sex) · <a href="treino-b/">Treino B</a> (ter) · <a href="treino-c/">Treino C</a> (qui) · <a href="treino-d/">Treino D</a> (dom) · GYM: <a href="gym-fb1/">FB1</a> · <a href="quarta/">Quarta</a> · <a href="gym-fb2/">FB2</a></div>
   <div>Fontes: Thomas 2018 · Rancour 2009 · Muanjai 2017 · Rio 2019 · Visnes 2005 · Zhang 2018 · Mendonça 2018 · Moreside &amp; McGill 2013 · Vicenzino 2006 · Snook 1998 · Hupperets 2009 · Martin 2021 · Verhagen 2004 · Scattone Silva 2017 · Rathleff 2015 · McGill (Big 3) · Royal Berkshire NHS · Indiana Hand</div>
 </div>
@@ -300,16 +357,17 @@
 <script>
 // ===================== DADOS (gerado por ferramentas/gerar_mobilidade.py — editar lá, não aqui) =====================
 var BLOCOS = [
-  { id:'b0', cor:'#06b6d4', nav:'0 · Libera', titulo:'BLOCO 0 — LIBERA', sub:'~5 min' },
-  { id:'b1', cor:'#f97316', nav:'1 · Abre', titulo:'BLOCO 1 — ABRE', sub:'~7 min · em pé, parede, degrau e poste' },
-  { id:'b2', cor:'#a855f7', nav:'2 · Alonga', titulo:'BLOCO 2 — ALONGA', sub:'~10 min · parede → ajoelhado → chão' },
-  { id:'b3', cor:'#ef4444', nav:'3 · Força', titulo:'BLOCO 3 — FORTALECE', sub:'~13 min · chão, circuito' },
-  { id:'b4', cor:'#eab308', nav:'4 · Equilíbrio', titulo:'BLOCO 4 — EQUILÍBRIO', sub:'~6 min · em pé, no chão firme' },
-  { id:'b5', cor:'#22c55e', nav:'5 · Mãos', titulo:'BLOCO 5 — MÃOS (TEMPORÁRIO)', sub:'~3 min · sentado · os dois polegares' }
+  { id:'b0', cor:'#06b6d4', nav:'Libera', titulo:'LIBERA', sub:'~5 min' },
+  { id:'b1', cor:'#f97316', nav:'Abre', titulo:'ABRE', sub:'~7 min · em pé, parede, degrau e poste' },
+  { id:'b2', cor:'#a855f7', nav:'Alonga', titulo:'ALONGA', sub:'~10 min · parede → ajoelhado → chão' },
+  { id:'b3', cor:'#ef4444', nav:'Força', titulo:'FORÇA', sub:'~13 min · chão, circuito' },
+  { id:'b4', cor:'#eab308', nav:'Equilíbrio', titulo:'EQUILÍBRIO', sub:'~6 min · em pé, no chão firme' },
+  { id:'b5', cor:'#22c55e', nav:'Mãos', titulo:'MÃOS (TEMPORÁRIO)', sub:'~3 min · sentado · os dois polegares' }
 ];
 
 var STAR = ['★ E→D→E', '#f97316'], TQS = ['SÓ TER · QUI · SÁB', '#ef4444'], NOVO = ['NOVO', '#58a6ff'], ANOTA = ['ANOTA', '#ff6b9d'], TEMP = ['TEMPORÁRIO', '#8b949e'];
 var GATE_DIAS = [3, 0];
+var MEDIDAS = [["ktw", "Knee-to-wall", "cm"], ["pl", "Prancha lateral", "s"], ["bal", "Apoio numa perna", "s"], ["ri", "Rotação interna", "°"]];  // ANOTA resumido no Histórico
 
 // steps: com "s" = cronometrado; sem "s" = marcar no toque · c:true = passo que fica na versão mínima (chipsMin = chips desse dia)
 // stepsRio = passos da regra do Rio (terça, extensora caída no FB1) · dias = só nesses dias da semana
@@ -462,7 +520,7 @@ var DATA = [
   eq:"contrai-relaxa · empurra a ponta do pé no chão",
   cue:"Joelho <b>reto</b> · contrai-relaxa: 15 s solto → 5 s <b>empurrando a ponta do pé no chão</b> → 10 s afundando.",
   steps:[{t:"Pé E",s:30,c:true},{t:"Pé D",s:30},{t:"Pé E · de novo",s:30}],
-  desc:"Contra a parede, perna de trás com o <strong>joelho reto</strong> = gastrocnêmio. <strong>Contrai-relaxa:</strong> 15 s solto → 5 s empurrando a ponta do pé no chão, com força leve → 10 s afundando. ★ = déficit da avaliação: E → D → E, 30 s cada (o esquerdo é o lado pior e ganha a série extra). Tensão 6–7/10, nunca dor — progride pela amplitude. Força foi no calf raise do bloco 1; aqui é comprimento.",
+  desc:"Contra a parede, perna de trás com o <strong>joelho reto</strong> = gastrocnêmio. <strong>Contrai-relaxa:</strong> 15 s solto → 5 s empurrando a ponta do pé no chão, com força leve → 10 s afundando. ★ = déficit da avaliação: E → D → E, 30 s cada (o esquerdo é o lado pior e ganha a série extra). Tensão 6–7/10, nunca dor — progride pela amplitude. Força foi no calf raise (#6); aqui é comprimento.",
   links:[{"t": "How to stretch your gastrocnemius (Rehab My Patient)", "u": "https://www.youtube.com/watch?v=EFnLllHNbQQ"}, {"t": "Instagram · Harry — wall calf stretch 2-3× 30-45 s, \"calcanhar no chão\"", "u": "https://www.instagram.com/reel/DYcZugXI5Dk/"}] },
 
 { n:13,
@@ -810,12 +868,13 @@ var DATA = [
     return n + (n === 1 ? ' exercício' : ' exercícios');
   }
 
+  // vD.3.1: as abas filtram (ligadas no fim, depois do estado) — «Todos» primeiro = a sessão inteira na sequência
   var nav = document.getElementById('chipsNav');
-  BLOCOS.forEach(function (b) {
+  [{ id: '', cor: '#58a6ff', nav: 'Todos' }].concat(BLOCOS).forEach(function (b) {
     var a = document.createElement('a');
-    a.className = 'chip'; a.id = 'chip-' + b.id; a.href = '#' + b.id;
+    a.className = 'chip'; a.id = 'chip-' + (b.id || 'todos'); a.href = '#' + (b.id || 'app');
     a.style.setProperty('--bc', b.cor);
-    a.dataset.base = b.nav;
+    a.dataset.base = b.nav; a.dataset.f = b.id;
     a.textContent = b.nav;
     nav.appendChild(a);
   });
@@ -878,16 +937,24 @@ var DATA = [
     return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
   }
   DIA_CARREGADO = hoje();
-  var state = { d: hoje(), ex: {}, minima: false, rio: false, hist: {} };
+  var state = { d: hoje(), ex: {}, minima: false, rio: false, filtro: null, hist: {}, dias: {} };
   try {
     var raw = localStorage.getItem(KEY);
     if (raw) {
       var parsed = JSON.parse(raw);
       if (parsed && parsed.d === hoje() && parsed.ex) state = parsed;
-      else if (parsed && parsed.hist) state.hist = parsed.hist;  // histórico ANOTA sobrevive à virada de dia
+      else if (parsed) {  // virada de dia: o histórico ANOTA e o histórico semanal sobrevivem; marcações e aba zeram
+        if (parsed.hist) state.hist = parsed.hist;
+        if (parsed.dias) state.dias = parsed.dias;
+        if (parsed.diasDesde) state.diasDesde = parsed.diasDesde;
+      }
     }
   } catch (e) {}
   if (!state.hist) state.hist = {};
+  if (!state.dias) state.dias = {};
+  if (!state.filtro || !BLOCOS.some(function (b) { return b.id === state.filtro; })) state.filtro = null;
+  // dia em que o histórico semanal começou a gravar (antes dele: «sem registro», nunca «não fez»)
+  if (!state.diasDesde) { state.diasDesde = DIA_CARREGADO; try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
   state.minima = !!state.minima;
   state.rio = !!state.rio;
   // regra do Rio (só terça): o card com stepsRio troca as 2 séries por 5× 45 s de isometria
@@ -1033,6 +1100,17 @@ var DATA = [
       var bd = blocoDone[b.id];
       chip.textContent = (bd.total > 0 && bd.done >= bd.total) ? base + ' ✓' : (bd.done > 0 ? base + ' ' + bd.done + '/' + bd.total : base);
     });
+    // histórico semanal: resumo do dia (feitos/total, por grupo, mínima, Rio); dia sem nenhum card feito não fica registrado
+    var antes = JSON.stringify(state.dias[DIA_CARREGADO] || null);
+    if (d > 0) {
+      var g = {};
+      BLOCOS.forEach(function (b) { g[b.id] = [blocoDone[b.id].done, blocoDone[b.id].total]; });
+      state.dias[DIA_CARREGADO] = { f: d, t: ativos.length, m: state.minima ? 1 : 0, r: (DIA_SEMANA === 2 && state.rio) ? 1 : 0, g: g };
+      var ks = Object.keys(state.dias).sort();
+      while (ks.length > 190) delete state.dias[ks.shift()];  // ~6 meses
+    } else delete state.dias[DIA_CARREGADO];
+    // mudou o resumo (Zerar, versão mínima, Rio, carga da página): grava já — senão o dia velho fica no histórico
+    if (JSON.stringify(state.dias[DIA_CARREGADO] || null) !== antes) { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
   }
 
   function setDone(id, done) {
@@ -1060,7 +1138,7 @@ var DATA = [
     for (var k = 0; k < DATA.length; k++) {
       var e = DATA[(start + k) % DATA.length];
       var id = 'ex' + e.n;
-      if (ativo(e) && !st(id).done) { next = id; break; }
+      if (ativo(e) && !st(id).done && (!state.filtro || e.b === state.filtro)) { next = id; break; }  // só dentro da aba aberta
     }
     if (next) setTimeout(function () {
       card(next).scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1096,7 +1174,7 @@ var DATA = [
     ensureAudio();
     var e = ex(id), s = st(id);
     if (!ativo(e)) return;
-    if (s.done) { setDone(id, false); return; }
+    if (s.done) { if (confirm('Já feito hoje. Refazer do zero?')) setDone(id, false); return; }  // vD.3.1: não desmarca sem querer
     if (run && run.id === id) {
       if (run.remaining == null) {
         run.remaining = Math.max(1, Math.ceil((run.end - Date.now()) / 1000));
@@ -1266,7 +1344,7 @@ var DATA = [
     // se o calendário virou desde o load, o wiring (dia congelado) está velho: recarrega
     if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
     stopRun();
-    state = { d: hoje(), ex: {}, minima: state.minima, rio: state.rio, hist: state.hist };  // histórico ANOTA e as escolhas do dia ficam
+    state = { d: hoje(), ex: {}, minima: state.minima, rio: state.rio, filtro: state.filtro, hist: state.hist, dias: state.dias, diasDesde: state.diasDesde };  // históricos e as escolhas do dia ficam
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
     DATA.forEach(function (e) {
       var id = 'ex' + e.n;
@@ -1294,17 +1372,12 @@ var DATA = [
     if (hoje() !== DIA_CARREGADO && !run) location.reload();
   }, 30000);
 
-  var secs = BLOCOS.map(function (b) { return document.getElementById(b.id); });
-  var topEl = document.querySelector('.top');
-  function spy() {
-    var lim = topEl.offsetHeight + 24;
-    var cur = null;
-    for (var i = 0; i < secs.length; i++) {
-      if (secs[i].getBoundingClientRect().top <= lim) cur = BLOCOS[i].id;
-    }
-    BLOCOS.forEach(function (b) {
-      var chip = document.getElementById('chip-' + b.id);
-      var on = b.id === cur;
+  // ===================== ABAS = FILTRO (vD.3.1) =====================
+  // «Todos» = a sessão inteira na sequência; um grupo = só os cards dele. Escolha do dia (state.filtro), zera na virada.
+  function aplicaFiltro() {
+    BLOCOS.forEach(function (b) { document.getElementById(b.id).hidden = !!state.filtro && state.filtro !== b.id; });
+    nav.querySelectorAll('.chip').forEach(function (chip) {
+      var on = chip.dataset.f === (state.filtro || '');
       chip.classList.toggle('on', on);
       if (on) {
         var L = chip.offsetLeft - 10, R = chip.offsetLeft + chip.offsetWidth + 10;
@@ -1313,12 +1386,148 @@ var DATA = [
       }
     });
   }
-  var spyT = null;
-  window.addEventListener('scroll', function () {
-    if (spyT) return;
-    spyT = setTimeout(function () { spyT = null; spy(); }, 120);
-  }, { passive: true });
-  spy();
+  nav.querySelectorAll('.chip').forEach(function (chip) {
+    chip.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
+      var f = chip.dataset.f || null;
+      if (f !== state.filtro) {
+        if (run && f && ex(run.id).b !== f) stopRun();  // o timer de um card que sai da tela para
+        state.filtro = f;
+        save();
+        aplicaFiltro();
+      }
+      if (f) document.getElementById(f).scrollIntoView(); else window.scrollTo(0, 0);
+    });
+  });
+  aplicaFiltro();
+
+  // ===================== HISTÓRICO SEMANAL (vD.3.1) =====================
+  // dias = state.dias (gravado pelo progress); medidas = histórico ANOTA (state.hist). Semana de segunda a domingo.
+  var DIAS_SESSAO = [2, 3, 4, 6, 0];  // ter · qua · qui · sáb · dom
+  var NOMES = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+  function dataDe(iso) { var p = iso.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function isoDe(dt) { return dt.getFullYear() + '-' + ('0' + (dt.getMonth() + 1)).slice(-2) + '-' + ('0' + dt.getDate()).slice(-2); }
+  function somaDias(iso, n) { var dt = dataDe(iso); dt.setDate(dt.getDate() + n); return isoDe(dt); }
+  function segundaDe(iso) { return somaDias(iso, -((dataDe(iso).getDay() + 6) % 7)); }
+  function ddmm(iso) { return iso.slice(8, 10) + '/' + iso.slice(5, 7); }
+  function primeiraSemana() {
+    var min = state.diasDesde;
+    Object.keys(state.hist).forEach(function (k) { (state.hist[k] || []).forEach(function (x) { if (x.d < min) min = x.d; }); });
+    return segundaDe(min);
+  }
+  function diaTxt(iso) {
+    var e = state.dias[iso], dow = dataDe(iso).getDay();
+    if (e) {
+      var base = (e.m ? 'mínima ' : '') + e.f + '/' + e.t + (e.r ? ' · Rio' : '');
+      if (e.f >= e.t) return { m: '✓', c: 'ok', t: base };
+      var gs = BLOCOS.filter(function (b) { return e.g[b.id] && e.g[b.id][0] > 0; }).map(function (b) {
+        var g = e.g[b.id];
+        return b.nav + (g[0] >= g[1] ? ' ✓' : ' ' + g[0] + '/' + g[1]);
+      });
+      return { m: '◐', c: 'par', t: base + ' · ' + gs.join(' · ') };
+    }
+    if (DIAS_SESSAO.indexOf(dow) < 0) return { m: '—', c: 'off', t: 'sem sessão' };
+    if (iso < state.diasDesde) return { m: '·', c: 'off', t: 'sem registro' };
+    if (iso === DIA_CARREGADO) return { m: '·', c: 'off', t: 'hoje' };
+    if (iso > DIA_CARREGADO) return { m: '·', c: 'off', t: '' };
+    return { m: '✗', c: 'no', t: 'não fez' };
+  }
+  function semana(seg) {
+    var dias = [], ent = [], plan = 0;
+    for (var i = 0; i < 7; i++) {
+      var iso = somaDias(seg, i);
+      dias.push(iso);
+      if (state.dias[iso]) ent.push(state.dias[iso]);
+      if (DIAS_SESSAO.indexOf(dataDe(iso).getDay()) >= 0 && iso >= state.diasDesde) plan++;
+    }
+    var fim = dias[6], linhas = [];
+    if (fim < state.diasDesde) linhas.push('Sessões: sem registro — o histórico das sessões começa em ' + fmtRef(state.diasDesde));
+    else {
+      var inteiras = 0, minimas = 0, parciais = 0;
+      ent.forEach(function (e) { if (e.f < e.t) parciais++; else if (e.m) minimas++; else inteiras++; });
+      linhas.push('Sessões ' + ent.length + '/' + plan + (inteiras ? ' · inteiras ' + inteiras : '') +
+        (minimas ? ' · mínima ' + minimas : '') + (parciais ? ' · parcial ' + parciais : ''));
+      if (ent.length) linhas.push('Por grupo: ' + BLOCOS.map(function (b) {
+        return b.nav + ' ' + ent.filter(function (e) { var g = e.g[b.id]; return g && g[1] > 0 && g[0] >= g[1]; }).length + '/' + plan;
+      }).join(' · '));
+    }
+    // medidas da semana (ANOTA): primeiro → último valor de cada lado
+    var daSemana = function (k) { return (state.hist[k] || []).filter(function (x) { return x.d >= seg && x.d <= fim; }); };
+    var med = [];
+    MEDIDAS.forEach(function (m) {
+      var u = m[2] === '°' ? '°' : ' ' + m[2];
+      var lados = [['E', daSemana(m[0] + '_e')], ['D', daSemana(m[0] + '_d')]].filter(function (l) { return l[1].length; }).map(function (l) {
+        var v = l[1];
+        return l[0] + ' ' + v[0].v + (v.length > 1 ? ' → ' + v[v.length - 1].v : '') + u;
+      });
+      if (lados.length) med.push(m[1] + ': ' + lados.join(' · '));
+    });
+    var jo = daSemana('joelho');
+    if (jo.length) med.push('Joelho (portão): ' + jo.map(function (x) { return NOMES[dataDe(x.d).getDay()] + ' ' + x.v; }).join(' · '));
+    return { dias: dias, linhas: linhas, med: med };
+  }
+  var hv = document.getElementById('histView'), histBtn = document.getElementById('histBtn'), hvSeg = null, voltaY = 0;
+  function renderHist() {
+    var s = semana(hvSeg), atual = segundaDe(DIA_CARREGADO);
+    document.getElementById('hvTit').innerHTML = 'Semana ' + ddmm(hvSeg) + ' – ' + ddmm(s.dias[6]) + (hvSeg === atual ? '<small>esta semana</small>' : '');
+    document.getElementById('hvPrev').disabled = hvSeg <= primeiraSemana();
+    document.getElementById('hvNext').disabled = hvSeg >= atual;
+    document.getElementById('hvBody').innerHTML =
+      '<div class="hv-dias">' + s.dias.map(function (iso) {
+        var x = diaTxt(iso);
+        return '<div class="hv-dia ' + x.c + (iso === DIA_CARREGADO ? ' hoje' : '') + '"><span class="hv-d">' + fmtRef(iso) +
+          '</span><span class="hv-m">' + x.m + '</span><span class="hv-t">' + esc(x.t) + '</span></div>';
+      }).join('') + '</div>' +
+      '<div class="hv-box">' + s.linhas.map(function (l) { return '<div>' + esc(l) + '</div>'; }).join('') + '</div>' +
+      '<div class="hv-box"><div class="hv-k">Medidas da semana (ANOTA)</div>' +
+      (s.med.length ? s.med.map(function (l) { return '<div>' + esc(l) + '</div>'; }).join('') : '<div>sem medidas nesta semana</div>') + '</div>';
+    document.getElementById('histBox').hidden = true;
+  }
+  function abreHist() {
+    if (hoje() !== DIA_CARREGADO) { location.reload(); return; }
+    stopRun();  // os cards somem da tela
+    voltaY = window.scrollY;
+    hvSeg = segundaDe(DIA_CARREGADO);
+    document.body.classList.add('hv'); hv.hidden = false; histBtn.textContent = '← Sessão';
+    renderHist();
+    window.scrollTo(0, 0);
+  }
+  function fechaHist() {
+    document.body.classList.remove('hv'); hv.hidden = true; histBtn.textContent = 'Histórico';
+    window.scrollTo(0, voltaY);
+  }
+  histBtn.addEventListener('click', function () { if (hv.hidden) abreHist(); else fechaHist(); });
+  document.getElementById('hvPrev').addEventListener('click', function () { hvSeg = somaDias(hvSeg, -7); renderHist(); });
+  document.getElementById('hvNext').addEventListener('click', function () { hvSeg = somaDias(hvSeg, 7); renderHist(); });
+  function semanaTexto() {
+    var s = semana(hvSeg), l = ['Mobilidade · semana ' + ddmm(hvSeg) + ' – ' + ddmm(s.dias[6])];
+    s.dias.forEach(function (iso) { var x = diaTxt(iso); l.push(fmtRef(iso) + ' ' + x.m + (x.t ? ' ' + x.t : '')); });
+    return l.concat(s.linhas, s.med).filter(function (x) { return x !== ''; }).join('\n\n');
+  }
+  function copiarTexto(txt, cb) {
+    var fallback = function () {
+      var ta = document.createElement('textarea');
+      ta.value = txt; ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.top = '-1000px';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { ta.setSelectionRange(0, txt.length); } catch (e) {}
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      cb(ok);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { cb(true); }, fallback);
+    } else fallback();
+  }
+  document.getElementById('copiarBtn').addEventListener('click', function () {
+    var txt = semanaTexto(), box = document.getElementById('histBox');
+    copiarTexto(txt, function (ok) {
+      if (ok) { box.hidden = true; msg('semana copiada — cola no Notes'); }
+      else { box.value = txt; box.hidden = false; box.focus(); box.select(); msg('não consegui copiar — segura no texto e escolhe Selecionar tudo'); }
+    });
+  });
 })();
 
 // ---- comum a todos os apps (patch_geral 2026-09-14): número dentro de min/max · botão Copiar confirma no lugar ----
