@@ -359,7 +359,7 @@
 // ===================== DADOS =====================
 var PAR_PADRAO = { acao: 'gancho pelo meio', alt: 'drop step pra linha de fundo' };
 var ENFASE_SUGERIDA = 'Identificar o lado disponível no poste e finalizar com equilíbrio.';
-var ORIGENS = ['veio do C de quinta', 'par já trabalhado', 'par padrão'];
+var ORIGENS = ['veio do C de segunda', 'par já trabalhado', 'par padrão'];
 // campos que sobrevivem ao "Nova semana" (ficam pra edição) e que não iniciam a sessão
 var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
 
@@ -433,6 +433,8 @@ var KEEP = ['p1_enfase', 'p2_acao', 'p2_alt', 'p2_origem', 'p2_url'];
         ant = p.ant || ant;
         hist = p.hist || [];
         DESFAZER = p.desfazer || null;
+        // semana v4 (26/10): o C foi pra segunda — a origem gravada com o nome antigo vira a nova (hoje e referência; o histórico fica como foi)
+        [state.vals, ant.vals || {}, ant.ult || {}].forEach(function (o) { if (o.p2_origem === 'veio do C de quinta') o.p2_origem = 'veio do C de segunda'; });
         ultimoSalvo = raw;
       }
     }
