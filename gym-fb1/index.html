@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<title>GYM FB1 — Segunda</title>
+<title>GYM FB1 — Sexta</title>
 <style>
   * { touch-action:manipulation; }  /* patch_touch 2026-09-15: sem zoom no toque duplo; pinça continua */
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -217,23 +217,23 @@
 
 <div class="top">
   <div class="top-row">
-    <h1>GYM FB1 — Segunda</h1>
+    <h1>GYM FB1 — Sexta</h1>
     <span class="prog-txt" id="progTxt">0/38 séries</span>
   </div>
   <nav class="chips-nav" id="chipsNav"></nav>
   <div class="pbar"><i id="pbar"></i></div>
 </div>
 
-<p class="sub"><strong>Upper pesado + lower terapêutico lento</strong> · ~80 min · pós-Muay/praça (~10h)</p>
+<p class="sub"><strong>Upper pesado + lower terapêutico lento</strong> · ~80 min · depois do Treino A (~11h45)</p>
 <p class="sub ref" id="refTxt"></p>
 
 <details class="notas">
   <summary>Notas &amp; regras do treino</summary>
   <p><strong>Objetivo:</strong> upper pesado + lower terapêutico lento (dose 1 do tendão) + panturrilha no início (ponto fraco) + 1 core.</p>
   <p><strong>Duração alvo:</strong> ~80 min · 37 séries na planilha (o app registra 38 linhas — a extensora conta as 4 rodadas).</p>
-  <p><strong>Logística:</strong> emenda depois do Muay/praça (~10h), carb-up 15 min antes (nota 07). Tarde fica livre pro estudo. Lower moderado porque quarta é dia atlético.</p>
+  <p><strong>Logística:</strong> emenda no Treino A (~11h45), carb-up 15 min antes (nota 07). Depois: fisio ~14h. Lower moderado de propósito: véspera do Embaixadores (sábado).</p>
   <p><strong>CADÊNCIA:</strong> descida 3 s cronometrada no búlgaro. Conta “mil e um, mil e dois, mil e três”. <strong>Quebrou a cadência pra subir carga = não subiu.</strong></p>
-  <p><strong>Por que essa ordem:</strong> panturrilha primeiro (ponto fraco treinado fresco) · core logo depois (Pallof em pé não cansa a pegada antes da barra fixa) · upper inteiro em bloco (dia de ênfase = ênfase primeiro) · lower no fim (moderado por desenho — quem precisa de frescor é o agacho de sexta) · extensora por último (isometria pesada = alívio no tendão; sai do treino anestesiado).</p>
+  <p><strong>Por que essa ordem:</strong> panturrilha primeiro (ponto fraco treinado fresco) · core logo depois (Pallof em pé não cansa a pegada antes da barra fixa) · upper inteiro em bloco (dia de ênfase = ênfase primeiro) · lower no fim (moderado por desenho — quem precisa de frescor é o agacho do FB2, na segunda) · extensora por último (isometria pesada = alívio no tendão; sai do treino anestesiado).</p>
   <p><strong>Cortados no v3 (não voltar por conta):</strong> abdominal máquina (um core por FB, tempo) · extensora “3 s no topo + 20 s” virou isometria pura (Rio) · russian twist, flexões explosivas e esteira seguem fora.</p>
   <p><strong>Registro:</strong> preenche kg × reps e toca no ✓ da série — o descanso conta sozinho na barra laranja. Os números de hoje ficam salvos a cada toque. Ao virar o dia, ou quando você toca em <strong>Encerrar treino de hoje</strong>, eles viram a referência cinza da próxima sessão (a data dela aparece sob o título) e as marcações voltam a zero. Campo em branco mantém a referência anterior. <strong>Copiar resumo</strong> gera o texto da sessão pra colar no Notes.</p>
   <p><strong>Errou um toque?</strong> Toca no ✓ da série pra desmarcar; nos cards de sequência (aquecimento, extensora), o número do card volta um passo.</p>
@@ -253,7 +253,7 @@
   </div>
   <div class="savemsg" id="saveMsg"></div>
   <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
-  <div>SEG · GYM FB1 v3 — semana par: QUA atlético · SEX GYM FB2</div>
+  <div>SEX · GYM FB1 v3 — véspera do Embaixadores, perna leve de propósito · SEG GYM FB2</div>
   <div><a href="../">Mobilidade</a></div>
 </div>
 
@@ -266,7 +266,7 @@
 <script>
 // ===================== DADOS =====================
 var BLOCOS = [
-  { id:'aq', cor:'#94a3b8', nav:'Aquec',      titulo:'AQUECIMENTO',                        sub:'~10 min · vindo do Muay/praça: pula a bike' },
+  { id:'aq', cor:'#94a3b8', nav:'Aquec',      titulo:'AQUECIMENTO',                        sub:'~10 min · vindo do Treino A: pula a bike' },
   { id:'b1', cor:'#f59e0b', nav:'1 · Pant',   titulo:'BLOCO 1 — PANTURRILHA',              sub:'superset alternado: sentada → em pé → sentada → em pé · descanso 1:00' },
   { id:'b2', cor:'#22d3ee', nav:'2 · Core',   titulo:'BLOCO 2 — CORE',                     sub:'descanso 1:30' },
   { id:'b3', cor:'#ef4444', nav:'3 · Pesado', titulo:'BLOCO 3 — UPPER PESADO',             sub:'descanso 1:30' },
@@ -279,10 +279,10 @@ var BLOCOS = [
 // sets: 'br' = kg × reps · 'ud' = kg × reps E/D · 'rio' = kg + segundos E/D
 var DATA = [
 { id:'aq', b:'aq', num:'AQ', name:'Aquecimento', img:null,
-  chips:['~10 min','5 itens'], eq:'vindo do Muay/praça: pula a bike',
+  chips:['~10 min','5 itens'], eq:'vindo do Treino A: pula a bike',
   cue:'Sobe a temperatura sem gastar: mobilidade + ativação, nada até a falha.',
   steps:[{t:'Bike leve · 3 min',s:180},{t:'Mobilidade torácica · 2× 8'},{t:'Band pull-apart · 2× 15'},{t:'Mobilidade quadril · 1× 8 cada lado'},{t:'Glute bridge · 2× 10'}],
-  desc:'Bike leve — 3 min (pula se já chegou aquecido do Muay/praça) · Mobilidade torácica — 2× 8 · Band pull-apart — 2× 15 · Mobilidade quadril — 1× 8 cada lado · Glute bridge — 2× 10.',
+  desc:'Bike leve — 3 min (pula se já chegou aquecido do Treino A) · Mobilidade torácica — 2× 8 · Band pull-apart — 2× 15 · Mobilidade quadril — 1× 8 cada lado · Glute bridge — 2× 10.',
   links:[] },
 
 { id:'ex1a', b:'b1', num:'1a', name:'Panturrilha sentada unilateral (máquina)', img:'img/ex1a.jpg',

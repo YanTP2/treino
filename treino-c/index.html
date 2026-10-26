@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<title>Basquete TREINO C — Quinta</title>
+<title>Basquete TREINO C — Segunda</title>
 <style>
   * { touch-action:manipulation; }  /* patch_touch 2026-09-15: sem zoom no toque duplo; pinça continua */
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -337,7 +337,7 @@
 
 <div class="top">
   <div class="top-row">
-    <h1>🏀 QUI · TREINO C <small>— Poste + Face-up</small></h1>
+    <h1>🏀 SEG · TREINO C <small>— Poste + Face-up</small></h1>
     <span class="prog-txt" id="sessaoTxt">⏱ 00:00</span>
   </div>
   <div class="fixo clamp" id="fixo"></div>
@@ -351,12 +351,12 @@
 
 <details class="notas">
   <summary>Notas &amp; regras do treino</summary>
-  <p><strong>O que é:</strong> quinta de manhã, 70 minutos programados, prática <strong>bloqueada</strong> — sem defensor. O objetivo do dia é <strong>padrão motor</strong>, não resultado: a bola entrar não valida a repetição. <strong>O dia é leve por definição.</strong> Zero salto máximo. Zero tentativa de terminar alto. O C é o único dia da semana com salto zero.</p>
-  <p><strong>Entrada e saída obrigatórias:</strong> TERÇA (personal, com defensor) → TAREFA → QUINTA (C, bloqueado) constrói o PAR DE MOVIMENTOS → volta pra TERÇA. O app pede a tarefa no começo (abertura) e exige o par no fim (não exporta sem ele). Sem isso o C vira treino solto e a série terça→quinta→terça quebra.</p>
+  <p><strong>O que é:</strong> segunda de manhã (8h30, antes do FB2), 70 minutos programados, prática <strong>bloqueada</strong> — sem defensor. O objetivo do dia é <strong>padrão motor</strong>, não resultado: a bola entrar não valida a repetição. <strong>O dia é leve por definição.</strong> Zero salto máximo. Zero tentativa de terminar alto. O C é o único dia da semana com salto zero.</p>
+  <p><strong>Entrada e saída obrigatórias:</strong> TERÇA (personal, com defensor) → TAREFA → SEGUNDA seguinte (C, bloqueado) constrói o PAR DE MOVIMENTOS → volta pra TERÇA (no dia seguinte). O app pede a tarefa no começo (abertura) e exige o par no fim (não exporta sem ele). Sem isso o C vira treino solto e a série terça→segunda→terça quebra.</p>
   <p><strong>Aritmética:</strong> 90 oportunidades = 32 (bloco 2) + 16 (bloco 3) + 12 (bloco 4) + 30 (bloco 5). 50 finalizações no aro = 32 (bloco 2) + 8 (ataques do bloco 3) + 10 (bloco 4). Os 8 ensaios do 2A e os 8 giros do 3.1 não contam — não terminam em finalização. Bloco 4: 12 reps = 4 do par 1 + 4 do par 2 + 4 do par 3; no par 3, 2 terminam em ataque e 2 em arremesso → 10 das 12 são no aro.</p>
   <p><strong>Regra do volume:</strong> o volume é referência, não dívida. Acabou o tempo do bloco, registra o que fez e avança. O app nunca bloqueia o avanço por volume incompleto.</p>
   <p><strong>Tempo:</strong> timer por bloco, iniciado manualmente, por timestamp (sobrevive à tela bloqueada); ao concluir, grava a duração real. Timer geral da sessão começa no primeiro bloco. <strong>Aos 75 min</strong> o bloco 5 é destacado e o app sinaliza pra começar o arremesso, mesmo com repetição pendente. <strong>Aos 90 min</strong>, aviso de encerrar. Nenhum som, nenhuma vibração: aviso é visual. Sem avisos por relógio (o C ainda não tem horário cravado na agenda).</p>
-  <p><strong>Joelho:</strong> os campos de joelho (antes, durante/depois, manhã seguinte) são registro puro. Sem gatilho automático, sem filtro, sem link externo. Quem decide o que fazer com o número é o log semanal e a fisioterapeuta. O <strong>joelho na manhã seguinte</strong> é o medidor da decisão de ter movido o C pra quinta — fica editável na sexta de manhã, mesmo depois de arquivar.</p>
+  <p><strong>Joelho:</strong> os campos de joelho (antes, durante/depois, manhã seguinte) são registro puro. Sem gatilho automático, sem filtro, sem link externo. Quem decide o que fazer com o número é o log semanal e a fisioterapeuta. O <strong>joelho na manhã seguinte</strong> é o medidor da decisão de ter movido o C pra segunda (dia seguinte ao(s) jogo(s), antes do FB2) — fica editável na terça de manhã, mesmo depois de arquivar.</p>
   <p><strong>Registro:</strong> tudo salva a cada toque; os contadores da tela TREINO e a tabela do REGISTRO são o mesmo dado. <strong>Exportar</strong> copia no formato do /quarta. <strong>Arquivar sessão</strong> guarda a sessão como referência cinza e abre a próxima; a anterior continua com o joelho da manhã seguinte editável.</p>
 </details>
 
@@ -372,7 +372,7 @@
   </div>
   <div class="savemsg" id="saveMsg"></div>
   <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
-  <div>QUI · Basquete TREINO C v1 — prática bloqueada · salto zero · o benchmark é sexta</div>
+  <div>SEG · Basquete TREINO C v1 — prática bloqueada · salto zero · o benchmark é sexta</div>
   <div>Basquete: <a href="../treino-b/">Treino B (ter)</a> · <a href="../basquete-sexta-a/">Treino A (sex)</a> · <a href="../">Mobilidade</a></div>
   <div class="vid-swap">19 vídeos validados via oEmbed em 13/09/2026. Trechos indicados nos links (t=) abrem no ponto certo.</div>
 </div>
@@ -740,7 +740,7 @@ var TABELA = [
         num('duracao', 'Duração real (min) <span class="antes">em branco = usa a soma dos timers (valor cinza)</span>', '–') +
         num('esforco', 'Esforço percebido (0–10)', '0–10', 10) +
         num('joelho_dd', 'Joelho durante/depois (0–10)', '0–10', 10) +
-        ((!sessaoAtiva() && ant.d) ? nota('<b>Joelho na manhã seguinte:</b> da sessão arquivada, preenche no box «sessão anterior» no topo do REGISTRO.') : num('joelho_ms', 'Joelho na manhã seguinte (0–10) <span class="antes">preenche na sexta de manhã — continua editável depois de arquivar</span>', '0–10', 10)) +
+        ((!sessaoAtiva() && ant.d) ? nota('<b>Joelho na manhã seguinte:</b> da sessão arquivada, preenche no box «sessão anterior» no topo do REGISTRO.') : num('joelho_ms', 'Joelho na manhã seguinte (0–10) <span class="antes">preenche na terça de manhã — continua editável depois de arquivar</span>', '0–10', 10)) +
         nota('Botões no fim da página: <b>Exportar</b> copia o resumo (formato do /quarta) · <b>Arquivar sessão</b> guarda esta sessão e abre a próxima.')) +
       '</section>';
     sec.querySelectorAll('input, textarea').forEach(function (el) {
@@ -798,7 +798,7 @@ var TABELA = [
     var q = function (k) { return temValor(vals[k]) ? String(vals[k]).trim() : '–'; };
     var cr = function (kc, kr, prev) { return (x(kc) || x(kr)) ? q(kc) + '/' + q(kr) : null; };
     var p = String(d).split('-');
-    var L = ['QUI · TREINO C — Poste + Face-up · ' + fmtRef(d) + (p.length === 3 ? '/' + p[0] : '')];
+    var L = ['SEG · TREINO C — Poste + Face-up · ' + fmtRef(d) + (p.length === 3 ? '/' + p[0] : '')];
     var ab = [];
     if (x('joelho_antes')) ab.push('joelho antes ' + x('joelho_antes'));
     if (x('enfase')) ab.push('ênfase: ' + x('enfase'));

@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<title>GYM FB2 — Sexta</title>
+<title>GYM FB2 — Segunda</title>
 <style>
   * { touch-action:manipulation; }  /* patch_touch 2026-09-15: sem zoom no toque duplo; pinça continua */
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -225,23 +225,23 @@
 
 <div class="top">
   <div class="top-row">
-    <h1>GYM FB2 — Sexta</h1>
+    <h1>GYM FB2 — Segunda</h1>
     <span class="prog-txt" id="progTxt">0/33 séries</span>
   </div>
   <nav class="chips-nav" id="chipsNav"></nav>
   <div class="pbar"><i id="pbar"></i></div>
 </div>
 
-<p class="sub"><strong>Lower pesado LENTO + upper moderado</strong> · ~80 min · pós-praça (~11h45)</p>
+<p class="sub"><strong>Lower pesado LENTO + upper moderado</strong> · ~80 min · depois do Treino C (~10h)</p>
 <p class="sub ref" id="refTxt"></p>
 
 <details class="notas">
   <summary>Notas &amp; regras do treino</summary>
   <p><strong>Objetivo:</strong> lower pesado LENTO (dose HSR principal da semana) + upper moderado + panturrilha no início + 1 core.</p>
   <p><strong>Duração alvo:</strong> ~80 min · 33 séries.</p>
-  <p><strong>Logística:</strong> emenda na praça (~11h45), carb-up 15 min antes (nota 07). Sem cardio aqui: o sprint da praça já foi o estímulo. SEM esteira na sexta (domingo tem jogo). Sábado é descanso completo — lower pesado aqui porque amanhã é OFF.</p>
+  <p><strong>Logística:</strong> emenda depois do Treino C (~10h), carb-up 15 min antes (nota 07). Sem cardio aqui. Segunda é o dia seguinte ao(s) jogo(s): <strong>joelho &gt; 3 → reduz séries de perna, mantém carga + cadência 3 s</strong>. Lower pesado aqui: fica a 5 dias do Embaixadores e a 6 do jogo. Quinta é descanso completo.</p>
   <p><strong>CADÊNCIA:</strong> descida 3 s cronometrada no agacho e no step-up. RDL e hip thrust: pesado-rápido (dobradiça de quadril). <strong>Quebrou a cadência pra subir carga = não subiu.</strong></p>
-  <p><strong>Por que essa ordem:</strong> panturrilha primeiro (ponto fraco fresco, mesmo esquema de segunda) · woodchop antes do lower (core ativado = melhor bracing no agacho) · agacho lento → RDL rápido → step-up misto → hip thrust (o tendão recebe a dose lenta fresco, o quadril recebe velocidade depois) · Nordic fecha o inferior (excêntrico pesado com o posterior já aquecido pelo RDL, sem nada depois competindo) · upper moderado no fim (frequência de manutenção, não precisa de frescor).</p>
+  <p><strong>Por que essa ordem:</strong> panturrilha primeiro (ponto fraco fresco, mesmo esquema do FB1) · woodchop antes do lower (core ativado = melhor bracing no agacho) · agacho lento → RDL rápido → step-up misto → hip thrust (o tendão recebe a dose lenta fresco, o quadril recebe velocidade depois) · Nordic fecha o inferior (excêntrico pesado com o posterior já aquecido pelo RDL, sem nada depois competindo) · upper moderado no fim (frequência de manutenção, não precisa de frescor).</p>
   <p><strong>Cortados no v3 (não voltar por conta):</strong> single leg shoulder press (equilíbrio disfarçado de press — o landmine na quarta faz o trabalho de verdade) · bíceps martelo (rosca inclinada + African curl cobrem o braço) · flexora máquina (Nordic no lugar) · extensão lombar (RDL e hip thrust já cobrem) · abdominal máquina (um core por FB) · cardio 15 min (sprint da praça já foi o estímulo).</p>
   <p><strong>Registro:</strong> preenche kg × reps e toca no ✓ da série — o descanso conta sozinho na barra laranja. Os números de hoje ficam salvos a cada toque. Ao virar o dia, ou quando você toca em <strong>Encerrar treino de hoje</strong>, eles viram a referência cinza da próxima sessão (a data dela aparece sob o título) e as marcações voltam a zero. Campo em branco mantém a referência anterior. <strong>Copiar resumo</strong> gera o texto da sessão pra colar no Notes.</p>
   <p><strong>Errou um toque?</strong> Toca no ✓ da série pra desmarcar; nos cards de sequência (aquecimento), o número do card volta um passo.</p>
@@ -261,8 +261,8 @@
   </div>
   <div class="savemsg" id="saveMsg"></div>
   <textarea class="resumo-box" id="resumoBox" readonly hidden></textarea>
-  <div>SEX · GYM FB2 v3 — dupla: SEG FB1 · sábado é descanso completo</div>
-  <div>GYM: <a href="../gym-fb1/">FB1 seg</a> · <a href="../quarta/">Quarta</a> · <a href="../">Mobilidade</a></div>
+  <div>SEG · GYM FB2 v3 — dupla: SEX FB1 · quinta é descanso</div>
+  <div>GYM: <a href="../gym-fb1/">FB1 sex</a> · <a href="../quarta/">Quarta</a> · <a href="../">Mobilidade</a></div>
 </div>
 
 <div class="restbar" id="restbar">
@@ -274,7 +274,7 @@
 <script>
 // ===================== DADOS =====================
 var BLOCOS = [
-  { id:'aq', cor:'#94a3b8', nav:'Aquec',      titulo:'AQUECIMENTO',                          sub:'~10 min · vindo da praça: pula a bike, mantém o resto' },
+  { id:'aq', cor:'#94a3b8', nav:'Aquec',      titulo:'AQUECIMENTO',                          sub:'~10 min · vindo do Treino C: pula a bike, mantém o resto' },
   { id:'b1', cor:'#f59e0b', nav:'1 · Pant',   titulo:'BLOCO 1 — PANTURRILHA',                sub:'superset alternado: sentada → em pé → sentada → em pé · descanso 1:00' },
   { id:'b2', cor:'#22d3ee', nav:'2 · Core',   titulo:'BLOCO 2 — CORE',                       sub:'descanso 1:30' },
   { id:'b3', cor:'#ef4444', nav:'3 · Lower',  titulo:'BLOCO 3 — LOWER PESADO LENTO',         sub:'5 exercícios · dose HSR principal da semana' },
@@ -285,10 +285,10 @@ var BLOCOS = [
 // sets: 'br' = kg × reps · 'ud' = kg × reps E/D · 'r' = reps · 'r_tx' = reps + texto
 var DATA = [
 { id:'aq', b:'aq', num:'AQ', name:'Aquecimento', img:null,
-  chips:['~10 min','5 itens'], eq:'vindo da praça: pula a bike',
+  chips:['~10 min','5 itens'], eq:'vindo do Treino C: pula a bike',
   cue:'Tornozelo e quadril acordados, glúteo ativado, lunge isométrico pré-agacho.',
   steps:[{t:'Bike leve · 5 min',s:300},{t:'Mobilidade tornozelo · 2× 8 cada lado'},{t:'Mob. dinâmica quadril · 2× 8'},{t:'Glute bridge · 2× 10'},{t:'Lunge isométrico · Perna E',s:60},{t:'Lunge isométrico · Perna D',s:60}],
-  desc:'Bike leve — 5 min (pula se já chegou aquecido da praça) · Mobilidade tornozelo — 2× 8 cada lado · Mobilidade dinâmica quadril — 2× 8 · Glute bridge — 2× 10 · Lunge isométrico — 1 min cada perna.',
+  desc:'Bike leve — 5 min (pula se já chegou aquecido do Treino C) · Mobilidade tornozelo — 2× 8 cada lado · Mobilidade dinâmica quadril — 2× 8 · Glute bridge — 2× 10 · Lunge isométrico — 1 min cada perna.',
   links:[] },
 
 { id:'ex1a', b:'b1', num:'1a', name:'Panturrilha sentada unilateral (máquina)', img:'img/v_xz7sqxaJ-Ck.jpg',
@@ -297,7 +297,7 @@ var DATA = [
   badge:['SUPERSET c/ 1b','#f59e0b'],
   cue:'<b>Pausa 2 s no topo</b>, descida controlada — alterna com a em pé.',
   sets:[{t:'S1',k:'ud'},{t:'S2',k:'ud'}],
-  desc:'2 séries × 12–15 cada perna. Pausa 2 s no topo, descida controlada. Superset alternado com a panturrilha em pé: sentada → em pé → sentada → em pé, descanso 1:00. Panturrilha primeiro: ponto fraco treinado fresco, mesmo esquema de segunda.',
+  desc:'2 séries × 12–15 cada perna. Pausa 2 s no topo, descida controlada. Superset alternado com a panturrilha em pé: sentada → em pé → sentada → em pé, descanso 1:00. Panturrilha primeiro: ponto fraco treinado fresco, mesmo esquema do FB1.',
   links:[{t:'Seated Calf Raises — How To (KAGED)', u:'https://www.youtube.com/watch?v=xz7sqxaJ-Ck'}] },
 
 { id:'ex1b', b:'b1', num:'1b', name:'Panturrilha em pé', img:'img/v_hh5516HCu4k.jpg',
@@ -358,14 +358,14 @@ var DATA = [
   chips:['3× 8–10','cada lado'], eq:'joelho no chão · descanso 1:30', rest:90,
   cue:'<b>Joelho e peso do MESMO lado</b> · costela empilhada sobre a pelve, sem arquear a lombar pra empurrar.',
   sets:[{t:'S1',k:'ud'},{t:'S2',k:'ud'},{t:'S3',k:'ud'}],
-  desc:'3 séries × 8–10 cada lado. Joelho direito no chão = kettlebell na mão direita (mesmo lado — é a regra do Dan John; ele testou todas e essa funciona melhor pra maioria). Antes de empurrar: empurra o pé de trás no chão, aperta o glúteo desse lado e puxa o calcanhar da frente pra trás — isso empilha a caixa torácica sobre a pelve. A lombar não pode arquear pra completar a empurrada. Primeiro do bloco de propósito: a coluna já levou agacho profundo, RDL e hip thrust, e este é o exercício que menos tolera lombar cansada. Entrou no lugar do supino reto — o peito já tem supino inclinado na segunda e flexão explosiva na quarta. Fecha o par unilateral→bilateral do ombro, que era o único padrão sem par no sistema.',
+  desc:'3 séries × 8–10 cada lado. Joelho direito no chão = kettlebell na mão direita (mesmo lado — é a regra do Dan John; ele testou todas e essa funciona melhor pra maioria). Antes de empurrar: empurra o pé de trás no chão, aperta o glúteo desse lado e puxa o calcanhar da frente pra trás — isso empilha a caixa torácica sobre a pelve. A lombar não pode arquear pra completar a empurrada. Primeiro do bloco de propósito: a coluna já levou agacho profundo, RDL e hip thrust, e este é o exercício que menos tolera lombar cansada. Entrou no lugar do supino reto — o peito já tem supino inclinado no FB1 (sexta) e flexão explosiva na quarta. Fecha o par unilateral→bilateral do ombro, que era o único padrão sem par no sistema.',
   links:[{t:'Half Kneeling Press (Dan John) — o press começa em 1:10', u:'https://www.youtube.com/watch?v=-YRtKyJ0t90&t=70s'}] },
 
 { id:'ex8', b:'b4', num:'9', name:'Remada com barra', img:'img/v_rqTOAM8WoeM.jpg',
   chips:['4× 6–8'], eq:'descanso 1:30', rest:90,
   cue:'Tronco a <b>~45 graus</b>, puxa pro abdômen.',
   sets:[{t:'S1',k:'br'},{t:'S2',k:'br'},{t:'S3',k:'br'},{t:'S4',k:'br'}],
-  desc:'Tronco ~45 graus, puxa pro abdômen. Variação bilateral da remada unilateral de segunda.',
+  desc:'Tronco ~45 graus, puxa pro abdômen. Variação bilateral da remada unilateral do FB1.',
   links:[{t:'Barbell Bent Over Row (Runna)', u:'https://www.youtube.com/watch?v=rqTOAM8WoeM'}] },
 
 { id:'ex10', b:'b4', num:'10', name:'Rosca inclinada com halteres', img:'img/v_S2cYwsDhpI4.jpg',
